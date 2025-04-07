@@ -22,7 +22,7 @@ workflow:
     - env
     - airs_key
     value: AIRSKEY
-    value_type: string
+    value_type: secret
   - description: ''
     id: 62e38619-13f7-488e-84ca-1382b2d18d97
     name: airs_profilename
