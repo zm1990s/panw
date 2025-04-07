@@ -3,7 +3,7 @@ app:
   icon: 🤖
   icon_background: '#FFEAD5'
   mode: advanced-chat
-  name: PANW-Chatflow测试-via-HTTP节点集成-v2
+  name: PANW-Chatflow测试-via-HTTP节点集成-v2-MattDemo
   use_icon_as_answer_icon: true
 dependencies:
 - current_identifier: null
@@ -14,7 +14,23 @@ kind: app
 version: 0.1.5
 workflow:
   conversation_variables: []
-  environment_variables: []
+  environment_variables:
+  - description: ''
+    id: 4ccaece7-0f7a-4453-8a41-57cf6d5d26f0
+    name: airs_key
+    selector:
+    - env
+    - airs_key
+    value: AIRSKEY
+    value_type: string
+  - description: ''
+    id: 62e38619-13f7-488e-84ca-1382b2d18d97
+    name: airs_profilename
+    selector:
+    - env
+    - airs_profilename
+    value: matt
+    value_type: string
   features:
     file_upload:
       allowed_file_extensions:
@@ -436,8 +452,7 @@ workflow:
           - result
         desc: 此处是AI应用程序调用大模型处理用户合法需求，可以调用本地部署的大模型，不论是Deepseek还是Qwen或LLAMA都可以，也可以用API调用云端的官方大模型，比如Deepseek或是OpenAI等。
         model:
-          completion_params:
-            temperature: 0.7
+          completion_params: {}
           mode: chat
           name: qwen2.5-14b-instruct
           provider: langgenius/tongyi/tongyi
@@ -786,10 +801,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        code: "import requests\nimport json\n\ndef main(input: str) -> dict:\n   \
-          \ token = 'KEY'\n    profile_name\
-          \ = \"matt\"\n    user_input = input\n    ai_model = \"Model\"\n    app_name\
-          \ = \"test\"\n    app_user = \"test\"\n\n    action = \"allow\"  # 默认动作，如果执行过程中遇到异常，为了保障应用的正常运行，默认为\
+        code: "import requests\nimport json\n\ndef main(input: str, token, profile_name)\
+          \ -> dict:\n    token = token\n    profile_name = profile_name\n    user_input\
+          \ = input\n    ai_model = \"Model\"\n    app_name = \"test\"\n    app_user\
+          \ = \"test\"\n\n    action = \"allow\"  # 默认动作，如果执行过程中遇到异常，为了保障应用的正常运行，默认为\
           \ allow，管理员也可以改成默认 block\n\n    # Ensure the URL is correctly formatted\n\
           \    url = \"https://service.api.aisecurity.paloaltonetworks.com/v1/scan/sync/request\"\
           \n    headers = {\"x-pan-token\": token, \"Content-Type\": \"application/json\"\
@@ -825,6 +840,14 @@ workflow:
           - '1740968966565'
           - text
           variable: input
+        - value_selector:
+          - env
+          - airs_key
+          variable: token
+        - value_selector:
+          - env
+          - airs_profilename
+          variable: profile_name
       height: 54
       id: '1741930618670'
       position:
@@ -913,18 +936,18 @@ workflow:
       positionAbsolute:
         x: 903.793990967099
         y: 779.4436178245405
-      selected: true
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom-note
       width: 592
     - data:
-        code: "import requests\nimport json\n\ndef main(input: str) -> dict:\n   \
-          \ token = 'KEY'\n    profile_name\
-          \ = \"matt\"\n    user_input = input\n    ai_model = \"Model\"\n    app_name\
-          \ = \"test\"\n    app_user = \"test\"\n    inputoroutput = \"output\"\n\
-          \    action = \"allow\"  # 默认动作，如果执行过程中遇到异常，为了保障应用的正常运行，默认为 allow，管理员也可以改成默认\
-          \ block\n\n    # Ensure the URL is correctly formatted\n    url = \"https://service.api.aisecurity.paloaltonetworks.com/v1/scan/sync/request\"\
+        code: "import requests\nimport json\n\ndef main(input: str, token, profile_name)\
+          \ -> dict:\n    token = token\n    profile_name = profile_name\n    user_input\
+          \ = input\n    ai_model = \"Model\"\n    app_name = \"test\"\n    app_user\
+          \ = \"test\"\n    inputoroutput = \"output\"\n    action = \"allow\"  #\
+          \ 默认动作，如果执行过程中遇到异常，为了保障应用的正常运行，默认为 allow，管理员也可以改成默认 block\n\n    # Ensure\
+          \ the URL is correctly formatted\n    url = \"https://service.api.aisecurity.paloaltonetworks.com/v1/scan/sync/request\"\
           \n    headers = {\"x-pan-token\": token, \"Content-Type\": \"application/json\"\
           }\n\n    contents = {}\n    if inputoroutput == \"input\":\n        contents[\"\
           prompt\"] = user_input\n    elif inputoroutput == \"output\":\n        contents[\"\
@@ -973,6 +996,14 @@ workflow:
           - '1740968966565'
           - text
           variable: input
+        - value_selector:
+          - env
+          - airs_key
+          variable: token
+        - value_selector:
+          - env
+          - airs_profilename
+          variable: profile_name
       height: 54
       id: '17435590488150'
       position:
@@ -1040,12 +1071,12 @@ workflow:
       type: custom
       width: 244
     - data:
-        code: "import requests\nimport json\n\ndef main(input: str) -> dict:\n   \
-          \ token = 'KEY'\n    profile_name\
-          \ = \"matt\"\n    user_input = input\n    ai_model = \"Model\"\n    app_name\
-          \ = \"test\"\n    app_user = \"test\"\n    inputoroutput = \"input\"\n \
-          \   action = \"allow\"  # 默认动作，如果执行过程中遇到异常，为了保障应用的正常运行，默认为 allow，管理员也可以改成默认\
-          \ block\n\n    # Ensure the URL is correctly formatted\n    url = \"https://service.api.aisecurity.paloaltonetworks.com/v1/scan/sync/request\"\
+        code: "import requests\nimport json\n\ndef main(input: str, token, profile_name)\
+          \ -> dict:\n    token = token\n    profile_name = profile_name\n    user_input\
+          \ = input\n    ai_model = \"Model\"\n    app_name = \"test\"\n    app_user\
+          \ = \"test\"\n    inputoroutput = \"input\"\n    action = \"allow\"  # 默认动作，如果执行过程中遇到异常，为了保障应用的正常运行，默认为\
+          \ allow，管理员也可以改成默认 block\n\n    # Ensure the URL is correctly formatted\n\
+          \    url = \"https://service.api.aisecurity.paloaltonetworks.com/v1/scan/sync/request\"\
           \n    headers = {\"x-pan-token\": token, \"Content-Type\": \"application/json\"\
           }\n\n    contents = {}\n    if inputoroutput == \"input\":\n        contents[\"\
           prompt\"] = user_input\n    elif inputoroutput == \"output\":\n        contents[\"\
@@ -1095,6 +1126,14 @@ workflow:
           - sys
           - query
           variable: input
+        - value_selector:
+          - env
+          - airs_key
+          variable: token
+        - value_selector:
+          - env
+          - airs_profilename
+          variable: profile_name
       height: 54
       id: '1743568471412'
       position:
@@ -1103,7 +1142,7 @@ workflow:
       positionAbsolute:
         x: 1251.7910091076512
         y: 502.56950504174876
-      selected: false
+      selected: true
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -1165,6 +1204,6 @@ workflow:
       type: custom
       width: 244
     viewport:
-      x: -262.69912359426814
-      y: -52.23754666221407
-      zoom: 0.5213163739301824
+      x: -732.4232616509967
+      y: -3.9633233293344574
+      zoom: 0.6644240256888944
