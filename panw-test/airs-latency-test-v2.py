@@ -7,8 +7,11 @@ import os
 import csv
 
 # Global configuration variables
-API_TOKEN = 'YOURTOKEN'
-PROFILE_NAME = 'YOURPROFILE'
+API_TOKEN = 'XXX'
+PROFILE_NAME = 'XXX'
+# 总运行次数以及间隔（Min），如果每10分钟运行一次，24小时总计运行864次
+TOTAL_RUN = 864
+INTERVAL=10
 
 def post_with_retry(url, headers, payload, is_json=True):
     """POST with retry until status_code==200, wait 10s between retries."""
@@ -281,7 +284,7 @@ def main():
     all_results = []
     
     # Set total iterations
-    total_iterations = 500  # Change this as needed
+    total_iterations = TOTAL_RUN  # Change this as needed
     
     # Run tests
     iteration = 1
@@ -309,7 +312,7 @@ def main():
         
         # Calculate time to sleep until next minute
         if iteration < total_iterations:  # Only sleep if more iterations to go
-            next_run_time = datetime.datetime.now() + datetime.timedelta(minutes=1)
+            next_run_time = datetime.datetime.now() + datetime.timedelta(minutes=INTERVAL)
             seconds_to_sleep = (next_run_time - datetime.datetime.now()).total_seconds()
             if seconds_to_sleep > 0:
                 time.sleep(seconds_to_sleep)
