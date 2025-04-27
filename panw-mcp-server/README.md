@@ -124,6 +124,8 @@ https://github.com/zm1990s/panw/tree/main/panw-mcp-server
 
 ### 本地启动 SSE 版本
 
+目前有两个版本的 python 文件，如果使用 v2，则会从 http 请求中直接获取 key，无需设置环境变量，详见在 Dify 中调用 3。
+
 1. 设置环境变量
 
 ```bash
@@ -248,6 +250,36 @@ Dify 1.x 中，也可以在工作流的 Agent 中调用：
 <img src="img/6.png" alt="alt text" style="zoom:50%;" />
 
 <img src="img/8.png" alt="alt text" style="zoom:50%;" />
+
+### 在 Dify 中调用 3
+
+如果使用 v2-url 的 SSE，可以通过下列方式访问，SSE 服务启动时不在需要环境变量：
+
+```json
+{
+    "PANW-AI-Security": {
+        "url": "http://10.10.50.144:8080/sse?key=CyGQbXXXX&profilename=XXXX"
+    }
+}
+```
+
+如果使用 v2-header 的 SSE，可以通过下列方式访问，SSE 服务启动时不在需要环境变量：
+
+```json
+{
+    "PANW-AI-Security": {
+        "url": "http://10.10.50.144:8080/sse",
+        "headers": {
+            "airs_api_key": "CyGQXXXX",
+            "airs_ai_profile_name": "XXXX"
+        }
+    }
+}
+```
+
+
+
+
 
 ## 🛠 工具功能
 
