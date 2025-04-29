@@ -1,7 +1,9 @@
+import os
 from collections.abc import Generator
 from typing import Any
 
 import requests
+
 from mcp.server.fastmcp import FastMCP
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -11,9 +13,8 @@ from mcp.server import Server
 import uvicorn
 
 AIRS_API_URL = "https://service.api.aisecurity.paloaltonetworks.com/v1/scan/sync/request"
-# 这些会话变量在 handle_sse 中动态设置
-AIRS_API_KEY: str
-AIRS_PROFILENAME: str
+AIRS_PROFILENAME = os.getenv("AIRS_PROFILENAME")
+AIRS_API_KEY = os.getenv("AIRS_API_KEY")
 PORT=8080
 # 初始化 FastMCP
 mcp = FastMCP("PANW-AI-Security")
@@ -74,11 +75,6 @@ def create_starlette_app(mcp_server: Server, *, debug: bool = False) -> Starlett
     sse = SseServerTransport("/messages/")
 
     async def handle_sse(request: Request) -> None:
-        # 从 HTTP Header 获取 key 和 profilename 并写入全局变量
-        global AIRS_API_KEY, AIRS_PROFILENAME
-        AIRS_API_KEY = request.headers.get("airs_api_key", "")
-        AIRS_PROFILENAME = request.headers.get("airs_ai_profile_name", "")
-
         async with sse.connect_sse(
                 request.scope,
                 request.receive,

@@ -4,7 +4,7 @@ FROM python:3-alpine
 WORKDIR /app
 
 # Copy the necessary files
-COPY pyproject.toml src/panw_airs_mcp_sse.py ./
+COPY src/panw_airs_mcp_sse.py ./
 
 # Install the project's dependencies
 RUN pip3 install mcp httpx requests tabulate -i https://pypi.tuna.tsinghua.edu.cn/simple
