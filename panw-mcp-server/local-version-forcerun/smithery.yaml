@@ -1,0 +1,23 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required: []
+    properties:
+      AIRS_Profile_Name:
+        type: string
+        description: Palo Alto Networks AI Runtime Security Profile Name
+      AIRS_API_Key:
+        type: string
+        description: API key for Palo Alto Networks AI Runtime Security service
+    description: Configuration for PANW AI Security MCP server
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({command: 'python', args: ['-u', 'src/panw_airs_mcp_local.py'], env: {...(config.AIRS_API_Key ? {AIRS_API_KEY: config.AIRS_API_Key} : {}), ...(config.AIRS_Profile_Name ? {AIRS_PROFILENAME: config.AIRS_Profile_Name} : {})}})
+  exampleConfig:
+    AIRS_Profile_Name: default_profile
+    AIRS_API_Key: your_api_key_here
