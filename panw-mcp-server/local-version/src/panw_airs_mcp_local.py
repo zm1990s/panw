@@ -72,45 +72,6 @@ def scan_with_airs_api(tool_parameters: dict[str, Any]) -> dict[str, Any]:
         "full_response": valuable_res
     }
 
-@mcp.tool()
-def configure_airs_api(api_key: str = None, profile_name: str = None) -> dict[str, str]:
-    """
-    Configure API key and profile name for the Palo Alto Networks AI Security API.
-    
-    Args:
-        api_key: API key for authentication
-        profile_name: Profile name to use for AI Security checks
-        
-    Returns:
-        Configuration status
-    """
-    global AIRS_API_KEY, AIRS_PROFILENAME
-    
-    if api_key:
-        AIRS_API_KEY = api_key
-    
-    if profile_name:
-        AIRS_PROFILENAME = profile_name
-        
-    return {
-        "status": "success",
-        "message": "AI Security API configuration updated",
-        "current_profile": AIRS_PROFILENAME
-    }
-
-@mcp.tool()
-def get_airs_api_config() -> dict[str, str]:
-    """
-    Get current configuration for the Palo Alto Networks AI Security API.
-    
-    Returns:
-        Current configuration
-    """
-    return {
-        "api_url": AIRS_API_URL,
-        "profile_name": AIRS_PROFILENAME,
-        "api_key": AIRS_API_KEY[:5] + "..." if AIRS_API_KEY else None
-    }
 
 if __name__ == "__main__":
     print(f"Starting PANW AI Security MCP server")
