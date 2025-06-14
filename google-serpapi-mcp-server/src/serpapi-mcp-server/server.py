@@ -21,16 +21,14 @@ async def search(params: Dict[str, Any] = {}) -> str:
     """Perform a search on the specified engine using SerpApi.
     Args:
         params: 包含以下参数:
-            - q: 需要查询的问题，比如 Coffee
-            - engine: 默认为 google_light
-            - location: 地理位置，比如 Austin, TX
+            - q: 需要查询的问题，比如 What is Coffee
     Returns:
         A formatted string of search results or an error message.
     """
 
     params = {
         "api_key": API_KEY,
-        "engine": "google_light", # Fastest engine by default
+        "engine": "google", # Fastest engine by default
         **params  # Include any additional parameters
     }
 
