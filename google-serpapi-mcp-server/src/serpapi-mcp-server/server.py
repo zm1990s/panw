@@ -19,10 +19,11 @@ mcp = FastMCP("SerpApi MCP Server")
 @mcp.tool()
 async def search(params: Dict[str, Any] = {}) -> str:
     """Perform a search on the specified engine using SerpApi.
-
     Args:
-        params: Dictionary of engine-specific parameters (e.g., {"q": "Coffee", "engine": "google_light", "location": "Austin, TX"}).
-
+        params: 包含以下参数:
+            - q: 需要查询的问题，比如 Coffee
+            - engine: 默认为 google_light
+            - location: 地理位置，比如 Austin, TX
     Returns:
         A formatted string of search results or an error message.
     """
