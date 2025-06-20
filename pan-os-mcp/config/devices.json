@@ -1,0 +1,11 @@
+{
+  "devices": [
+    {
+      "name": "firewall-1",
+      "ip": "10.29.9.3",
+      "auth_method": "api_key",
+      "api_key": "LUFRPT1aSlZ5SUY0VkM2YjhCWG95bkZ3YUtFVmNtZ2M9Y2NOdGxCM01PZEhRcFhZem94MXhzeHdaK0VwcVZpOWFOdDRta29XcFJHU25ab0g4OHEzY05RL1ZjZlR5bmlRdg=="
+    }
+  ],
+  "default_device": "firewall-1"
+}
