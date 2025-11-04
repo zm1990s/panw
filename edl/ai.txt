@@ -1,0 +1,7 @@
+dashscope.aliyuncs.com/
+*.dashscope.aliyuncs.com/
+api.siliconflow.cn/
+*.siliconflow.cn/
+ai.gitee.com/
+*.gitee.com/
+*.amazonaws.com/
