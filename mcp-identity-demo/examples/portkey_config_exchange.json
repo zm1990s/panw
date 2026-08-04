@@ -1,0 +1,13 @@
+{
+  "jwt_validation": {
+    "jwksUri": "https://YOUR_TENANT.auth0.com/.well-known/jwks.json",
+    "requiredClaims": [
+      "sub"
+    ],
+    "issuer": "https://YOUR_TENANT.auth0.com/",
+    "audience": "https://mcp-identity-demo/"
+  },
+  "forward_headers": [
+    "Authorization"
+  ]
+}

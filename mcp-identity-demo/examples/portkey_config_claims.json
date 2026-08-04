@@ -1,0 +1,7 @@
+{
+  "user_identity_forwarding": {
+    "method": "claims_header",
+    "include_claims": ["sub", "email", "workspace_id", "organisation_id", "username"],
+    "header_name": "X-User-Claims"
+  }
+}
