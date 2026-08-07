@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Agent Identity Demo - Layered</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 { color: #333; margin-bottom: 20px; font-size: 26px; }
+        .subtitle { color: #666; margin-bottom: 30px; line-height: 1.6; }
+        .layers {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+        .layer {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .layer.l1 { background: #e3f2fd; border-color: #2196f3; }
+        .layer.l2 { background: #e8f5e9; border-color: #4caf50; }
+        .layer.l3 { background: #fff3e0; border-color: #ff9800; }
+        .layer.l4 { background: #fce4ec; border-color: #e91e63; }
+        .layer-title { font-weight: bold; color: #333; }
+        .layer-desc { color: #666; margin-top: 4px; }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 14px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .btn:hover { background: #5a6fd6; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Agent Identity Demo</h1>
+        <p class="subtitle">分层身份验证架构演示</p>
+
+        <div class="layers">
+            <div class="layer l1">
+                <div class="layer-title">Layer 1: Agent Web</div>
+                <div class="layer-desc">Auth0 登录 → 持有用户 JWT</div>
+            </div>
+            <div class="layer l2">
+                <div class="layer-title">Layer 2: Portkey Gateway</div>
+                <div class="layer-desc">验证 API Key + 记录用户(x-portkey-user-id) + 转发身份(X-User-Claims)</div>
+            </div>
+            <div class="layer l3">
+                <div class="layer-title">Layer 3: MCP Server</div>
+                <div class="layer-desc">验证客户端来源 + 读取身份头 + 转发给 API</div>
+            </div>
+            <div class="layer l4">
+                <div class="layer-title">Layer 4: Business API</div>
+                <div class="layer-desc">通过 Auth0 JWKS 验证 JWT + 执行业务逻辑</div>
+            </div>
+        </div>
+
+        <a href="/login" class="btn">🔐 使用 Auth0 登录</a>
+    </div>
+</body>
+</html>
