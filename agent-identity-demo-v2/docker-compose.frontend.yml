@@ -1,0 +1,21 @@
+version: "3.8"
+
+# 前端部署：agent-web
+# 使用 .env.frontend 配置环境变量
+
+services:
+  agent-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    ports:
+      - "3000:3000"
+    env_file: .env.frontend
+    environment:
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped

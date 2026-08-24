@@ -39,22 +39,47 @@ async def log_request_headers(request: Request, call_next):
         logger.info(f"   X-Forwarded-User:   {h.get('x-forwarded-user', '❌ missing')}")
     return await call_next(request)
 
-AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", "")
-AUTH0_AUDIENCE = os.environ.get("AUTH0_AUDIENCE", "")
-JWKS_URL = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+OIDC_DOMAIN = os.environ.get("OIDC_DOMAIN", "")
+OIDC_AUDIENCE = os.environ.get("OIDC_AUDIENCE", "")
 INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "")
+
+def _base_url(domain: str) -> str:
+    if domain.startswith("http://") or domain.startswith("https://"):
+        return domain.rstrip("/")
+    return f"https://{domain}"
+
+OIDC_DISCOVERY_URL = os.environ.get(
+    "OIDC_DISCOVERY_URL",
+    f"{_base_url(OIDC_DOMAIN)}/.well-known/openid-configuration" if OIDC_DOMAIN else "",
+)
+
+_oidc_config: Optional[dict] = None
+_oidc_config_ts: float = 0.0
+_OIDC_TTL = 3600.0
 
 _jwks_cache: Optional[dict] = None
 _jwks_cache_ts: float = 0.0
-_JWKS_TTL = 3600.0
+
+
+async def get_oidc_config() -> dict:
+    global _oidc_config, _oidc_config_ts
+    if _oidc_config is not None and (time.time() - _oidc_config_ts) < _OIDC_TTL:
+        return _oidc_config
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(OIDC_DISCOVERY_URL, timeout=10)
+        resp.raise_for_status()
+        _oidc_config = resp.json()
+        _oidc_config_ts = time.time()
+        return _oidc_config
 
 
 async def get_jwks() -> dict:
     global _jwks_cache, _jwks_cache_ts
-    if _jwks_cache is not None and (time.time() - _jwks_cache_ts) < _JWKS_TTL:
+    if _jwks_cache is not None and (time.time() - _jwks_cache_ts) < _OIDC_TTL:
         return _jwks_cache
+    oidc = await get_oidc_config()
     async with httpx.AsyncClient() as client:
-        resp = await client.get(JWKS_URL, timeout=10)
+        resp = await client.get(oidc["jwks_uri"], timeout=10)
         resp.raise_for_status()
         _jwks_cache = resp.json()
         _jwks_cache_ts = time.time()
@@ -65,6 +90,7 @@ async def verify_auth0_token(token: str) -> dict:
     if not token:
         raise HTTPException(status_code=401, detail="Missing token")
     try:
+        oidc = await get_oidc_config()
         jwks = await get_jwks()
         kid = jwt.get_unverified_header(token).get("kid")
         rsa_key = None
@@ -74,11 +100,10 @@ async def verify_auth0_token(token: str) -> dict:
                 break
         if not rsa_key:
             raise HTTPException(status_code=401, detail="Invalid token key")
-        payload = jwt.decode(
-            token, rsa_key, algorithms=["RS256"],
-            audience=AUTH0_AUDIENCE,
-            issuer=f"https://{AUTH0_DOMAIN}/",
-        )
+        decode_kwargs = {"algorithms": ["RS256"], "issuer": oidc["issuer"]}
+        if OIDC_AUDIENCE:
+            decode_kwargs["audience"] = OIDC_AUDIENCE
+        payload = jwt.decode(token, rsa_key, **decode_kwargs)
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
@@ -206,7 +231,7 @@ def get_role(user: dict) -> str:
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "business-api", "auth0": AUTH0_DOMAIN}
+    return {"status": "ok", "service": "business-api", "oidc_discovery": OIDC_DISCOVERY_URL, "oidc_domain": OIDC_DOMAIN}
 
 
 @app.get("/api/user/me")
@@ -326,6 +351,7 @@ async def tool_get_profile(
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 启动 Business API (Auth0) on http://localhost:8080")
-    print(f"   Auth0: {AUTH0_DOMAIN}")
+    print("🚀 启动 Business API on http://localhost:8080")
+    print(f"   OIDC Domain:    {OIDC_DOMAIN}")
+    print(f"   OIDC Discovery: {OIDC_DISCOVERY_URL}")
     uvicorn.run(app, host="0.0.0.0", port=8080)

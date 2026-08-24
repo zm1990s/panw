@@ -67,7 +67,7 @@
         <div class="layers">
             <div class="layer l1">
                 <div class="layer-title">Layer 1: Agent Web</div>
-                <div class="layer-desc">Auth0 登录 → 持有用户 JWT</div>
+                <div class="layer-desc">SSO 登录 → 持有用户 JWT</div>
             </div>
             <div class="layer l2">
                 <div class="layer-title">Layer 2: Portkey Gateway</div>
@@ -79,11 +79,11 @@
             </div>
             <div class="layer l4">
                 <div class="layer-title">Layer 4: Business API</div>
-                <div class="layer-desc">通过 Auth0 JWKS 验证 JWT + 执行业务逻辑</div>
+                <div class="layer-desc">通过 SSO JWKS 验证 JWT + 执行业务逻辑</div>
             </div>
         </div>
 
-        <a href="/login" class="btn">🔐 使用 Auth0 登录</a>
+        <a href="/login" class="btn">🔐 使用 SSO 登录</a>
     </div>
 </body>
 </html>

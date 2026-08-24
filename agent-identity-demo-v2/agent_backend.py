@@ -19,8 +19,10 @@ from typing import Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("agent-backend")
 
+import time
+
 import httpx
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Form, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -33,11 +35,37 @@ PORTKEY_MCP_URL = os.environ.get("PORTKEY_MCP_URL", "")
 PORTKEY_LLM_URL = os.environ.get("PORTKEY_LLM_URL", "")
 PORTKEY_LLM_MODEL = os.environ.get("PORTKEY_LLM_MODEL", "@aws/moonshotai.kimi-k2.5")
 
-AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", "")
-AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID", "")
-AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET", "")
-AUTH0_AUDIENCE = os.environ.get("AUTH0_AUDIENCE", "")
-AUTH0_CALLBACK_URL = os.environ.get("AUTH0_CALLBACK_URL", "http://localhost:3000/callback")
+OIDC_DOMAIN = os.environ.get("OIDC_DOMAIN", "")
+OIDC_CLIENT_ID = os.environ.get("OIDC_CLIENT_ID", "")
+OIDC_CLIENT_SECRET = os.environ.get("OIDC_CLIENT_SECRET", "")
+OIDC_AUDIENCE = os.environ.get("OIDC_AUDIENCE", "")
+OIDC_CALLBACK_URL = os.environ.get("OIDC_CALLBACK_URL", "http://localhost:3000/callback")
+
+def _base_url(domain: str) -> str:
+    if domain.startswith("http://") or domain.startswith("https://"):
+        return domain.rstrip("/")
+    return f"https://{domain}"
+
+OIDC_DISCOVERY_URL = os.environ.get(
+    "OIDC_DISCOVERY_URL",
+    f"{_base_url(OIDC_DOMAIN)}/.well-known/openid-configuration" if OIDC_DOMAIN else "",
+)
+
+_oidc_config: Optional[dict] = None
+_oidc_ts: float = 0.0
+_OIDC_TTL = 3600.0
+
+
+async def get_oidc_config() -> dict:
+    global _oidc_config, _oidc_ts
+    if _oidc_config is not None and (time.time() - _oidc_ts) < _OIDC_TTL:
+        return _oidc_config
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(OIDC_DISCOVERY_URL, timeout=10)
+        resp.raise_for_status()
+        _oidc_config = resp.json()
+        _oidc_ts = time.time()
+        return _oidc_config
 
 user_sessions: dict = {}
 
@@ -221,37 +249,41 @@ async def home(request: Request):
 
 @app.get("/login")
 async def login():
+    oidc = await get_oidc_config()
     auth_url = (
-        f"https://{AUTH0_DOMAIN}/authorize"
+        f"{oidc['authorization_endpoint']}"
         f"?response_type=code"
-        f"&client_id={AUTH0_CLIENT_ID}"
-        f"&redirect_uri={AUTH0_CALLBACK_URL}"
+        f"&client_id={OIDC_CLIENT_ID}"
+        f"&redirect_uri={OIDC_CALLBACK_URL}"
         f"&scope=openid profile email"
-        f"&audience={AUTH0_AUDIENCE}"
+        + (f"&audience={OIDC_AUDIENCE}" if OIDC_AUDIENCE else "")
     )
     return RedirectResponse(url=auth_url)
 
 
-@app.get("/callback")
-async def callback(request: Request, code: str):
+async def _handle_callback(code: str) -> RedirectResponse:
+    oidc = await get_oidc_config()
     async with httpx.AsyncClient() as client:
         resp = await client.post(
-            f"https://{AUTH0_DOMAIN}/oauth/token",
-            json={
+            oidc["token_endpoint"],
+            data={
                 "grant_type": "authorization_code",
-                "client_id": AUTH0_CLIENT_ID,
-                "client_secret": AUTH0_CLIENT_SECRET,
+                "client_id": OIDC_CLIENT_ID,
+                "client_secret": OIDC_CLIENT_SECRET,
                 "code": code,
-                "redirect_uri": AUTH0_CALLBACK_URL,
+                "redirect_uri": OIDC_CALLBACK_URL,
             },
         )
         if resp.status_code != 200:
-            raise HTTPException(status_code=400, detail="Auth0 token exchange failed")
+            logger.error(f"Token exchange failed: {resp.status_code} {resp.text}")
+            raise HTTPException(status_code=400, detail=f"OIDC token exchange failed: {resp.text}")
         token_data = resp.json()
-        access_token = token_data["access_token"]
+        access_token = token_data.get("access_token") or token_data.get("id_token")
+        if not access_token:
+            raise HTTPException(status_code=400, detail="No access_token in OIDC response")
 
         user_resp = await client.get(
-            f"https://{AUTH0_DOMAIN}/userinfo",
+            oidc["userinfo_endpoint"],
             headers={"Authorization": f"Bearer {access_token}"},
         )
         user_info = user_resp.json()
@@ -266,6 +298,39 @@ async def callback(request: Request, code: str):
     response = RedirectResponse(url="/agent")
     response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="lax")
     return response
+
+
+@app.get("/callback")
+async def callback_get(
+    request: Request,
+    code: Optional[str] = None,
+    error: Optional[str] = None,
+    error_description: Optional[str] = None,
+):
+    if error:
+        logger.error(f"OIDC callback error: {error} — {error_description}")
+        raise HTTPException(status_code=400, detail=f"OIDC error: {error}: {error_description}")
+    if not code:
+        logger.error(f"OIDC callback: missing code. Params: {dict(request.query_params)}")
+        raise HTTPException(status_code=400, detail="Missing authorization code in callback")
+    return await _handle_callback(code)
+
+
+@app.post("/callback")
+async def callback_post(
+    request: Request,
+    code: Optional[str] = Form(default=None),
+    error: Optional[str] = Form(default=None),
+    error_description: Optional[str] = Form(default=None),
+):
+    if error:
+        logger.error(f"OIDC callback error (POST): {error} — {error_description}")
+        raise HTTPException(status_code=400, detail=f"OIDC error: {error}: {error_description}")
+    if not code:
+        body = await request.body()
+        logger.error(f"OIDC callback POST: missing code. Body: {body}")
+        raise HTTPException(status_code=400, detail="Missing authorization code in callback")
+    return await _handle_callback(code)
 
 
 @app.get("/agent", response_class=HTMLResponse)
@@ -346,8 +411,9 @@ async def logout(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 启动 Agent (Auth0 + Portkey)")
-    print(f"   Auth0: {AUTH0_DOMAIN}")
+    print("🚀 启动 Agent (OIDC + Portkey)")
+    print(f"   OIDC Domain:    {OIDC_DOMAIN}")
+    print(f"   OIDC Discovery: {OIDC_DISCOVERY_URL}")
     print(f"   Portkey MCP: {PORTKEY_MCP_URL}")
     print(f"   Portkey LLM: {PORTKEY_LLM_URL} ({PORTKEY_LLM_MODEL})")
     uvicorn.run(app, host="0.0.0.0", port=3000)
