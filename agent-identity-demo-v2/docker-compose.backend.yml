@@ -30,6 +30,7 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - API_BASE_URL=http://api-service:8080
+      - REQUIRE_PORTKEY_CLAIMS=${REQUIRE_PORTKEY_CLAIMS:-true}
     depends_on:
       api-service:
         condition: service_healthy

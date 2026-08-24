@@ -29,6 +29,8 @@ logger = logging.getLogger("mcp-server")
 # ── 配置 ──────────────────────────────────────────────────────────────────────
 API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:8080")
 INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "")
+# 设为 "false" / "0" / "no" 可跳过 X-User-Claims 来源校验（直连调试用）
+REQUIRE_PORTKEY_CLAIMS = os.environ.get("REQUIRE_PORTKEY_CLAIMS", "true").lower() not in ("false", "0", "no")
 
 # ── Headers ContextVar（每个 server.run 协程独立，无竞态）──────────────────────
 request_headers_var: contextvars.ContextVar[dict] = contextvars.ContextVar(
@@ -75,14 +77,16 @@ def verify_client(headers: dict) -> dict:
     """
     验证请求来自 Portkey Gateway：
     Portkey 在转发前会解析 JWT 并注入 X-User-Claims，
-    没有该 header 说明请求绕过了 Portkey，直接拒绝。
+    没有该 header 说明请求绕过了 Portkey。
+    REQUIRE_PORTKEY_CLAIMS=false 时降级为警告，不拦截请求。
     """
     result = {"verified": True, "warnings": []}
     user_claims = headers.get("x-user-claims", "") or headers.get("X-User-Claims", "")
     result["portkey_user"] = headers.get("x-portkey-user-id", "")
     if not user_claims:
         result["warnings"].append("X-User-Claims missing — request did not come through Portkey Gateway")
-        result["verified"] = False
+        if REQUIRE_PORTKEY_CLAIMS:
+            result["verified"] = False
     return result
 
 
@@ -264,4 +268,5 @@ if __name__ == "__main__":
     logger.info("🚀 启动 MCP Server (Streamable HTTP) on http://localhost:8000")
     logger.info(f"   上游 API: {API_BASE_URL}")
     logger.info("   MCP 端点: http://localhost:8000/mcp")
+    logger.info(f"   X-User-Claims 校验: {'开启' if REQUIRE_PORTKEY_CLAIMS else '⚠️  已关闭 (REQUIRE_PORTKEY_CLAIMS=false)'}")
     uvicorn.run(app, host="0.0.0.0", port=8000)

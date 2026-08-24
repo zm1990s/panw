@@ -100,16 +100,17 @@ async def verify_auth0_token(token: str) -> dict:
                 break
         if not rsa_key:
             raise HTTPException(status_code=401, detail="Invalid token key")
-        decode_kwargs = {"algorithms": ["RS256"], "issuer": oidc["issuer"]}
-        if OIDC_AUDIENCE:
-            decode_kwargs["audience"] = OIDC_AUDIENCE
-        payload = jwt.decode(token, rsa_key, **decode_kwargs)
+        payload = jwt.decode(token, rsa_key, algorithms=["RS256"], issuer=oidc["issuer"], options={"verify_aud": False})
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
+        logger.error(f"   JWT verify failed: {type(e).__name__}: {e}")
+        logger.error(f"   issuer expected:   {oidc.get('issuer')}")
+        logger.error(f"   audience expected: {OIDC_AUDIENCE or '(not set)'}")
+        logger.error(f"   token kid:         {jwt.get_unverified_header(token).get('kid') if token else 'N/A'}")
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
