@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Agent - Identity Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 20px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: white; color: #667eea; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .logout-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .main { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+
+        .layers-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .layer-box { padding: 12px; border-radius: 10px; text-align: center; font-size: 11px; }
+        .layer-box.l1 { background: #e3f2fd; border: 2px solid #2196f3; }
+        .layer-box.l2 { background: #e8f5e9; border: 2px solid #4caf50; }
+        .layer-box.l3 { background: #fff3e0; border: 2px solid #ff9800; }
+        .layer-box.l4 { background: #fce4ec; border: 2px solid #e91e63; }
+        .layer-box .title { font-weight: bold; margin-bottom: 4px; font-size: 12px; }
+        .layer-box .status { color: #666; }
+
+        .identity-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .identity-card h3 { color: #333; margin-bottom: 12px; font-size: 16px; }
+        .identity-field { display: flex; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .identity-field label { width: 160px; color: #888; font-size: 14px; }
+        .identity-field span { color: #333; font-family: monospace; font-size: 13px; }
+
+        .chat-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .chat-messages { max-height: 520px; overflow-y: auto; margin-bottom: 20px; }
+        .message { margin: 12px 0; padding: 12px 16px; border-radius: 12px; max-width: 85%; }
+        .message.user { background: #667eea; color: white; margin-left: auto; white-space: pre-wrap; word-break: break-word; }
+        .message.agent { background: #f0f0f0; color: #333; }
+        .message.system { background: #e8f5e9; color: #2e7d32; font-size: 13px; }
+
+        .message.agent p { margin: 0.4em 0; line-height: 1.6; }
+        .message.agent p:first-child { margin-top: 0; }
+        .message.agent p:last-child { margin-bottom: 0; }
+        .message.agent h1,.message.agent h2,.message.agent h3 { margin: 0.8em 0 0.3em; font-weight: 600; }
+        .message.agent h1 { font-size: 1.2em; }
+        .message.agent h2 { font-size: 1.1em; }
+        .message.agent h3 { font-size: 1em; }
+        .message.agent ul,.message.agent ol { padding-left: 1.4em; margin: 0.4em 0; }
+        .message.agent li { margin: 0.2em 0; line-height: 1.5; }
+        .message.agent code { background: #e0e0e0; border-radius: 3px; padding: 0.1em 0.35em; font-family: 'SF Mono', Consolas, monospace; font-size: 0.85em; }
+        .message.agent pre { background: #1e1e2e; border-radius: 8px; padding: 12px 14px; overflow-x: auto; margin: 0.6em 0; }
+        .message.agent pre code { background: none; padding: 0; color: #cdd6f4; font-size: 0.82em; white-space: pre; }
+        .message.agent blockquote { border-left: 3px solid #667eea; margin: 0.5em 0; padding: 4px 12px; color: #555; }
+        .message.agent table { border-collapse: collapse; margin: 0.6em 0; font-size: 0.9em; width: 100%; }
+        .message.agent th,.message.agent td { border: 1px solid #d0d0d0; padding: 5px 10px; text-align: left; }
+        .message.agent th { background: #e8e8e8; font-weight: 600; }
+        .message.agent strong { font-weight: 600; }
+        .message.agent em { font-style: italic; }
+        .message.agent a { color: #667eea; text-decoration: none; }
+        .message.agent hr { border: none; border-top: 1px solid #ddd; margin: 0.8em 0; }
+
+        .input-area { display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 16px; }
+        .input-area input { flex: 1; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 24px; font-size: 15px; outline: none; }
+        .input-area input:focus { border-color: #667eea; }
+        .input-area button { background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 24px; cursor: pointer; font-weight: bold; }
+        .tool-result {
+            background: #1e1e2e;
+            border-left: 4px solid #667eea;
+            padding: 10px 14px;
+            margin: 8px 0;
+            border-radius: 0 8px 8px 0;
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 12px;
+            color: #cdd6f4;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        .tool-result-label { color: #89b4fa; font-size: 11px; margin-bottom: 6px; font-family: -apple-system, sans-serif; }
+        .loading { display: none; color: #667eea; text-align: center; padding: 20px; }
+        .hint { color: #888; font-size: 13px; margin-top: 8px; }
+
+        .quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .quick-btn {
+            display: flex; flex-direction: column;
+            background: #f5f7ff; border: 1.5px solid #c5ceff;
+            border-radius: 10px; padding: 8px 14px;
+            cursor: pointer; text-align: left;
+            transition: background 0.15s, border-color 0.15s;
+            min-width: 130px;
+        }
+        .quick-btn:hover { background: #eaedff; border-color: #667eea; }
+        .quick-btn .qb-label { font-size: 13px; font-weight: 600; color: #333; }
+        .quick-btn .qb-tool  { font-size: 11px; color: #888; margin-top: 2px; font-family: 'SF Mono', Consolas, monospace; }
+        .quick-btn .qb-desc  { font-size: 11px; color: #999; margin-top: 2px; }
+
+        .consent-card {
+            display: none;
+            background: #fff8e1;
+            border: 2px solid #ff9800;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            color: #e65100;
+        }
+        .consent-card .cc-title { font-weight: bold; font-size: 14px; margin-bottom: 6px; }
+        .consent-card .cc-msg   { font-size: 13px; margin-bottom: 12px; color: #5d4037; }
+        .consent-card .cc-btn   {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .consent-card .cc-btn:hover { background: #e65100; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Agent Identity Demo</h1>
+        <div class="user-info">
+            <div class="user-avatar">{{ user.name[0] if user.name else 'U' }}</div>
+            <span>{{ user.email or user.name or 'User' }}</span>
+            <form method="post" action="/api/logout" style="display:inline;margin:0">
+                <button type="submit" class="logout-btn">退出</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="layers-visual">
+            <div class="layer-box l1">
+                <div class="title">Layer 1</div>
+                <div class="status">IdP</div>
+            </div>
+            <div class="layer-box l2">
+                <div class="title">Layer 2</div>
+                <div class="status">AI Gateway</div>
+            </div>
+            <div class="layer-box l3">
+                <div class="title">Layer 3</div>
+                <div class="status">MCP</div>
+            </div>
+            <div class="layer-box l4">
+                <div class="title">Layer 4</div>
+                <div class="status">API</div>
+            </div>
+        </div>
+
+        <div class="identity-card">
+            <h3>👤 身份信息</h3>
+            <div class="identity-field"><label>IdP Sub:</label><span>{{ user.sub or 'N/A' }}</span></div>
+            <div class="identity-field"><label>Email:</label><span>{{ user.email or 'N/A' }}</span></div>
+            <div class="identity-field"><label>Session:</label><span>{{ session_id[:8] }}...</span></div>
+        </div>
+
+        <div class="chat-container">
+            <h3 style="margin-bottom: 12px;">💬 与 Agent 对话</h3>
+
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="quickSend('查询我的身份信息')">
+                    <span class="qb-label">👤 Who am I</span>
+                    <span class="qb-tool">→ get_user_identity</span>
+                    <span class="qb-desc">查询当前登录用户的身份</span>
+                </button>
+                <button class="quick-btn" onclick="quickSend('列出我可以访问的资源')">
+                    <span class="qb-label">📂 我的资源</span>
+                    <span class="qb-tool">→ list_accessible_resources</span>
+                    <span class="qb-desc">列出当前用户有权访问的资源</span>
+                </button>
+                <button class="quick-btn" onclick="quickSend('获取我的用户 Profile')">
+                    <span class="qb-label">🪪 我的 Profile</span>
+                    <span class="qb-tool">→ get_user_profile</span>
+                    <span class="qb-desc">查询用户档案与角色信息</span>
+                </button>
+                <button class="quick-btn" onclick="quickSend('把我的用户名改成 Superman')">
+                    <span class="qb-label">✏️ 改名测试</span>
+                    <span class="qb-tool">→ update_username</span>
+                    <span class="qb-desc">高危操作，需重新认证才可执行</span>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    ✅ 已登录！身份链：IdP (用户) → AI Gateway (审计) → MCP (协议) → API (业务)<br>
+                    试试发送："who am i"、"echo hello"、"list resources"、"my profile"
+                </div>
+            </div>
+            <div class="loading" id="loading">🔄 调用中...</div>
+
+            <div class="consent-card" id="consentCard">
+                <div class="cc-title">🔐 高危操作需要重新确认身份</div>
+                <div class="cc-msg" id="consentMsg"></div>
+                <a href="#" id="consentAuthLink" class="cc-btn">重新认证并继续</a>
+            </div>
+
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button onclick="sendMessage()">发送</button>
+            </div>
+            <div class="hint">
+                💡 "who am i" / "echo [msg]" / "list resources" / "my profile"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sessionId = "{{ session_id }}";
+
+        marked.use({ gfm: true, breaks: true, mangle: false, headerIds: false });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function quickSend(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        function renderToolsUsed(toolsUsed, container) {
+            if (!toolsUsed || toolsUsed.length === 0) return;
+            toolsUsed.forEach(tool => {
+                const block = document.createElement('div');
+                block.className = 'tool-result';
+                if (tool.error) {
+                    block.style.borderColor = '#e74c3c';
+                    block.innerHTML = `<div class="tool-result-label">❌ 工具错误: ${escapeHtml(tool.tool || '')}</div>${escapeHtml(tool.error)}`;
+                } else {
+                    const output = typeof tool.output === 'string' ? tool.output : JSON.stringify(tool.output, null, 2);
+                    block.innerHTML = `<div class="tool-result-label">🔧 ${escapeHtml(tool.tool || 'tool')}</div>${escapeHtml(output)}`;
+                }
+                container.appendChild(block);
+            });
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const container = document.getElementById('chatMessages');
+            const loading = document.getElementById('loading');
+            const consentCard = document.getElementById('consentCard');
+            const message = input.value.trim();
+            if (!message) return;
+
+            consentCard.style.display = 'none';
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user';
+            userDiv.textContent = message;
+            container.appendChild(userDiv);
+
+            input.value = '';
+            loading.style.display = 'block';
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const resp = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, session_id: sessionId })
+                });
+                const data = await resp.json();
+
+                if (data.type === 'consent_required') {
+                    document.getElementById('consentMsg').textContent = data.message;
+                    document.getElementById('consentAuthLink').href = data.auth_url;
+                    consentCard.style.display = 'block';
+                    loading.style.display = 'none';
+                    container.scrollTop = container.scrollHeight;
+                    return;
+                }
+
+                const agentDiv = document.createElement('div');
+                agentDiv.className = 'message agent';
+                agentDiv.innerHTML = marked.parse(data.response || '');
+                container.appendChild(agentDiv);
+
+                renderToolsUsed(data.tools_used, container);
+            } catch (e) {
+                const errDiv = document.createElement('div');
+                errDiv.className = 'message agent';
+                errDiv.style.cssText = 'background:#ffebee;color:#c62828';
+                errDiv.textContent = `Error: ${e.message}`;
+                container.appendChild(errDiv);
+            }
+
+            loading.style.display = 'none';
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.addEventListener('load', async () => {
+            if (new URLSearchParams(window.location.search).get('resumed') !== '1') return;
+            history.replaceState({}, '', '/agent');
+            const container = document.getElementById('chatMessages');
+
+            // 先显示"执行中"提示
+            const pendingDiv = document.createElement('div');
+            pendingDiv.className = 'message system';
+            pendingDiv.textContent = '🔄 认证完成，高危操作执行中...';
+            container.appendChild(pendingDiv);
+            container.scrollTop = container.scrollHeight;
+
+            // 轮询直到后台任务完成
+            const poll = async () => {
+                try {
+                    const resp = await fetch('/api/resumed-result');
+                    if (!resp.ok) return;
+                    const data = await resp.json();
+                    if (data.status === 'pending') {
+                        setTimeout(poll, 1500);
+                        return;
+                    }
+                    // done
+                    pendingDiv.textContent = '✅ 重新认证完成，已继续执行高危操作';
+                    if (data.response) {
+                        const agentDiv = document.createElement('div');
+                        agentDiv.className = 'message agent';
+                        agentDiv.innerHTML = marked.parse(data.response);
+                        container.appendChild(agentDiv);
+                    }
+                    renderToolsUsed(data.tools_used, container);
+                    container.scrollTop = container.scrollHeight;
+                } catch (e) {
+                    console.error('Failed to fetch resumed result:', e);
+                }
+            };
+            poll();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+COPY agent_backend.py .
+COPY idira_oauth.py .
+COPY templates/ ./templates/
+
+EXPOSE 3000
+CMD ["python", "agent_backend.py"]

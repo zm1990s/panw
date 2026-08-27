@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDIRA Identity Flow</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0d1117; color: #e6edf3;
+  height: 100vh; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+header {
+  padding: 10px 20px; border-bottom: 1px solid #21262d;
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+header h1 { font-size: 14px; font-weight: 600; color: #f0f6fc; }
+header p  { font-size: 11px; color: #8b949e; }
+header .badges { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.badge {
+  padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 600;
+  background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb55;
+  white-space: nowrap;
+}
+.badge.g { background: #23863622; color: #3fb950; border-color: #23863644; }
+.badge.p { background: #8957e522; color: #bc8cff; border-color: #8957e544; }
+.layout { display: flex; flex: 1; overflow: hidden; }
+
+/* sidebar */
+.sidebar {
+  width: 220px; border-right: 1px solid #21262d;
+  padding: 12px 10px; overflow-y: auto; flex-shrink: 0;
+}
+.phase-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; padding: 4px 6px 2px;
+  margin-top: 8px; margin-bottom: 4px;
+}
+.phase-a { color: #bc8cff; }
+.phase-b { color: #58a6ff; }
+.phase-c { color: #f97316; }
+.step-btn {
+  width: 100%; text-align: left; padding: 7px 9px;
+  border-radius: 6px; border: 1px solid transparent;
+  background: transparent; color: #8b949e; cursor: pointer;
+  font-size: 11px; line-height: 1.45; margin-bottom: 4px;
+  transition: all .15s; display: flex; align-items: flex-start; gap: 8px;
+}
+.step-btn:hover { background: #161b22; color: #c9d1d9; border-color: #30363d; }
+.step-btn.active.pa { background: #8957e51a; color: #bc8cff; border-color: #8957e544; }
+.step-btn.active.pb { background: #1f6feb1a; color: #58a6ff; border-color: #1f6feb55; }
+.step-btn.pc { border-left-color: #f97316; }
+.step-btn.pc.active { background: #2a1a0a; border-left-color: #f97316; color: #fb923c; }
+.snum {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #21262d; color: #8b949e;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-btn.active.pa .snum { background: #8957e5; color: #fff; }
+.step-btn.active.pb .snum { background: #1f6feb; color: #fff; }
+.stext { flex: 1; }
+.ssub { font-size: 9px; opacity: .65; margin-top: 1px; }
+
+/* canvas */
+.canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #0d1117; }
+svg#diagram { width: 100%; height: 100%; }
+
+/* nodes */
+.node-group { cursor: pointer; }
+.nbox {
+  rx: 10; ry: 10; fill: #161b22;
+  stroke: #30363d; stroke-width: 1.5; transition: all .2s;
+}
+.nbox.active  { fill: #1f6feb18; stroke: #58a6ff; stroke-width: 2; }
+.nbox.active-p{ fill: #8957e518; stroke: #bc8cff; stroke-width: 2; }
+.nbox.active-c { stroke: #f97316; stroke-width: 2; fill: #1a1200; }
+.nbox.dim     { opacity: .2; }
+.nbox.hi      { fill: #23863622; stroke: #3fb950; stroke-width: 2; }
+.nlabel { font-size: 10px; font-weight: 600; fill: #e6edf3; text-anchor: middle; }
+.nsub   { font-size: 8.5px; fill: #8b949e; text-anchor: middle; }
+.nvar   { font-size: 8px; fill: #58a6ff; text-anchor: middle; font-family: 'SF Mono', monospace; }
+.nvar-p { font-size: 8px; fill: #bc8cff; text-anchor: middle; font-family: 'SF Mono', monospace; }
+
+/* arrows */
+.ap {
+  fill: none; stroke: #30363d; stroke-width: 1.5; transition: all .2s;
+}
+.ap.ab { stroke: #58a6ff; stroke-width: 2.2; }
+.ap.ap2{ stroke: #bc8cff; stroke-width: 2.2; }
+.ap.ag { stroke: #3fb950; stroke-width: 2.2; }
+.ap.aw { stroke: #d29922; stroke-width: 2.2; }
+.ap.dim{ opacity: .08; }
+.ap.flow{ stroke-dasharray: 7 4; animation: fl .5s linear infinite; }
+@keyframes fl { to { stroke-dashoffset: -22; } }
+.ac { stroke: #f97316; opacity: 0.7; fill: none; }
+path.ac.flow { opacity: 1; stroke-width: 2; stroke-dasharray: none; }
+.al.ac { fill: #f97316; opacity: 0.9; }
+.al {
+  font-size: 8px; fill: #8b949e; text-anchor: middle; transition: all .2s;
+  pointer-events: none;
+}
+.al.ab { fill: #58a6ff; font-weight: 600; }
+.al.ap2{ fill: #bc8cff; font-weight: 600; }
+.al.ag { fill: #3fb950; font-weight: 600; }
+.al.dim{ opacity: .08; }
+.al.var.dim { opacity: 0; }
+/* 变量名标签默认隐藏，激活时才显示 */
+.al.var { font-family: 'SF Mono', monospace; font-size: 7px; fill: #8b949e; opacity: 0; transition: opacity .2s; }
+.al.var.ab  { fill: #388bfd; opacity: 1; }
+.al.var.ap2 { fill: #a371f7; opacity: 1; }
+
+/* phase bg */
+.phase-bg { rx: 14; ry: 14; fill: none; stroke-width: 1; stroke-dasharray: 4 3; }
+.phase-bg-a { stroke: #8957e533; }
+.phase-bg-b { stroke: #1f6feb33; }
+.phase-title { font-size: 11px; font-weight: 700; text-anchor: start; }
+.phase-title-a { fill: #8957e5; }
+.phase-title-b { fill: #1f6feb; }
+
+/* info panel */
+.info-panel {
+  width: 320px; flex-shrink: 0;
+  background: #161b22; border-left: 1px solid #30363d;
+  padding: 14px 16px; font-size: 11.5px; line-height: 1.6;
+  overflow-y: auto; display: flex; flex-direction: column;
+  transition: width .25s ease, padding .25s ease;
+}
+.info-panel.collapsed {
+  width: 28px; padding: 8px 3px; align-items: center; overflow: hidden;
+}
+.info-panel.collapsed #ip-title,
+.info-panel.collapsed #ip-body { display: none; }
+.info-panel.collapsed .ip-toggle { padding: 4px 6px; font-size: 12px; }
+.ip-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+}
+.info-panel h3 { font-size: 12px; font-weight: 600; margin-bottom: 0; }
+.ip-toggle {
+  padding: 2px 7px; border-radius: 4px; border: 1px solid #30363d;
+  background: #0d1117; color: #8b949e; cursor: pointer; font-size: 10px;
+  line-height: 1; transition: all .15s; flex-shrink: 0;
+}
+.ip-toggle:hover { background: #21262d; color: #c9d1d9; }
+#ip-body { margin-top: 8px; }
+.info-panel p  { color: #8b949e; margin-bottom: 5px; }
+.info-panel code {
+  background: #0d1117; border: 1px solid #30363d; border-radius: 4px;
+  padding: 5px 8px; display: block;
+  font-family: 'SF Mono', 'Fira Code', monospace; font-size: 10px;
+  color: #79c0ff; margin: 5px 0; white-space: pre; overflow-x: auto;
+}
+.info-panel .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; margin: 5px 0; }
+.info-panel .k { font-family: monospace; font-size: 10px; color: #bc8cff; white-space: nowrap; }
+.info-panel .v { font-size: 10px; color: #8b949e; }
+.tag {
+  display: inline-block; padding: 1px 5px; border-radius: 3px;
+  font-size: 9.5px; font-weight: 600;
+}
+.tb  { background: #1f6feb22; color: #58a6ff; border: 1px solid #1f6feb44; }
+.tg  { background: #23863622; color: #3fb950; border: 1px solid #23863644; }
+.to  { background: rgba(249,115,22,0.13); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+.tp  { background: #8957e522; color: #bc8cff; border: 1px solid #8957e544; }
+
+/* nav */
+.nav-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-top: 1px solid #21262d; flex-shrink: 0;
+}
+.nbtn {
+  padding: 4px 11px; border-radius: 5px; border: 1px solid #30363d;
+  background: #21262d; color: #c9d1d9; cursor: pointer; font-size: 11px;
+  transition: all .15s;
+}
+.nbtn:hover { background: #30363d; }
+.nbtn:disabled { opacity: .3; cursor: default; }
+.nbtn.pri { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+.nbtn.pri:hover { background: #388bfd; }
+.progress { flex: 1; height: 3px; background: #21262d; border-radius: 2px; overflow: hidden; }
+.pfill { height: 100%; background: #1f6feb; border-radius: 2px; transition: width .3s; }
+.sctr { font-size: 10px; color: #8b949e; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>IDIRA + Entra ID Federation — 完整身份流程</h1>
+    <p>SSO 登录 · IDIRA MCP 授权 · 委托身份链 · Token 内容解析</p>
+  </div>
+  <div class="badges">
+    <span class="badge p">Phase A: SSO</span>
+    <span class="badge">Phase B: MCP OAuth</span>
+    <span class="badge" style="background:#f97316;color:#fff">Phase C: HIL</span>
+    <span class="badge g">PKCE S256</span>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="canvas-wrap">
+    <svg id="diagram" viewBox="0 0 980 780" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <marker id="m0" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#30363d"/></marker>
+        <marker id="mb" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#58a6ff"/></marker>
+        <marker id="mp" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#bc8cff"/></marker>
+        <marker id="mc" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#f97316"/></marker>
+        <marker id="mg" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#3fb950"/></marker>
+        <marker id="mo" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#d29922"/></marker>
+      </defs>
+
+      <!-- Phase A background -->
+      <rect id="bg-a" class="phase-bg phase-bg-a" x="30" y="40" width="960" height="210"/>
+      <text class="phase-title phase-title-a" x="42" y="58">Phase A — SSO 登录（IDIRA ← Entra ID Federation）</text>
+
+      <!-- Phase B background -->
+      <rect id="bg-b" class="phase-bg phase-bg-b" x="30" y="260" width="960" height="400"/>
+      <text class="phase-title phase-title-b" x="42" y="278">Phase B — IDIRA MCP 授权（Agent 身份 + 委托 User）</text>
+
+      <!-- ══════════ NODES ══════════ -->
+
+      <!-- User Browser  cx=130 cy=130 -->
+      <g class="node-group" id="node-user" onclick="selectNode('user')">
+        <rect class="nbox" x="50" y="75" width="160" height="110"/>
+        <text x="130" y="108" class="nlabel" style="font-size:14px" dominant-baseline="middle" text-anchor="middle">🧑‍💻</text>
+        <text x="130" y="133" class="nlabel">User Browser</text>
+        <text x="130" y="150" class="nsub">SSO 入口</text>
+        <text x="130" y="165" class="nvar-p">session_id</text>
+      </g>
+
+      <!-- Agent  cx=130 cy=370 -->
+      <g class="node-group" id="node-agent" onclick="selectNode('agent')">
+        <rect class="nbox" x="50" y="310" width="160" height="120"/>
+        <text x="130" y="340" class="nlabel" style="font-size:16px" dominant-baseline="middle" text-anchor="middle">🤖</text>
+        <text x="130" y="366" class="nlabel">AI Agent</text>
+        <text x="130" y="384" class="nsub">agent_backend.py</text>
+        <text x="130" y="401" class="nvar">IDIRA_CLIENT_ID</text>
+        <text x="130" y="414" class="nvar">OIDC_CLIENT_ID</text>
+      </g>
+
+      <!-- IDIRA  cx=530 cy=135 -->
+      <g class="node-group" id="node-idira" onclick="selectNode('idira')">
+        <rect class="nbox" x="420" y="75" width="220" height="120"/>
+        <text x="530" y="106" class="nlabel" style="font-size:16px" dominant-baseline="middle" text-anchor="middle">🔐</text>
+        <text x="530" y="132" class="nlabel">IDIRA</text>
+        <text x="530" y="150" class="nsub">Idira AI Gateway</text>
+        <text x="530" y="168" class="nvar">IDIRA_AUTHORIZE_URL</text>
+        <text x="530" y="181" class="nvar">IDIRA_TOKEN_URL</text>
+      </g>
+
+      <!-- Entra ID  cx=870 cy=135 -->
+      <g class="node-group" id="node-entra" onclick="selectNode('entra')">
+        <rect class="nbox" x="780" y="75" width="180" height="120"/>
+        <text x="870" y="106" class="nlabel" style="font-size:16px" dominant-baseline="middle" text-anchor="middle">☁️</text>
+        <text x="870" y="132" class="nlabel">Entra ID</text>
+        <text x="870" y="150" class="nsub">Microsoft Identity</text>
+        <text x="870" y="168" class="nvar">OIDC_DOMAIN</text>
+        <text x="870" y="181" class="nvar">OIDC_DISCOVERY_URL</text>
+      </g>
+
+      <!-- MCP Server  cx=870 cy=360 -->
+      <g class="node-group" id="node-mcp" onclick="selectNode('mcp')">
+        <rect class="nbox" x="780" y="300" width="180" height="120"/>
+        <text x="870" y="332" class="nlabel" style="font-size:16px" dominant-baseline="middle" text-anchor="middle">⚙️</text>
+        <text x="870" y="358" class="nlabel">MCP Server</text>
+        <text x="870" y="376" class="nsub">mcp_server.py</text>
+        <text x="870" y="394" class="nvar">REQUIRE_PORTKEY_CLAIMS</text>
+        <text x="870" y="407" class="nvar">INTERNAL_API_KEY</text>
+      </g>
+
+      <!-- Business API  cx=870 cy=570 -->
+      <g class="node-group" id="node-api" onclick="selectNode('api')">
+        <rect class="nbox" x="780" y="520" width="180" height="100"/>
+        <text x="870" y="548" class="nlabel" style="font-size:14px" dominant-baseline="middle" text-anchor="middle">🏢</text>
+        <text x="870" y="572" class="nlabel">Business API</text>
+        <text x="870" y="590" class="nsub">api_service.py</text>
+        <text x="870" y="607" class="nvar">OIDC_DISCOVERY_URL</text>
+      </g>
+
+      <!-- Session store  cx=130 cy=570 -->
+      <g class="node-group" id="node-sess" onclick="selectNode('sess')">
+        <rect class="nbox" x="50" y="520" width="160" height="100"/>
+        <text x="130" y="548" class="nlabel" style="font-size:14px" dominant-baseline="middle" text-anchor="middle">🗂️</text>
+        <text x="130" y="572" class="nlabel" style="font-size:11px">user_sessions{}</text>
+        <text x="130" y="590" class="nvar">access_token (SSO)</text>
+        <text x="130" y="603" class="nvar">user_info</text>
+      </g>
+
+      <!-- IDIRA token file  cx=365 cy=570 -->
+      <g class="node-group" id="node-tok" onclick="selectNode('tok')">
+        <rect class="nbox" x="270" y="520" width="190" height="100"/>
+        <text x="365" y="548" class="nlabel" style="font-size:14px" dominant-baseline="middle" text-anchor="middle">💾</text>
+        <text x="365" y="572" class="nlabel" style="font-size:11px">idira_token.json</text>
+        <text x="365" y="590" class="nvar">IDIRA_TOKEN_DIR</text>
+        <text x="365" y="603" class="nvar">access_token (IDIRA)</text>
+      </g>
+
+      <!-- IDIRA MCP Gateway  cx=490 cy=370 -->
+      <g class="node-group" id="node-gw" onclick="selectNode('gw')">
+        <rect class="nbox" x="395" y="310" width="190" height="120"/>
+        <text x="490" y="337" class="nlabel" style="font-size:14px" dominant-baseline="middle" text-anchor="middle">🌐</text>
+        <text x="490" y="360" class="nlabel">IDIRA MCP</text>
+        <text x="490" y="376" class="nlabel">Gateway</text>
+        <text x="490" y="397" class="nvar">IDIRA_MCP_URL</text>
+        <text x="490" y="411" class="nvar">per-user tool filter</text>
+      </g>
+
+      <!-- ══════════ ARROWS ══════════ -->
+
+      <!-- ── Phase A ── -->
+
+      <!-- A1: User → IDIRA (login redirect) -->
+      <path id="a-a1" class="ap" d="M210,115 L420,120" marker-end="url(#m0)"/>
+      <text id="l-a1" class="al" x="315" y="105">A1 GET /login</text>
+      <text id="v-a1" class="al var" x="315" y="94">客户端 ID / 回调地址</text>
+
+      <!-- A2: IDIRA ↔ Entra ID federation -->
+      <path id="a-a2" class="ap" d="M640,115 L780,115" marker-end="url(#m0)"/>
+      <text id="l-a2" class="al" x="710" y="105">A2 federation</text>
+      <text id="v-a2" class="al var" x="710" y="94">OIDC 发现端点</text>
+
+      <!-- A3: Entra ID authenticates (back to IDIRA) -->
+      <path id="a-a3" class="ap" d="M780,150 L640,155" marker-end="url(#m0)"/>
+      <text id="l-a3" class="al" x="710" y="168">A3 id_token (Entra)</text>
+
+      <!-- A4: IDIRA → User (code redirect back to agent) -->
+      <path id="a-a4" class="ap" d="M420,175 Q315,215 210,165" marker-end="url(#m0)"/>
+      <text id="l-a4" class="al" x="315" y="205">A4 /callback?code</text>
+      <text id="v-a4" class="al var" x="315" y="216">OIDC 回调地址</text>
+
+      <!-- A5: Agent ↔ IDIRA token exchange -->
+      <path id="a-a5" class="ap" d="M210,345 Q315,245 420,165" marker-end="url(#m0)"/>
+      <text id="l-a5" class="al" x="315" y="255">A5 token exchange</text>
+      <text id="v-a5" class="al var" x="315" y="266">客户端密钥</text>
+
+      <!-- A6: IDIRA → Agent access_token -->
+      <path id="a-a6" class="ap" d="M420,185 Q315,285 210,355" marker-end="url(#m0)"/>
+      <text id="l-a6" class="al" x="315" y="300">A6 access_token</text>
+      <text id="v-a6" class="al var" x="315" y="311">Entra ID 签发</text>
+
+      <!-- A7: Agent saves to session -->
+      <path id="a-a7" class="ap" d="M130,430 L130,520" marker-end="url(#m0)"/>
+      <text id="l-a7" class="al" x="105" y="478">A7 session</text>
+
+      <!-- ── Phase B ── -->
+
+      <!-- B1: Agent → User (IDIRA OAuth redirect) -->
+      <path id="a-b1" class="ap" d="M130,310 L130,185" marker-end="url(#m0)"/>
+      <text id="l-b1" class="al" x="100" y="255">B1 重定向</text>
+      <text id="v-b1" class="al var" x="100" y="266">构建授权 URL</text>
+
+      <!-- B2: User → IDIRA (PKCE auth) -->
+      <path id="a-b2" class="ap" d="M210,170 Q315,200 420,185" marker-end="url(#m0)"/>
+      <text id="l-b2" class="al" x="315" y="228">B2 PKCE authorize</text>
+      <text id="v-b2" class="al var" x="315" y="239">IDIRA 授权端点</text>
+
+      <!-- B3: IDIRA → Agent callback (code) -->
+      <path id="a-b3" class="ap" d="M420,195 Q315,295 210,365" marker-end="url(#m0)"/>
+      <text id="l-b3" class="al" x="315" y="315">B3 code+state</text>
+
+      <!-- B4: Agent → IDIRA (exchange) -->
+      <path id="a-b4" class="ap" d="M210,395 Q315,315 420,205" marker-end="url(#m0)"/>
+      <text id="l-b4" class="al" x="315" y="345">B4 code+verifier</text>
+      <text id="v-b4" class="al var" x="315" y="356">IDIRA Token 端点</text>
+
+      <!-- B5: IDIRA → Agent (IDIRA token) -->
+      <path id="a-b5" class="ap" d="M420,215 Q315,325 210,405" marker-end="url(#m0)"/>
+      <text id="l-b5" class="al" x="315" y="375">B5 idira_token</text>
+      <text id="v-b5" class="al var" x="315" y="386">用户 sub + 应用 azp</text>
+
+      <!-- B6: save IDIRA token to file -->
+      <path id="a-b6" class="ap" d="M210,430 Q240,490 270,570" marker-end="url(#m0)"/>
+      <text id="l-b6" class="al" x="240" y="505">B6 落盘</text>
+
+      <!-- B7: Agent → IDIRA MCP Gateway -->
+      <path id="a-b7" class="ap" d="M210,370 L395,370" marker-end="url(#m0)"/>
+      <text id="l-b7" class="al" x="300" y="358">B7 → IDIRA_MCP_URL</text>
+      <text id="v-b7" class="al var" x="300" y="369">Bearer idira_token + X-User-Token</text>
+
+      <!-- B7b: IDIRA MCP Gateway → MCP Server -->
+      <path id="a-b7b" class="ap" d="M585,365 L780,360" marker-end="url(#m0)"/>
+      <text id="l-b7b" class="al" x="682" y="352">B7b GW → MCP Server</text>
+      <text id="v-b7b" class="al var" x="682" y="363">token 验证通过 + 透传</text>
+
+      <!-- B8: MCP → Business API -->
+      <path id="a-b8" class="ap" d="M870,420 L870,520" marker-end="url(#m0)"/>
+      <text id="l-b8" class="al" x="910" y="473">B8 X-Forwarded-Claims</text>
+      <text id="v-b8" class="al var" x="910" y="484">X-Internal-Auth (INTERNAL_API_KEY)</text>
+
+      <!-- ── Phase C: HIL Sensitive Tool Interception ── -->
+
+      <!-- C1: MCP → Agent (list_tools with destructiveHint) -->
+      <path id="a-c1" class="ap" d="M780,350 Q490,320 210,355" marker-end="url(#m0)"/>
+      <text id="l-c1" class="al" x="490" y="315">C1 list_tools → destructiveHint=true</text>
+      <text id="v-c1" class="al var" x="490" y="304">SENSITIVE_TOOLS 自动推导</text>
+
+      <!-- C2: Agent self (intercept, no external call) -->
+      <path id="a-c2" class="ap" d="M210,360 Q250,390 210,395" marker-end="url(#m0)"/>
+      <text id="l-c2" class="al" x="240" y="410">C2 拦截</text>
+
+      <!-- C3: Agent → User (consent_required response) -->
+      <path id="a-c3" class="ap" d="M140,310 L140,185" marker-end="url(#m0)"/>
+      <text id="l-c3" class="al" x="160" y="252">C3 consent_required</text>
+      <text id="v-c3" class="al var" x="160" y="264">{consent_token, auth_url}</text>
+
+      <!-- C4: User → IDIRA (re-auth with prompt=login) -->
+      <path id="a-c4" class="ap" d="M210,120 L420,120" marker-end="url(#m0)"/>
+      <text id="l-c4" class="al" x="315" y="112">C4 /login?consent_token</text>
+      <text id="v-c4" class="al var" x="315" y="100">prompt=login&amp;max_age=0</text>
+
+      <!-- C5: IDIRA → Agent callback (re-auth code) -->
+      <path id="a-c5" class="ap" d="M420,190 Q315,300 210,368" marker-end="url(#m0)"/>
+      <text id="l-c5" class="al" x="315" y="320">C5 /callback?code (fresh)</text>
+
+      <!-- C6: Agent → MCP (execute sensitive tool) -->
+      <path id="a-c6" class="ap" d="M210,382 Q490,356 780,365" marker-end="url(#m0)"/>
+      <text id="l-c6" class="al" x="490" y="350">C6 execute update_username</text>
+      <text id="v-c6" class="al var" x="490" y="362">fresh access_token + consent verified</text>
+
+      <!-- C7: MCP → Business API -->
+      <path id="a-c7" class="ap" d="M875,420 L875,520" marker-end="url(#m0)"/>
+      <text id="l-c7" class="al" x="915" y="474">C7 X-Forwarded-Claims</text>
+
+      <!-- C8: Agent → Session (store resumed_result, redirect /agent?resumed=1) -->
+      <path id="a-c8" class="ap" d="M140,430 L140,520" marker-end="url(#m0)"/>
+      <text id="l-c8" class="al" x="155" y="478">C8 resumed_result</text>
+    </svg>
+
+  </div>
+  <div class="info-panel" id="info-panel">
+    <div class="ip-header">
+      <h3 id="ip-title">👆 点击步骤或节点查看详情</h3>
+      <button class="ip-toggle" id="ip-toggle" onclick="toggleInfoPanel()" title="折叠详情">◀ 收起</button>
+    </div>
+    <div id="ip-body"><p>分为两个阶段：<span class="tag tp">Phase A</span> SSO 登录 和 <span class="tag tb">Phase B</span> IDIRA MCP 授权。<br>每个 Token 的内容和变量名都标注在图中。</p></div>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <button class="nbtn" id="btn-prev" onclick="prev()">← 上一步</button>
+  <div class="progress"><div class="pfill" id="pfill"></div></div>
+  <span class="sctr" id="sctr"></span>
+  <button class="nbtn pri" id="btn-next" onclick="next()">下一步 →</button>
+  <button class="nbtn" onclick="go(0)" style="margin-left:6px">重置</button>
+</div>
+
+<script>
+const PA = 'pa', PB = 'pb', PC = 'pc';
+
+const STEPS = [
+{phase:PA, label:'概览', sub:'两阶段身份流', nodes:[], arrows:[],
+  title:'完整身份流概览',
+  body:`<p>整个流程分两个阶段：</p>
+<p><span class="tag tp">Phase A</span> <strong>SSO 登录</strong>：用户通过 Entra ID（IDIRA 联邦）完成人机身份认证，Agent 拿到用户的 access_token 存入 session。</p>
+<p><span class="tag tb">Phase B</span> <strong>IDIRA MCP 授权</strong>：Agent 以自身 client_id 走 OAuth PKCE，拿到 IDIRA 签发的 token（含用户 sub + agent azp）。凭此 token 调用 MCP。</p>
+<p>两个阶段完成后，调用链上每一环都有可追溯的身份：</p>
+<div class="kv">
+  <span class="k">SSO token</span><span class="v">用户 Entra ID 身份</span>
+  <span class="k">IDIRA token</span><span class="v">Agent身份 + 委托User</span>
+  <span class="k">X-Forwarded-Claims</span><span class="v">MCP→API 用户声明</span>
+</div>
+`
+},
+
+{phase:PA, label:'A1 用户点登录', sub:'GET /login → OIDC redirect', nodes:['user','idira'], arrows:['a-a1','l-a1','v-a1'],
+  title:'A1 用户点登录 → OIDC 重定向',
+  body:`<p>Agent 后端构建 OIDC 授权 URL 并重定向用户浏览器：</p>
+<code>GET /login
+↓
+GET {OIDC_DISCOVERY_URL}/authorize
+  ?response_type=code
+  &client_id={OIDC_CLIENT_ID}
+  &redirect_uri={OIDC_CALLBACK_URL}
+  &scope=openid profile email
+  &audience={OIDC_AUDIENCE}  # 可选</code>
+<p>关键环境变量：</p>
+<div class="kv">
+  <span class="k">OIDC_CLIENT_ID</span><span class="v">在 Entra ID/IDIRA 注册的应用 ID</span>
+  <span class="k">OIDC_CLIENT_SECRET</span><span class="v">换 token 时用</span>
+  <span class="k">OIDC_CALLBACK_URL</span><span class="v">https://app/callback</span>
+  <span class="k">OIDC_DISCOVERY_URL</span><span class="v">…/.well-known/openid-configuration</span>
+</div>`
+},
+
+{phase:PA, label:'A2 IDIRA ↔ Entra ID 联邦', sub:'Federation / SAML / OIDC', nodes:['idira','entra'], arrows:['a-a2','l-a2','v-a2','a-a3','l-a3'],
+  title:'A2–A3 IDIRA ↔ Entra ID Federation',
+  body:`<p>IDIRA 作为 OIDC Provider，后端与 Entra ID 做身份联邦：</p>
+<code>IDIRA 收到 authorize 请求
+  → IDIRA 把用户重定向到 Entra ID 登录
+  → 用户输入 Entra ID 账号密码 / MFA
+  → Entra ID 返回 id_token 给 IDIRA</code>
+<p>IDIRA 从 Entra ID id_token 里提取用户信息，准备签发自己的 code/token。</p>
+<p><span class="tag tp">对用户透明</span>：用户只看到一个登录页，背后的联邦对他们不可见。</p>
+<p>Entra ID id_token 关键字段（IDIRA 内部消费）：</p>
+<code>{
+  "iss":   "https://login.microsoftonline.com/{tid}/v2.0",
+  "sub":   "aad-object-id",
+  "email": "user@company.com",
+  "name":  "Zhang San",
+  "oid":   "entra-user-oid"
+}</code>`
+},
+
+{phase:PA, label:'A4 code 回调 Agent', sub:'/callback?code=...', nodes:['user','agent'], arrows:['a-a4','l-a4','v-a4'],
+  title:'A4 OIDC Code 回调',
+  body:`<p>认证成功后 IDIRA/Entra ID 重定向到：</p>
+<code>GET /callback
+  ?code=eyJhbGciOi...
+  &state=optional</code>
+<p><code>agent_backend.py</code> 中的 <code>_handle_callback(code)</code> 处理：<br>
+如果 state 属于 IDIRA MCP pending → Phase B 流程<br>
+否则 → OIDC SSO 流程（本步骤）</p>`
+},
+
+{phase:PA, label:'A5–A6 换 SSO Token', sub:'code → access_token', nodes:['agent','idira'], arrows:['a-a5','l-a5','v-a5','a-a6','l-a6','v-a6'],
+  title:'A5–A6 Agent 换取 SSO access_token',
+  body:`<p>Agent 向 OIDC Token 端点 POST 换 token：</p>
+<code>POST {oidc.token_endpoint}
+grant_type=authorization_code
+&code={code}
+&client_id={OIDC_CLIENT_ID}
+&client_secret={OIDC_CLIENT_SECRET}
+&redirect_uri={OIDC_CALLBACK_URL}</code>
+<p>返回的 <strong>SSO access_token</strong> 由 Entra ID 签发，JWT 内容：</p>
+<code>{
+  "iss":   "https://login.microsoftonline.com/{tid}/v2.0",
+  "sub":   "user-entra-oid",          // 用户唯一 ID
+  "email": "user@company.com",
+  "name":  "Zhang San",
+  "aud":   "{OIDC_AUDIENCE}",         // 你的 API audience
+  "iat":   1753401600,
+  "exp":   1753405200
+}</code>
+<p>同时 Agent 调用 userinfo 端点获取 <code>user_info</code>（email/name/sub）。</p>`
+},
+
+{phase:PA, label:'A7 存 Session', sub:'user_sessions{}', nodes:['agent','sess'], arrows:['a-a7','l-a7'],
+  title:'A7 Agent 存入内存 Session',
+  body:`<p>登录完成，Agent 将用户信息存入内存字典：</p>
+<code># agent_backend.py
+user_sessions[session_id] = {
+    "user_info":    user_info,       # email / sub / name
+    "access_token": access_token,    # Entra ID JWT
+    "login_time":   datetime.utcnow()
+}
+# 设置 cookie: session_id (httponly)</code>
+<p>后续每次 <code>/api/chat</code>：</p>
+<div class="kv">
+  <span class="k">user_token</span><span class="v">session["access_token"] (Entra ID)</span>
+  <span class="k">user_email</span><span class="v">session["user_info"]["email"]</span>
+  <span class="k">user_sub</span><span class="v">session["user_info"]["sub"]</span>
+</div>
+<p><span class="tag tg">Phase A 完成</span> → 用户可以访问 /agent 页面</p>`
+},
+
+{phase:PB, label:'B1 触发 IDIRA OAuth', sub:'SSO完成后自动链式', nodes:['agent','user'], arrows:['a-b1','l-b1','v-b1'],
+  title:'B1 SSO 完成 → 自动触发 IDIRA OAuth',
+  body:`<p>SSO 回调成功、session 保存后，Agent 检测 IDIRA 是否已授权：</p>
+<code># _handle_callback() 末尾
+if idira_oauth.enabled() and not idira_oauth.is_authorized(user_sub):
+    idira_auth_url = idira_oauth.build_auth_url(user_sub)
+    # 重定向用户浏览器 → IDIRA 授权页
+    return RedirectResponse(url=idira_auth_url)</code>
+<p><code>build_auth_url(user_sub)</code> 生成 PKCE：</p>
+<code>code_verifier  = secrets.token_urlsafe(64)
+code_challenge = base64url(SHA256(verifier))
+state          = secrets.token_urlsafe(32)
+# 内存保存 state → verifier + user_sub
+_PENDING[state] = {
+    "code_verifier": verifier,
+    "user_sub": user_sub,
+    "created_at": time.time()
+}</code>`
+},
+
+{phase:PB, label:'B2 PKCE Authorize', sub:'IDIRA_AUTHORIZE_URL', nodes:['user','idira'], arrows:['a-b2','l-b2','v-b2'],
+  title:'B2 用户浏览器 → IDIRA Authorize',
+  body:`<p>浏览器跳转到：</p>
+<code>GET {IDIRA_AUTHORIZE_URL}
+  ?response_type=code
+  &client_id={IDIRA_CLIENT_ID}
+  &redirect_uri={IDIRA_CALLBACK_URL}   # /callback
+  &scope={IDIRA_OAUTH_SCOPE}           # openid full
+  &code_challenge={S256_hash}
+  &code_challenge_method=S256
+  &state={random_state}</code>
+<p><span class="tag tg">Silent Authentication（静默认证）</span>：用户在 Phase A 已经登录过同一 Idira 租户，IDIRA 检测到有效 SSO session 后<strong>自动完成</strong>授权，无需二次输入密码。这是 Phase A → Phase B 自动链式的前提。</p>
+<p><span class="tag tb">Authorization Code Flow + PKCE</span>：标准 OAuth 2.0 授权码流程，加入 PKCE（Proof Key for Code Exchange，发音 "pixie"）防止 code 在重定向中被截获冒用：<br>
+• 本步骤只发 <code>code_challenge = BASE64URL(SHA256(verifier))</code><br>
+• 原始 <code>code_verifier</code> 留在内存，B4 换 token 时才发出，服务端重算 SHA256 比对确认是同一方</p>
+<p>IDIRA 同时记录：<br>
+• 哪个 Agent 在请求<code>IDIRA_CLIENT_ID</code><br>
+• 哪个 User 在授权（当前 Idira session）</p>`
+},
+
+{phase:PB, label:'B3 code 回调', sub:'/callback/idira', nodes:['agent','idira'], arrows:['a-b3','l-b3'],
+  title:'B3 IDIRA Code 回调 → 专用路由',
+  body:`<p>IDIRA 重定向到专用路由 <code>/callback/idira?code=...&state=...</code>，与 SSO 的 <code>/callback</code> 完全隔离：</p>
+<code># agent_backend.py
+@app.get("/callback/idira")
+async def callback_idira(code: str, state: str):
+    user_sub = idira_oauth.exchange_code(state, code)
+    # token 写入 /tmp/idira_token_{user_sub}.json
+    return RedirectResponse("/agent")</code>
+<p>两条路由独立注册，不再依赖内存 <code>_PENDING</code> 字典来区分回调来源，容器重启后也不会路由错误。</p>
+<p><span class="tag tg">IDIRA_CALLBACK_URL</span> 必须与 IDIRA 控制台注册的 Redirect URI 精确一致：<code>https://your-domain.com/callback/idira</code></p>`
+},
+
+{phase:PB, label:'B4–B5 换 IDIRA Token', sub:'code+verifier → sub+azp', nodes:['agent','idira'], arrows:['a-b4','l-b4','v-b4','a-b5','l-b5','v-b5'],
+  title:'B4–B5 换取 IDIRA access_token',
+  body:`<p>Agent POST 给 IDIRA Token 端点：</p>
+<code>POST {IDIRA_TOKEN_URL}
+grant_type=authorization_code
+&code={code}
+&redirect_uri={IDIRA_CALLBACK_URL}
+&client_id={IDIRA_CLIENT_ID}
+&code_verifier={original_verifier}  # PKCE</code>
+<p>IDIRA 签发的 <strong>access_token</strong>（委托授权 token）：</p>
+<code>{
+  // ── Agent 身份 ──
+  "azp":   "{IDIRA_CLIENT_ID}",   // 谁拿到的
+  "client_id": "{IDIRA_CLIENT_ID}",
+
+  // ── User 身份（委托方）──
+  "sub":   "user@company.com",    // 谁授权的
+  "email": "user@company.com",
+
+  // ── 签发方 ──
+  "iss":   "https://tenant.id.cyberark.cloud",
+  "scope": "openid full",
+  "iat":   1753401600,
+  "exp":   1753405200
+}</code>
+<p><span class="tag tb">Delegated Authorization（委托授权）</span>：这就是 Token 里同时有两个身份的原因。OAuth 2.0 授权码流程天然绑定「谁代表谁」：<br>
+• <code>azp</code>（Authorized Party）= Agent，token 持有方<br>
+• <code>sub</code>（Subject）= User，授权发起方<br>
+下游服务既能验证 Agent 合法性，也能追溯是哪个用户授权的，满足完整审计链。</p>
+<p><span class="tag to">对比 On-Behalf-Of / Token Exchange</span>：微软生态的 OBO 和 RFC 8693 Token Exchange 用一个 token 直接换另一个 token，不需要用户浏览器参与；本流程让用户浏览器参与授权，授权语义更明确、审计链更完整。</p>`
+},
+
+{phase:PB, label:'B6 IDIRA Token 落盘', sub:'IDIRA_TOKEN_DIR', nodes:['agent','tok'], arrows:['a-b6','l-b6'],
+  title:'B6 IDIRA Token 持久化（per-user）',
+  body:`<p>每个用户有独立的 token 文件，互不干扰：</p>
+<code># idira_oauth.py _token_file(user_sub)
+# IDIRA_TOKEN_DIR 默认 /tmp
+path = f"{IDIRA_TOKEN_DIR}/idira_token_{safe_sub}.json"
+# safe_sub: @ → _at_  / → _  : → _  | → _
+
+{
+  "access_token":  "eyJhbGc...",
+  "refresh_token": "def502...",
+  "expires_in":    3600,
+  "expires_at":    1753405140  // 提前60s标记过期
+}</code>
+<p><code>is_authorized(user_sub)</code>：<br>
+✅ expires_at 未到 → 直接用 access_token<br>
+🔄 expires_at 到了 → 用 refresh_token 刷新<br>
+❌ 无 refresh_token → 抛 NeedsAuthError，重新 Phase B</p>
+<p><span class="tag to">容器重启</span>：/tmp 清空，需重走 Phase B（同一 Idira session 下仍静默）。</p>`
+},
+
+{phase:PB, label:'B7 Agent → GW → MCP', sub:'IDIRA_MCP_URL', nodes:['agent','gw','mcp'], arrows:['a-b7','l-b7','v-b7','a-b7b','l-b7b','v-b7b'],
+  title:'B7 Agent → IDIRA MCP Gateway → MCP Server',
+  body:`<p>Agent 发 MCP 请求（<code>call_mcp_tool</code> / <code>fetch_mcp_tools</code>）到 <span class="tag tb">IDIRA MCP Gateway</span>，不直接打 MCP Server：</p>
+<code>POST {IDIRA_MCP_URL}
+# 即 https://tenant.aigw.cyberark.cloud/mcp/...
+
+Authorization: Bearer {idira_token}
+# ↑ IDIRA Gateway 验证 Agent 身份 + RBAC
+
+X-User-Token: Bearer {entra_access_token}
+# ↑ 用户 Entra ID JWT，透传给 MCP Server</code>
+<p><strong>IDIRA MCP Gateway 处理（B7a → B7b）：</strong></p>
+<ol>
+<li>验 <code>Authorization</code>（IDIRA token 合法 + Agent 被授权访问此 MCP）</li>
+<li>执行 per-user 工具过滤（不同用户看到不同工具列表）</li>
+<li>代理请求到真实 MCP Server，透传 <code>X-User-Token</code></li>
+</ol>`
+},
+
+{phase:PB, label:'B8 MCP → Business API', sub:'X-Forwarded-Claims', nodes:['mcp','api'], arrows:['a-b8','l-b8','v-b8'],
+  title:'B8 MCP → Business API 完整身份链',
+  body:`<p>MCP Server<code>mcp_server.py</code>从 <code>X-User-Token</code> 取用户 JWT 转发：</p>
+<code>POST {API_BASE_URL}/api/tools/{tool_name}
+
+Authorization: Bearer {entra_access_token}
+# ↑ 从 X-User-Token 取出，Business API JWKS 验签
+
+X-Internal-Auth: {INTERNAL_API_KEY}
+# ↑ MCP→API 可信通道凭证
+
+X-Forwarded-Claims: {"sub":"...","email":"...","role":"..."}
+# ↑ MCP 已解析的用户 claims，Business API 直接信任
+
+X-Forwarded-User: {user_sub}</code>
+<p>Business API 验证优先级：</p>
+<code>1. X-Internal-Auth 有效？（确认来自受信 MCP）
+2. X-Forwarded-Claims 存在 → 直接用（不再 JWKS）
+3. 否则 → verify_token(Authorization)
+   使用 OIDC_DISCOVERY_URL 取 JWKS 验签</code>
+<p><span class="tag tg">Business API 无需改动</span>：IDIRA token 在 Broker 层消费，永远不会到 Business API。</p>`
+},
+{phase:PC, label:'C0 概览', sub:'HIL 高危工具拦截流程', nodes:[], arrows:[],
+  title:'Phase C — Human-in-the-Loop 高危拦截',
+  body:`<p>当 Agent 准备调用 <span class="tag to">高危工具</span>（如 <code>update_username</code>）时，系统会暂停执行，要求用户通过<strong>重新认证</strong>来显式确认。</p>
+<p>高危工具由 MCP Server 在工具定义中通过 <code>ToolAnnotations(destructiveHint=True)</code> 声明，Agent 端自动发现，无需硬编码。</p>
+<p>完整链路：<span class="tag to">工具发现</span> → <span class="tag to">Agent 拦截</span> → <span class="tag to">Consent Card</span> → <span class="tag to">强制重新认证</span> → <span class="tag to">续办执行</span> → <span class="tag to">结果返回</span></p>`
+},
+{phase:PC, label:'C1 工具发现', sub:'destructiveHint=true 标注', nodes:['agent','mcp'], arrows:['a-c1','l-c1','v-c1'],
+  title:'C1 — MCP 工具发现：destructiveHint 标注',
+  body:`<p>Agent 启动时通过 <code>fetch_mcp_tools()</code> 调用 MCP Server 的 <code>list_tools</code>。</p>
+<p>MCP Server 在 <code>update_username</code> 工具定义中添加了：</p>
+<code>annotations=ToolAnnotations(destructiveHint=True)</code>
+<p>Agent 端收到工具列表后，自动扫描 <code>t.annotations.destructiveHint</code>，更新进程级 <code>SENSITIVE_TOOLS</code> set：</p>
+<code>SENSITIVE_TOOLS = {"update_username"}</code>
+<p>这是<strong>服务端声明式</strong>方式，新增高危工具不需要改 Agent 代码。</p>`
+},
+{phase:PC, label:'C2 拦截决策', sub:'ConsentRequiredError', nodes:['agent'], arrows:['a-c2','l-c2'],
+  title:'C2 — _agent_loop 高危工具拦截',
+  body:`<p>LLM 生成 <code>tool_calls: [{name: "update_username", ...}]</code>。</p>
+<p><code>_agent_loop</code> 在执行前检查：</p>
+<code>if fn_name in SENSITIVE_TOOLS:</code>
+<p>命中后：</p>
+<ol>
+<li>生成随机 <code>consent_token = secrets.token_urlsafe(16)</code></li>
+<li>将完整 agent 上下文（messages、tools_schema、mcp_headers、tool_call_id…）存入 <code>_pending_consents[consent_token]</code></li>
+<li>抛出 <code>ConsentRequiredError(consent_token, tool_name, tool_args)</code></li>
+</ol>
+<p><strong>Agent 循环被暂停</strong>，工具未执行，上下文完整保留。</p>`
+},
+{phase:PC, label:'C3 Consent Card', sub:'/api/chat → consent_required', nodes:['agent','user'], arrows:['a-c3','l-c3','v-c3'],
+  title:'C3 — 前端展示 Consent Card',
+  body:`<p><code>/api/chat</code> 捕获 <code>ConsentRequiredError</code>，返回：</p>
+<code>{"type": "consent_required",
+ "consent_token": "xxx",
+ "tool_name": "update_username",
+ "auth_url": "/login?consent_token=xxx",
+ "message": "执行高危操作需要重新认证..."
+}</code>
+<p>前端 <code>sendMessage()</code> 检测到 <code>data.type === "consent_required"</code>，隐藏 loading，展示橙色 <span class="tag to">Consent Card</span>：</p>
+<p>🔐 <strong>高危操作需要重新确认身份</strong><br>
+[重新认证并继续] 按钮 → href = <code>/login?consent_token=xxx</code></p>`
+},
+{phase:PC, label:'C4 强制重新认证', sub:'prompt=login&max_age=0', nodes:['user','idira'], arrows:['a-c4','l-c4','v-c4'],
+  title:'C4 — 用户触发强制重新认证',
+  body:`<p>用户点击"重新认证并继续"，浏览器导航到 <code>/login?consent_token=xxx</code>。</p>
+<p><code>/login</code> 路由：</p>
+<ol>
+<li>从 cookie 读 <code>session_id</code>，将 <code>consent_token</code> 存入 <code>user_sessions[session_id]["pending_consent_token"]</code></li>
+<li>构建 OIDC 授权 URL，追加：</li>
+</ol>
+<code>prompt=login&amp;max_age=0</code>
+<p><span class="tag to">prompt=login</span>：即使有活跃的 SSO session，IDIRA 也必须强制用户重新输入凭证（不允许静默认证）。</p>
+<p><span class="tag to">max_age=0</span>：要求认证发生在 0 秒内，确保是真实的当下认证。</p>
+<p>这两个参数是 OIDC 标准参数，确保用户<strong>意识到</strong>自己在授权一个高危操作。</p>`
+},
+{phase:PC, label:'C5 IDIRA 重新认证', sub:'强制登录 → code 回调', nodes:['user','idira','agent'], arrows:['a-c4','l-c4','v-c4','a-c5','l-c5'],
+  title:'C5 — IDIRA 强制重新认证完成',
+  body:`<p>IDIRA 收到 <code>prompt=login</code>，忽略现有 SSO session，弹出登录界面。</p>
+<p>用户重新完成身份验证后，IDIRA 将新的 <code>code</code> 发回 <code>/callback?code=...</code>。</p>
+<p>此时 Agent 端的 <code>_handle_callback</code> 会收到这个 code，开始续办流程（下一步 C6）。</p>`
+},
+{phase:PC, label:'C6 Callback 续办', sub:'执行被拦截工具', nodes:['agent','mcp','api'], arrows:['a-c5','l-c5','a-c6','l-c6','v-c6','a-c7','l-c7'],
+  title:'C6 — _handle_callback 恢复执行',
+  body:`<p><code>_handle_callback</code> 检测到当前 session 有 <code>pending_consent_token</code>：</p>
+<ol>
+<li>用新 code 换取 <strong>fresh access_token</strong>，更新 session</li>
+<li>从 <code>_pending_consents</code> pop 出完整的 agent 上下文</li>
+<li>用 fresh token 更新 <code>mcp_headers["Authorization"]</code></li>
+<li>调用 <code>call_mcp_tool(tool_name, tool_args, ...)</code> 执行被拦截的工具</li>
+<li>将工具结果拼回 <code>messages</code>，调用 <code>_agent_loop()</code> 继续执行</li>
+<li>将最终结果存入 <code>session["resumed_result"]</code></li>
+</ol>
+<p>整个过程<strong>对 LLM 透明</strong>：消息历史完整，LLM 看不出中间发生了重新认证。</p>`
+},
+{phase:PC, label:'C7 结果返回', sub:'/agent?resumed=1', nodes:['agent','user','sess'], arrows:['a-c8','l-c8'],
+  title:'C7 — 结果返回前端',
+  body:`<p><code>_handle_callback</code> 完成后重定向到 <code>/agent?resumed=1</code>。</p>
+<p>前端页面加载时 <code>window.addEventListener('load', ...)</code> 检测到 <code>?resumed=1</code>：</p>
+<ol>
+<li>调用 <code>GET /api/resumed-result</code></li>
+<li>后端从 <code>session.pop("resumed_result")</code> 取出结果（一次性）</li>
+<li>前端展示绿色 "✅ 重新认证完成，已继续执行高危操作" 提示</li>
+<li>渲染 LLM 回复和工具调用详情</li>
+</ol>
+<p>URL 中的 <code>?resumed=1</code> 被 <code>history.replaceState</code> 清除，用户不会看到。</p>`
+}
+]
+
+const ALL_ARROWS = ['a-a1','l-a1','v-a1','a-a2','l-a2','v-a2','a-a3','l-a3','a-a4','l-a4','v-a4','a-a5','l-a5','v-a5','a-a6','l-a6','v-a6','a-a7','l-a7','a-b1','l-b1','v-b1','a-b2','l-b2','v-b2','a-b3','l-b3','a-b4','l-b4','v-b4','a-b5','l-b5','v-b5','a-b6','l-b6','a-b7','l-b7','v-b7','a-b7b','l-b7b','v-b7b','a-b8','l-b8','v-b8','a-c1','l-c1','v-c1','a-c2','l-c2','a-c3','l-c3','v-c3','a-c4','l-c4','v-c4','a-c5','l-c5','a-c6','l-c6','v-c6','a-c7','l-c7','a-c8','l-c8']
+const PHASE_COLOR = { pa: 'ap2', pb: 'ab', pc: 'ac' }
+
+let cur = 0
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar')
+  let html = ''
+  let lastPhase = ''
+  STEPS.forEach((s, i) => {
+    if (s.phase !== lastPhase) {
+      lastPhase = s.phase
+      html += `<div class="phase-label phase-${s.phase}">${s.phase === PA ? 'Phase A — SSO' : s.phase === PC ? 'Phase C — HIL 高危拦截' : 'Phase B — MCP OAuth'}</div>`
+    }
+    html += `<button class="step-btn ${s.phase} ${i===cur?'active':''}" onclick="go(${i})">
+      <span class="snum">${i===0?'★':i}</span>
+      <span class="stext">${s.label}<div class="ssub">${s.sub}</div></span>
+    </button>`
+  })
+  sb.innerHTML = html
+}
+
+function applyStep(i) {
+  const s = STEPS[i]
+  const col = PHASE_COLOR[s.phase]
+  const markerSuffix = s.phase === PA ? 'p' : s.phase === PC ? 'c' : 'b'
+
+  // Reset nodes
+  document.querySelectorAll('.nbox').forEach(el => el.className.baseVal = 'nbox')
+  // Reset arrows
+  ALL_ARROWS.forEach(id => {
+    const el = document.getElementById(id)
+    if (el) el.className.baseVal = el.tagName === 'path' ? 'ap' : 'al' + (id.startsWith('v-') ? ' var' : '')
+  })
+
+  if (s.nodes.length > 0) {
+    // Dim unrelated nodes
+    document.querySelectorAll('.node-group').forEach(g => {
+      const nid = g.id.replace('node-', '')
+      const box = g.querySelector('.nbox')
+      if (!box) return
+      if (!s.nodes.includes(nid)) box.classList.add('dim')
+      else box.classList.add(s.phase === PA ? 'active-p' : s.phase === PC ? 'active-c' : 'active')
+    })
+
+    // Style active arrows
+    ALL_ARROWS.forEach(id => {
+      const el = document.getElementById(id)
+      if (!el) return
+      if (!s.arrows.includes(id)) {
+        el.classList.add('dim')
+      } else {
+        el.classList.add(col)
+        if (el.tagName === 'path') el.classList.add('flow')
+        // Fix marker
+        if (el.tagName === 'path') el.setAttribute('marker-end', `url(#m${markerSuffix})`)
+      }
+    })
+  }
+
+  // Info panel
+  document.getElementById('ip-title').innerHTML = s.title
+  document.getElementById('ip-body').innerHTML = s.body
+  updateInfoToggle()
+
+  // Progress
+  document.getElementById('pfill').style.width = (i / (STEPS.length-1) * 100) + '%'
+  document.getElementById('sctr').textContent = `${i} / ${STEPS.length-1}`
+  document.getElementById('btn-prev').disabled = i === 0
+  document.getElementById('btn-next').disabled = i === STEPS.length-1
+
+  renderSidebar()
+}
+
+let infoCollapsed = false
+
+function updateInfoToggle() {
+  const panel = document.getElementById('info-panel')
+  const btn = document.getElementById('ip-toggle')
+  if (!panel || !btn) return
+  if (infoCollapsed) {
+    panel.classList.add('collapsed')
+    btn.textContent = '▶'
+    btn.title = '展开详情'
+  } else {
+    panel.classList.remove('collapsed')
+    btn.textContent = '◀ 收起'
+    btn.title = '折叠详情'
+  }
+}
+
+function toggleInfoPanel() {
+  infoCollapsed = !infoCollapsed
+  updateInfoToggle()
+}
+
+function go(i) { cur = i; applyStep(i) }
+function next() { if (cur < STEPS.length-1) go(cur+1) }
+function prev() { if (cur > 0) go(cur-1) }
+
+function selectNode(nid) {
+  const map = {
+    user:['A1','A4'].map((_,j)=>j+1), agent:[0], idira:[2], entra:[2],
+    mcp:[12], api:[13], sess:[6], tok:[11]
+  }
+  const stepMap = { user:1, agent:1, idira:2, entra:2, gw:11, mcp:11, api:12, sess:5, tok:10 }
+  go(stepMap[nid] ?? 0)
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') next()
+  if (e.key==='ArrowLeft'||e.key==='ArrowUp') prev()
+})
+
+renderSidebar()
+applyStep(0)
+</script>
+</body>
+</html>

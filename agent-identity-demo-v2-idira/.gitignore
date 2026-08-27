@@ -1,0 +1,17 @@
+# 环境变量（含真实密钥，绝不提交）
+.env
+.env.backend
+.env.frontend
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Docker
+.dockerignore
+
+# macOS
+.DS_Store
