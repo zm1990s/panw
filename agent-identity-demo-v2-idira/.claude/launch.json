@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ZT Architect",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5050", "--directory", "/Users/wangjy/AI/panw/zero-trust"],
+      "port": 5050,
+      "url": "http://localhost:5050"
+    }
+  ]
+}

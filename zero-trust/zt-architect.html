@@ -69,11 +69,15 @@ body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background
 .band-body .col-section-v{flex:none}
 .band-body>.mod{flex:0 0 auto;min-width:150px;max-width:200px}
 .col-sec-col.col-sec-wide{flex:0 0 auto}
-.col-section.col-section-2col{display:grid;grid-template-columns:repeat(2,minmax(140px,auto));gap:3px;flex:unset}
+.col-section.col-section-2col{display:grid;grid-template-columns:repeat(2,minmax(140px,auto));gap:10px;flex:unset}
 .band-top-row{display:flex;flex-direction:row;gap:8px;align-items:stretch}
 .band-top-row>#band-top{flex:0 0 auto}
 #band-topright .band-hdr{background:rgba(8,35,50,.55);border:1px solid rgba(8,145,178,.5);color:#22d3ee}
-#band-bot{align-self:flex-start}
+#band-top,#band-bot{align-self:flex-start}
+.sec-controls-wrap{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.sec-controls-hdr{background:rgba(14,116,144,0.12);border:1px solid rgba(14,116,144,0.35);border-radius:5px;padding:4px 16px;font-size:9px;font-weight:700;color:#22d3ee;text-align:center;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
+.sec-controls-grid{display:grid;grid-template-columns:max-content max-content;gap:10px;align-items:start}
+.sec-controls-grid>.col{justify-self:start}
 #band-bot .col-section-v,#band-top .col-section-v,#band-topright .col-section-v{display:flex;flex-direction:row;flex-wrap:wrap;gap:5px;align-items:flex-start}
 #band-bot .col-section-v>.mod,#band-top .col-section-v>.mod,#band-topright .col-section-v>.mod{flex:0 0 auto;min-width:140px;max-width:none}
 #band-bot .band-body .col-sec-col,#band-top .band-body .col-sec-col,#band-topright .band-body .col-sec-col{max-width:none}
@@ -102,6 +106,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background
 #conn-svg g.conn-bright path{stroke-width:2.8px !important;opacity:0.85 !important}
 #conn-svg g.conn-bright polygon{opacity:1 !important}
 .col-sub-hdr.hidden{display:none}
+[id^="sec-"].sec-hl>.col-sub-hdr{box-shadow:0 0 0 1.5px rgba(147,197,253,0.5);color:#93c5fd}
 .mod-lbl{font-size:11px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;line-height:1.3}
 .mod-items{display:flex;flex-direction:column;gap:2px}
 .mod-item{font-size:10px;color:#475569;padding:1px 5px;background:rgba(0,0,0,.3);border-radius:3px;line-height:1.4}
@@ -197,22 +202,21 @@ body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PRESETS = [
-  { id:'p-small',  label:'小型企业',  mods:['m-emp','m-endpointdev','m-sso','m-device','m-remote','m-sase-mu','m-atp','m-aurl','m-adns','m-ipdef','m-internet','m-saas','m-llmgw','m-log'] },
-  { id:'p-mid',    label:'中型企业',  mods:['m-emp','m-contractor','m-endpointdev','m-aiagent','m-sso','m-pam','m-device','m-agtreg','m-mcpauth','m-remote','m-branch','m-sase-mu','m-sase-ep','m-atp','m-awf','m-aurl','m-adns','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-log','m-policy'] },
-  { id:'p-large',  label:'大型跨国',  mods:['m-emp','m-contractor','m-endpointdev','m-iot','m-aiagent','m-sso','m-pam','m-device','m-agtreg','m-mcpauth','m-spiffe','m-wcert','m-remote','m-branch','m-campus','m-byod','m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-atp','m-awf','m-aurl','m-adns','m-sdwan','m-devsec','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-log','m-policy','m-alert','m-compliance'] },
-  { id:'p-ai',     label:'AI 企业',   mods:['m-emp','m-aiagent','m-endpointdev','m-sso','m-pam','m-device','m-agtreg','m-mcpauth','m-remote','m-sase-mu','m-atp','m-awf','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-log','m-policy','m-alert'] },
-];
+  { id:'p-small',  label:'小型企业',  mods:['m-emp','m-endpointdev','m-sso','m-epm','m-device','m-remote','m-sase-mu','m-atp','m-aurl','m-adns','m-ipdef','m-internet','m-saas','m-log'] },
+  { id:'p-mid',    label:'中型企业',  mods:['m-emp','m-contractor','m-endpointdev','m-aiagent','m-sso','m-pam','m-epm','m-xdr','m-device','m-agtreg','m-mcpauth','m-remote','m-branch','m-sase-mu','m-sase-ep', 'm-sase-rn', 'm-atp','m-awf','m-aurl','m-adns','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-log','m-policy'] },
+  { id:'p-large',  label:'大型跨国',  mods:['m-emp','m-contractor','m-endpointdev','m-iot','m-aiagent','m-sso','m-pam','m-epm','m-xdr','m-device','m-agtreg','m-mcpauth','m-spiffe','m-wcert','m-remote','m-branch','m-campus','m-byod','m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-atp','m-awf','m-aurl','m-adns','m-devsec','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-cspm','m-cwpp','m-ciem','m-log','m-policy','m-alert','m-compliance'] },
+ ];
 
 const GROUPS = [
   { id:'g-subj',  label:'身份主体',   color:'#1d4ed8', mods:['m-emp','m-contractor','m-aiagent'] },
   { id:'g-dev',   label:'设备',       color:'#0369a1', mods:['m-endpointdev','m-byod','m-iot'] },
   { id:'g-idnt',  label:'人类身份',   color:'#7c3aed', mods:['m-sso','m-pam'] },
-  { id:'g-epd',   label:'终端安全',   color:'#0891b2', mods:['m-device'] },
+  { id:'g-epd',   label:'终端安全',   color:'#0891b2', mods:['m-epm','m-xdr','m-device'] },
   { id:'g-aiid',  label:'AI Agent 身份', color:'#d97706', mods:['m-agtreg','m-mcpauth'] },
   { id:'g-mach',  label:'机器身份',   color:'#0891b2', mods:['m-spiffe','m-wcert'] },
   { id:'g-accs',  label:'接入方式',   color:'#0369a1', mods:['m-remote','m-branch','m-campus'] },
   { id:'g-sase',  label:'SASE 接入方式', color:'#0e7490', mods:['m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc'] },
-  { id:'g-sfn',   label:'SASE 安全服务 (CDSS)', color:'#22d3ee', mods:['m-atp','m-awf','m-aurl','m-adns','m-sdwan','m-devsec','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access'] },
+  { id:'g-sfn',   label:'SASE 安全服务 (CDSS)', color:'#22d3ee', mods:['m-atp','m-awf','m-aurl','m-adns','m-devsec','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access'] },
   { id:'g-rsrc',  label:'业务资源',   color:'#065f46', mods:['m-internet','m-saas','m-cloud','m-dc'] },
   { id:'g-ai',    label:'AI 网关',    color:'#92400e', mods:['m-llmgw','m-mcpgw','m-rtsec'] },
   { id:'g-cnapp', label:'云安全 (CNAPP)', color:'#0e7490', mods:['m-cspm','m-cwpp','m-ciem','m-cdr','m-aspm'] },
@@ -253,9 +257,15 @@ const MODS = {
   'm-pam':      { col:1, sec:'人类身份', theme:'t-idnt', label:'PAM / JIT / ZSP',
     items:['特权访问管理 (PAM)','即时访问 (JIT Provisioning)','零常设权限 (ZSP)','会话录制与审计'],
     tip:'特权账号管理，实现最小权限和零常设权限原则，消除长期凭据风险' },
-  'm-device':   { col:8, theme:'t-mach', label:'终端安全 (EPM / XDR)',
-    items:['EPM 终端保护管理 (Cortex/CrowdStrike)','XDR 扩展检测与响应','证书绑定认证 / MDM','持续设备健康评分','不合规设备自动降权'],
-    tip:'EPM 持续保护设备，XDR 检测威胁；两者将设备合规状态上报至身份层，作为每次访问决策的实时输入。用户身份 + 设备健康 = 访问令牌' },
+  'm-device':   { col:8, sec:'设备信任', theme:'t-mach', label:'设备信任评估',
+    items:['证书绑定认证 / MDM','持续设备健康评分','不合规设备自动降权'],
+    tip:'设备合规状态持续上报至身份层，作为每次访问决策的实时输入。用户身份 + 设备健康 = 访问令牌' },
+  'm-epm':      { col:8, sec:'终端保护', theme:'t-mach', label:'EPM 终端保护',
+    items:['终端保护管理','实时 AV / EDR 防护','漏洞优先级修复'],
+    tip:'EPM 持续保护终端，提供实时 AV/EDR 防护和漏洞管理，是零信任入场条件之一' },
+  'm-xdr':      { col:8, sec:'XDR 检测', theme:'t-mach', label:'XDR 扩展检测',
+    items:['跨域威胁关联检测','端点取证与溯源','自动化攻击链响应'],
+    tip:'XDR 跨端点、网络和云进行威胁检测与响应，提供完整攻击链视图' },
   // AI Agent 身份
   'm-agtreg':   { col:1, sec:'AI Agent 身份', theme:'t-agent', label:'AI Agent 身份管理',
     items:['Agent Registry（注册中心）','Agent Discovery（服务发现）','Owner / Scope 定义','信任评估与分级'],
@@ -284,19 +294,19 @@ const MODS = {
   // ── Column 3: SASE Platform — sub-sectioned ──────────────
   // sec:'SASE接入方式'
   'm-sase-mu':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'MU — Mobile User',
-    items:['GlobalProtect 客户端接入','无客户端 (Clientless) 访问','私有区域 (Private Region) 选项','全球 100+ PoP 就近接入'],
+    items:['GlobalProtect 客户端接入','私有区域 (Private Region) 选项','全球 100+ PoP 就近接入'],
     tip:'最常用接入方式。GlobalProtect 代理或无客户端模式为移动用户建立零信任隧道；支持私有区域满足数据不出境合规要求' },
   'm-sase-ep':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'EP — Explicit Proxy',
-    items:['PAC 文件自动发现','HTTP/S 显式代理转发','无需安装客户端','适合 BYOD / 受限设备'],
+    items:['PAC 文件自动发现','HTTP/S 显式代理转发','无需安装客户端'],
     tip:'通过 PAC 文件将浏览器流量显式转发至 Prisma 代理，无需 GlobalProtect 客户端，适合不允许安装代理的场景' },
   'm-sase-browser':{ col:3, sec:'SASE 接入方式', theme:'t-sase', label:'Prisma Browser',
-    items:['云端交付隔离浏览器','零日漏洞与恶意代码隔离','无需本地代理安装','适合第三方 / BYOD 访问'],
-    tip:'Prisma Cloud-Delivered Secure Browser — 在云端运行完整隔离浏览器，终端只接收像素流，彻底隔离网页威胁' },
+    items:['安全浏览器','零日漏洞与恶意代码隔离','适合第三方 / BYOD 访问'],
+    tip:'Prisma Browser — 安全浏览器，具备易用的 DLP 及 Web 安全功能' },
   'm-sase-rn':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'RN — Remote Network',
-    items:['分支 / 园区整网接入','IPSec / SD-WAN 隧道','BGP 路由协议支持','IoT / OT 网络纳管'],
+    items:['分支 / 园区整网接入','IPSec / SD-WAN 隧道','IoT / OT 网络纳管'],
     tip:'将分支机构和大型园区的整个网络通过 IPSec/SD-WAN 接入 Prisma SASE，替代传统 MPLS，支持 IoT/OT 统一管控' },
   'm-sase-sc':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'SC — Service Connect',
-    items:['数据中心服务发布至 Prisma','公有云 VPC 安全接入','东西向服务互联','无需在 DC 部署防火墙'],
+    items:['数据中心服务发布至 Prisma','公有云 VPC 安全接入','东西向服务互联'],
     tip:'Service Connect — 将数据中心和云 VPC 以服务形式发布到 Prisma 网络，用户通过 ZTNA 访问，无需专线或 DC 防火墙' },
   // sec:'安全服务' — PA CDSS threat protection services
   'm-atp':      { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced Threat Prevention',
@@ -314,9 +324,6 @@ const MODS = {
   'm-ipdef':    { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced IP Defense',
     items:['攻击者基础设施识别','扫描 / Exploit 前阻断','恶意 IP 实时拦截'],
     tip:'高级 IP 防御：在攻击扫描和 Exploit 发起前识别并阻断恶意攻击者的 IP 基础设施，降低暴露面' },
-  'm-sdwan':    { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced SD-WAN',
-    items:['应用感知智能路由','多链路负载与故障切换','分支 / WAN 链路优化'],
-    tip:'高级 SD-WAN：应用感知的多链路智能调度，自动选择最优路径，降低延迟并提升分支和 WAN 访问体验' },
   'm-devsec':   { col:3, sec:'安全服务', theme:'t-sase', label:'Device Security',
     items:['IoT/OT/BYOD 设备自动发现','设备风险识别与评估','异常设备隔离保护'],
     tip:'设备安全：自动发现并分类 IoT/OT/BYOD 等非托管设备，持续评估风险，对异常或不合规设备实施隔离' },
@@ -334,27 +341,27 @@ const MODS = {
     tip:'AI 访问安全：发现并管控 ChatGPT / Copilot 等 GenAI 工具的使用，保护 Prompt 和响应中的敏感数据' },
 
   // ── Column 5: Business Resources ─────────────────────────
-  'm-internet': { col:5, theme:'t-rsrc', label:'Internet / 白名单 IP',
+  'm-internet': { col:5, sec:'业务资源', theme:'t-rsrc', label:'Internet / 白名单 IP',
     items:['一般互联网访问','特殊出口 IP / 白名单','合规 Internet 出口'],
     tip:'对公共互联网的访问，可实施 IP 白名单出口策略，区分高风险和普通流量' },
-  'm-saas':     { col:5, theme:'t-rsrc', label:'SaaS 应用',
+  'm-saas':     { col:5, sec:'业务资源', theme:'t-rsrc', label:'SaaS 应用',
     items:['Microsoft 365 / Google Workspace','Salesforce / ServiceNow','Slack / Zoom','特殊 SaaS 访问'],
     tip:'企业使用的 SaaS 软件，通过 CASB 管控和 DLP 保护，防止数据泄露' },
-  'm-cloud':    { col:5, theme:'t-rsrc', label:'公有云 (VPC / K8S / VM)',
+  'm-cloud':    { col:5, sec:'业务资源', theme:'t-rsrc', label:'公有云 (VPC / K8S / VM)',
     items:['VPC / 私有网络','K8S 容器平台','VM / Serverless','Cloud NGFW','零信任策略 / 微隔离'],
     tip:'公有云工作负载，通过 Cloud NGFW 和微隔离实现东西向零信任，保护工作负载间流量' },
-  'm-dc':       { col:5, theme:'t-rsrc', label:'数据中心 (DC / 私有云)',
+  'm-dc':       { col:5, sec:'业务资源', theme:'t-rsrc', label:'数据中心 (DC / 私有云)',
     items:['内网办公应用','ERP / CRM / 开发平台','文件系统 / API 服务','硬件 NGFW','零信任策略 / 微隔离'],
     tip:'企业自建数据中心，通过硬件 NGFW 和微隔离保护南北向和东西向流量' },
 
   // ── SASE col-3 sec: AI 网关 ──────────────────────────────
-  'm-llmgw':   { col:3, sec:'AI 网关', theme:'t-ai', label:'LLM Gateway',
+  'm-llmgw':   { col:6, sec:'LLM 网关', theme:'t-ai', label:'LLM Gateway',
     items:['LLM 路由与模型管控','提示词安全过滤','Token / Cost 监控','多模型负载均衡','审计追踪'],
     tip:'统一 LLM 访问入口：路由到不同模型（OpenAI/Anthropic/私有模型），执行提示词安全、配额控制和审计' },
-  'm-mcpgw':   { col:3, sec:'AI 网关', theme:'t-ai', label:'MCP Gateway',
+  'm-mcpgw':   { col:6, sec:'MCP 网关', theme:'t-ai', label:'MCP Gateway',
     items:['MCP 工具代理 & 路由','JIT 工具授权','工具调用链路追踪','恶意工具链防护','Scope 细粒度管控'],
     tip:'AI Agent 工具调用的安全网关：代理 MCP 请求，执行 JIT 授权，记录每次工具调用，防止工具滥用' },
-  'm-rtsec':   { col:3, sec:'AI 网关', theme:'t-asec', label:'AI Runtime Security',
+  'm-rtsec':   { col:6, sec:'AI 运行时安全', theme:'t-asec', label:'AI Runtime Security',
     items:['提示词注入检测','越权行为防护','异常 Agent 行为检测','AI 输出内容过滤','东西向 AI 微隔离'],
     tip:'Prisma AIRS Runtime — 对 AI 推理请求进行实时安全检测，防止提示词注入、数据泄露和 Agent 越权行为' },
 
@@ -389,53 +396,63 @@ const MODS = {
     items:['漏洞优先级智能排序','修复路径推荐','风险评分与趋势追踪','暴露面减少 99% 噪音'],
     tip:'Cortex Exposure Management：结合攻击路径分析和业务上下文，将漏洞噪音降低 99%，专注最高风险修复' },
   // ── Column 9: Cloud Security (CNAPP) ─────────────────────
-  'm-cspm':     { col:9, theme:'t-sase', label:'CSPM 云安全态势',
+  'm-cspm':     { col:9, sec:'态势管理', theme:'t-sase', label:'CSPM 云安全态势',
     items:['云配置持续合规评估','多云统一安全视图','错误配置自动修复'],
     tip:'Cloud Security Posture Management：持续评估 AWS/Azure/GCP 配置风险，发现并修复错误配置和合规违规' },
-  'm-cwpp':     { col:9, theme:'t-sase', label:'CWPP 工作负载保护',
+  'm-cwpp':     { col:9, sec:'工作负载安全', theme:'t-sase', label:'CWPP 工作负载保护',
     items:['VM / 容器运行时保护','工作负载漏洞扫描','Serverless 安全防护'],
     tip:'Cloud Workload Protection Platform：保护云上 VM、容器和无服务器工作负载，提供运行时威胁检测与漏洞管理' },
-  'm-ciem':     { col:9, theme:'t-mach', label:'CIEM 权限治理',
+  'm-ciem':     { col:9, sec:'态势管理', theme:'t-sase', label:'CIEM 权限治理',
     items:['云身份过度授权检测','最小权限策略推荐','服务账号风险管控'],
     tip:'Cloud Identity Entitlement Management：发现并纠正云上过度授权的用户、角色和服务账号，落实最小权限原则' },
-  'm-cdr':      { col:9, theme:'t-sase', label:'CDR 云端检测响应',
+  'm-cdr':      { col:9, sec:'工作负载安全', theme:'t-sase', label:'CDR 云端检测响应',
     items:['云原生威胁实时检测','跨云账号攻击关联','自动化响应与隔离'],
     tip:'Cloud Detection & Response：基于云原生日志和行为分析的威胁检测，跨 AWS/Azure/GCP 的攻击关联与响应' },
-  'm-aspm':     { col:9, theme:'t-sase', label:'ASPM 应用安全',
+  'm-aspm':     { col:9, sec:'应用安全', theme:'t-sase', label:'ASPM 应用安全',
     items:['代码 → IaC → 运行时链路','开发管道安全左移','软件供应链风险管控'],
     tip:'Application Security Posture Management：覆盖代码审查、IaC 扫描到运行时保护的全链路应用安全，在 CI/CD 中左移安全' },
 };
+
+PRESETS.find(p => p.id === 'p-large').mods = Object.keys(MODS);
 
 // Cross-column connections: [from, to, color, style('solid'|'dash'|'dot')]
 const CONNS = [
   // Subjects → Identity
   ['m-emp',       'm-sso',     '#3b82f6','dash'],
   ['m-emp',       'm-pam',     '#3b82f6','dash'],
-  ['m-contractor','m-sso',     '#64748b','dash'],
+  ['m-contractor','m-sso',     '#3b82f6','dash'],
+  ['m-contractor','m-pam',     '#3b82f6','dash'],
   ['m-aiagent',   'm-agtreg',  '#f59e0b','dash'],
   ['m-aiagent',   'm-mcpauth', '#f59e0b','dash'],
+  ['m-aiagent',   'm-llmgw', '#f59e0b','dash'],
+  ['m-aiagent',   'm-mcpgw', '#f59e0b','dash'],
 
   // Subjects → Devices (users go through their endpoint device)
   ['m-emp',       'm-endpointdev', '#3b82f6','dash'],
   ['m-emp',       'm-byod',        '#3b82f6','dash'],
+  ['m-contractor',  'm-endpointdev', '#3b82f6','dash'],
   ['m-contractor','m-byod',        '#64748b','dash'],
-  ['m-aiagent',   'm-endpointdev', '#f59e0b','dash'],
+  ['m-aiagent',   'm-endpointdev', '#3b82f6','dash'],
 
   // Devices → Identity (device posture check)
   ['m-endpointdev','m-device',  '#0891b2','dash'],
+  ['m-endpointdev','m-xdr',  '#0891b2','dash'],
+  ['m-endpointdev','m-epm',  '#0891b2','dash'],
   ['m-byod',       'm-sso',     '#3b82f6','dash'],
   ['m-byod',       'm-device',  '#0891b2','dash'],
-  ['m-iot',        'm-spiffe',  '#16a34a','dash'],
 
   // Devices → Access (devices establish network connectivity)
   ['m-endpointdev','m-remote',  '#3b82f6','solid'],
   ['m-endpointdev','m-branch',  '#3b82f6','solid'],
   ['m-endpointdev','m-campus',  '#3b82f6','solid'],
   ['m-byod',       'm-remote',  '#64748b','solid'],
+  ['m-byod',       'm-branch',  '#64748b','solid'],
+  ['m-byod',       'm-campus',  '#64748b','solid'],
+  ['m-iot',        'm-campus',  '#16a34a','solid'],
   ['m-iot',        'm-branch',  '#16a34a','solid'],
 
   // Identity policy: device trust gates access (policy enforcement)
-  ['m-mcpauth','m-mcpgw',   '#f59e0b','solid'],
+//  ['m-mcpauth','m-mcpgw',   '#f59e0b','solid'],
 
   // Access → SASE 接入方式
   ['m-remote',    'm-sase-mu',      '#0e7490','solid'],
@@ -444,95 +461,84 @@ const CONNS = [
   ['m-branch',    'm-sase-rn',      '#0e7490','solid'],
   ['m-campus',    'm-sase-sc',      '#0e7490','solid'],
   ['m-byod',      'm-sase-browser', '#0e7490','solid'],
-  ['m-iot',       'm-sase-rn',      '#16a34a','solid'],
 
-  // SASE 接入方式 → 安全服务（平台内部路由，补全 BFS 链路）
-  ['m-sase-mu', 'm-atp',      '#0e7490','dot'],
-  ['m-sase-mu', 'm-awf',      '#0e7490','dot'],
-  ['m-sase-mu', 'm-aurl',     '#0e7490','dot'],
-  ['m-sase-mu', 'm-adns',     '#0e7490','dot'],
-  ['m-sase-mu', 'm-ipdef',    '#0e7490','dot'],
-  ['m-sase-mu', 'm-edlp',     '#0e7490','dot'],
-  ['m-sase-mu', 'm-saas-sec', '#0e7490','dot'],
-  ['m-sase-mu', 'm-ai-access','#0e7490','dot'],
-  ['m-sase-ep', 'm-atp',      '#0e7490','dot'],
-  ['m-sase-ep', 'm-aurl',     '#0e7490','dot'],
-  ['m-sase-ep', 'm-edlp',     '#0e7490','dot'],
-  ['m-sase-ep', 'm-saas-sec', '#0e7490','dot'],
-  ['m-sase-ep', 'm-ngcasb',   '#0e7490','dot'],
-  ['m-sase-ep', 'm-ai-access','#0e7490','dot'],
-  ['m-sase-browser', 'm-saas-sec', '#0e7490','dot'],
-  ['m-sase-browser', 'm-ngcasb',   '#0e7490','dot'],
-  ['m-sase-browser', 'm-aurl',     '#0e7490','dot'],
-  ['m-sase-browser', 'm-ai-access','#0e7490','dot'],
-  ['m-sase-rn', 'm-atp',      '#0e7490','dot'],
-  ['m-sase-rn', 'm-awf',      '#0e7490','dot'],
-  ['m-sase-rn', 'm-adns',     '#0e7490','dot'],
-  ['m-sase-rn', 'm-sdwan',    '#0e7490','dot'],
-  ['m-sase-rn', 'm-devsec',   '#0e7490','dot'],
-  ['m-sase-rn', 'm-ipdef',    '#0e7490','dot'],
-  ['m-sase-rn', 'm-edlp',     '#0e7490','dot'],
-  ['m-sase-sc', 'm-atp',      '#0e7490','dot'],
-  ['m-sase-sc', 'm-edlp',     '#0e7490','dot'],
-  ['m-sase-sc', 'm-saas-sec', '#0e7490','dot'],
+  ['m-sase-mu',      'g-sfn', '#34d399','dot'],
 
   // 安全服务 → Resources
+
+
+  ['sec-SASE接入方式',  'sec-安全服务', '#34d399','dot'],
+  ['sec-安全服务',      'sec-业务资源', '#34d399','dot'],
+
+
+  /*
   ['m-atp',      'm-internet', '#34d399','dot'],
   ['m-atp',      'm-dc',       '#34d399','dot'],
   ['m-awf',      'm-internet', '#34d399','dot'],
   ['m-awf',      'm-saas',     '#34d399','dot'],
   ['m-aurl',     'm-internet', '#34d399','solid'],
   ['m-adns',     'm-internet', '#34d399','dot'],
-  ['m-sdwan',    'm-cloud',    '#34d399','solid'],
-  ['m-sdwan',    'm-dc',       '#34d399','solid'],
   ['m-ipdef',    'm-internet', '#34d399','dot'],
   ['m-edlp',     'm-saas',     '#34d399','dot'],
   ['m-edlp',     'm-cloud',    '#34d399','dot'],
   ['m-saas-sec', 'm-saas',     '#34d399','solid'],
   ['m-ngcasb',   'm-saas',     '#34d399','solid'],
   ['m-ai-access','m-internet', '#34d399','dot'],
-
-  // SASE → AI Gateway
-  ['m-ai-access', 'm-llmgw',  '#fbbf24','solid'],
-  ['m-atp',       'm-llmgw',  '#fbbf24','dot'],
+*/
 
   // AI Gateway → Resources (cloud AI APIs, MCP tools via SaaS)
-  ['m-llmgw',  'm-saas',  '#fbbf24','solid'],
+  ['m-llmgw',  'm-dc',  '#fbbf24','dot'],
   ['m-llmgw',  'm-cloud', '#fbbf24','dot'],
+  ['m-llmgw',  'm-internet', '#fbbf24','dot'],
   ['m-mcpgw',  'm-saas',  '#fbbf24','dot'],
+  ['m-mcpgw',  'm-cloud', '#fbbf24','dot'],
+  ['m-mcpgw',  'm-internet', '#fbbf24','dot'],
+  ['m-mcpgw',  'm-dc', '#fbbf24','dot'],
 
   // AI Runtime Security monitors gateway traffic
   ['m-llmgw',  'm-rtsec', '#fb7185','solid'],
   ['m-mcpgw',  'm-rtsec', '#fb7185','dot'],
 
   // Machine identity → AI gateway
-  ['m-wcert',  'm-llmgw', '#22d3ee','dot'],
+//  ['m-wcert',  'm-llmgw', '#22d3ee','dot'],
+  ['m-spiffe',  'm-cloud',    '#22d3ee','dot'],
+  ['m-spiffe',  'm-dc',    '#22d3ee','dot'],
+  ['m-wcert',  'm-cloud',    '#22d3ee','dot'],
   ['m-wcert',  'm-dc',    '#22d3ee','dot'],
 
   // Business resources → Cloud Security (CNAPP monitors & protects)
-  ['m-cloud',  'm-cspm',  '#0891b2','dot'],
-  ['m-cloud',  'm-cwpp',  '#0891b2','dot'],
-  ['m-cloud',  'm-cdr',   '#0891b2','dot'],
-  ['m-dc',     'm-cwpp',  '#0891b2','dash'],
-  ['m-ciem',   'm-pam',   '#0891b2','dot'],
+  ['m-cspm',  'm-cloud',  '#0891b2','dot'],
+  ['m-cwpp',  'm-cloud',  '#0891b2','dot'],
+  ['m-cdr',  'm-cloud',   '#0891b2','dot'],
+  ['m-ciem',  'm-cloud',   '#0891b2','dot'],
+  ['m-aspm',  'm-cloud',   '#0891b2','dot'],
+  ['m-cwpp',     'm-dc',  '#0891b2','dash'],
+  ['m-aspm',     'm-dc',  '#0891b2','dash'],
+  ['m-cdr',     'm-dc',  '#0891b2','dash'],
+//  ['m-ciem',   'm-pam',   '#0891b2','dot'],
 
 ];
 
 const SEC_COLOR_MAP = {
-  '人类身份':'human','机器身份':'machine','AI Agent 身份':'aiagent',
+  '人类身份':'human','机器身份':'machine','AI Agent 身份':'aiagent','AI 访问安全':'aiagent',
   'AI 资源':'machine','AI 安全控制':'aiagent','AI 网关':'aiagent',
   'SOC & 自动化':'human','攻击面管理':'machine',
+  '终端保护':'machine','XDR 检测':'machine','设备信任':'machine',
+  'LLM 网关':'aiagent','MCP 网关':'aiagent','AI 运行时安全':'aiagent',
+  '态势管理':'machine','工作负载安全':'machine','应用安全':'machine',
+  '业务资源':'machine',
 };
 
 const COL_DEFS = [
-  { id:'col-0', label:'身份主体',           width:152 },  // humans + AI agents
-  { id:'col-4', label:'设备域',             width:155 },  // endpoint devices
-  { id:'col-8', label:'终端安全',           width:170, band:'topright' },
-  { id:'col-1', label:'统一身份与信任域',   width:215, band:'top' },
+  { id:'col-0', label:'身份主体',           width:152 },
+  { id:'col-4', label:'设备域',             width:155 },
+  { id:'col-1', label:'统一身份与信任域',   width:172, band:'top', autoWidth:true  },
   { id:'col-2', label:'接入与边界域',       width:162 },
-  { id:'col-3', label:'SASE 安全平台',      width:320, secLayout:'row', autoWidth:true },
-  { id:'col-5', label:'业务资源域',         width:172 },
-  { id:'col-9', label:'云安全 (CNAPP)',     width:175 },
+  { id:'col-8', label:'终端安全',           width:100, secGrid:true, secLayout:'row', autoWidth:true },
+  { id:'col-3', label:'网络安全 & SASE',    width:320, secLayout:'row', autoWidth:true, secGrid:true },
+  { id:'col-6', label:'AI 安全',        width:100, secGrid:true, secLayout:'row', autoWidth:true },
+  { id:'col-9', label:'云安全 (CNAPP)',     width:150, secGrid:true, secLayout:'row', autoWidth:true },
+  { id:'col-5', label:'业务资源域',         width:172, secLayout:'row', autoWidth:true },
   { id:'col-7', label:'统一运营 & 合规',    width:172, band:'bot' },
 ];
 
@@ -546,8 +552,16 @@ const state = { enabled: new Set(), activePreset: null };
 // ─────────────────────────────────────────────────────────────────────────────
 // Helper: which band does a module belong to
 function getBand(mid) {
+  if (!MODS[mid]) {
+    const el = document.getElementById(mid);
+    const colEl = el?.closest('[id^="col-"]');
+    const colNum = colEl ? parseInt(colEl.id.replace('col-', '')) : NaN;
+    if (colNum === 1) return 'top';
+    if (colNum === 7) return 'bot';
+    return 'mid';
+  }
   const col = MODS[mid]?.col;
-  if (col === 1 || col === 8) return 'top';
+  if (col === 1) return 'top';
   if (col === 7) return 'bot';
   return 'mid';
 }
@@ -624,10 +638,7 @@ function renderCanvas() {
     outer.appendChild(buildBandEl(topDef, 'top'));
   }
 
-  // Middle: regular columns
-  const mid = document.createElement('div');
-  mid.id = 'canvas-mid';
-  midDefs.forEach(cd => {
+  function buildMidColEl(cd) {
     const col = document.createElement('div');
     col.className = 'col';
     col.id = cd.id;
@@ -678,6 +689,7 @@ function renderCanvas() {
           const secCol = document.createElement('div');
           const wide = mods.length > 5;
           secCol.className = 'col-sec-col' + (wide ? ' col-sec-wide' : '');
+          if (sec) secCol.id = 'sec-' + sec.replace(/\s+/g, '');
           if (sec) {
             const subHdr = document.createElement('div');
             const cc = SEC_COLOR_MAP[sec] || '';
@@ -714,9 +726,34 @@ function renderCanvas() {
     } else {
       colMods.forEach(([mid, m]) => body.appendChild(buildMod(mid, m)));
     }
+    return col;
+  }
 
-    mid.appendChild(col);
-  });
+  // Middle: regular columns, with secGrid cols grouped into 2×2 security controls
+  const mid = document.createElement('div');
+  mid.id = 'canvas-mid';
+  let mi = 0;
+  while (mi < midDefs.length) {
+    const cd = midDefs[mi];
+    if (cd.secGrid) {
+      const gridCols = [];
+      while (mi < midDefs.length && midDefs[mi].secGrid) { gridCols.push(midDefs[mi++]); }
+      const wrap = document.createElement('div');
+      wrap.className = 'sec-controls-wrap';
+      const wHdr = document.createElement('div');
+      wHdr.className = 'sec-controls-hdr';
+      wHdr.textContent = '安全管控';
+      wrap.appendChild(wHdr);
+      const grid = document.createElement('div');
+      grid.className = 'sec-controls-grid';
+      gridCols.forEach(gcd => grid.appendChild(buildMidColEl(gcd)));
+      wrap.appendChild(grid);
+      mid.appendChild(wrap);
+    } else {
+      mid.appendChild(buildMidColEl(cd));
+      mi++;
+    }
+  }
   outer.appendChild(mid);
 
   if (botDef) outer.appendChild(buildBandEl(botDef, 'bot'));
@@ -742,11 +779,44 @@ function getRelated(mid) {
   const fwd = [mid], bwd = [mid];
   while (fwd.length) { const c = fwd.shift(); (_connFwd[c]||[]).forEach(t=>{ if(!visited.has(t)){visited.add(t);fwd.push(t);} }); }
   while (bwd.length) { const c = bwd.shift(); (_connBwd[c]||[]).forEach(f=>{ if(!visited.has(f)){visited.add(f);bwd.push(f);} }); }
+  // Expand sec-* nodes in the result: add their visible child modules (passively highlighted)
+  [...visited].forEach(id => {
+    if (!id.startsWith('sec-')) return;
+    document.getElementById(id)?.querySelectorAll('.mod:not(.hidden)').forEach(m => { if (m.id) visited.add(m.id); });
+  });
   return visited;
 }
 
 function highlightRelated(mid) {
   const rel = getRelated(mid);
+  // Build initial secHlSet: sections directly in rel, or whose visible child is in rel
+  const secHlSet = new Set();
+  const childSecSet = new Set();
+  document.querySelectorAll('[id^="sec-"]').forEach(el => {
+    const hasRelatedChild = [...el.querySelectorAll('.mod:not(.hidden)')].some(m => rel.has(m.id));
+    if (hasRelatedChild) childSecSet.add(el.id);
+    if (rel.has(el.id) || hasRelatedChild)
+      secHlSet.add(el.id);
+  });
+  // Propagate secHlSet bidirectionally through section-to-section connections
+  let changed = true;
+  while (changed) {
+    changed = false;
+    secHlSet.forEach(secId => {
+      [...(_connFwd[secId]||[]), ...(_connBwd[secId]||[])].forEach(other => {
+        if (other.startsWith('sec-') && !secHlSet.has(other)) { secHlSet.add(other); changed = true; }
+      });
+    });
+  }
+  // Any highlighted section should carry its visible child modules with it.
+  // This lets module hover flow through parent section links, such as
+  // m-atp -> sec-安全服务 -> sec-业务资源 -> resource modules.
+  secHlSet.forEach(secId => {
+    if (childSecSet.has(secId)) return;
+    document.getElementById(secId)?.querySelectorAll('.mod:not(.hidden)').forEach(m => {
+      if (m.id) rel.add(m.id);
+    });
+  });
   Object.keys(MODS).forEach(id => {
     const el = document.getElementById(id);
     if (!el || el.classList.contains('hidden')) return;
@@ -754,15 +824,18 @@ function highlightRelated(mid) {
     else if (rel.has(id)) { el.classList.add('related'); el.classList.remove('dimmed','hovered'); }
     else { el.classList.add('dimmed'); el.classList.remove('related','hovered'); }
   });
+  document.querySelectorAll('[id^="sec-"]').forEach(el => el.classList.remove('sec-hl'));
   document.querySelectorAll('#conn-svg g.conn-grp').forEach(g => {
-    const active = rel.has(g.dataset.from) && rel.has(g.dataset.to);
-    g.classList.toggle('conn-bright', active);
-    g.classList.toggle('conn-dim', !active);
+    const fHl = rel.has(g.dataset.from) || secHlSet.has(g.dataset.from);
+    const tHl = rel.has(g.dataset.to) || secHlSet.has(g.dataset.to);
+    g.classList.toggle('conn-bright', fHl && tHl);
+    g.classList.toggle('conn-dim', !(fHl && tHl));
   });
 }
 
 function clearHighlight() {
   document.querySelectorAll('.mod').forEach(el => el.classList.remove('dimmed','related','hovered'));
+  document.querySelectorAll('[id^="sec-"]').forEach(el => el.classList.remove('sec-hl'));
   document.querySelectorAll('#conn-svg g.conn-grp').forEach(g => {
     g.classList.remove('conn-bright','conn-dim');
     const p = g.querySelector('path');
@@ -936,6 +1009,11 @@ function updateVis() {
     const hasEnabled = Object.entries(MODS).some(([mid, m]) => m.sec === s && state.enabled.has(mid));
     grp.classList.toggle('hidden', !hasEnabled);
   });
+  // Hide horizontal sec-col divs when all their modules are disabled (frees width)
+  document.querySelectorAll('[id^="sec-"]').forEach(secCol => {
+    const hasVis = secCol.querySelectorAll('.mod:not(.hidden)').length > 0;
+    secCol.style.display = hasVis ? '' : 'none';
+  });
   // Adjust 2-col grid to 1 col when ≤1 module visible (avoids wasted width)
   document.querySelectorAll('.col-section-2col').forEach(section => {
     const vis = section.querySelectorAll('.mod:not(.hidden)').length;
@@ -965,10 +1043,14 @@ function drawConns() {
   let active = 0;
 
   CONNS.forEach(([fid, tid, color, style]) => {
-    if (!state.enabled.has(fid) || !state.enabled.has(tid)) return;
+    const isMod = id => id.startsWith('m-');
+    if (isMod(fid) && !state.enabled.has(fid)) return;
+    if (isMod(tid) && !state.enabled.has(tid)) return;
     const fe = document.getElementById(fid);
     const te = document.getElementById(tid);
     if (!fe || !te) return;
+    if (!isMod(fid) && !fe.offsetParent) return;
+    if (!isMod(tid) && !te.offsetParent) return;
 
     const fr = fe.getBoundingClientRect();
     const tr = te.getBoundingClientRect();
