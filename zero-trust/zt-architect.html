@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>零信任网络安全架构 — 交互式设计器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:#0d1424;color:#e2e8f0;display:flex;flex-direction:column;height:100vh;overflow:hidden;font-size:13px}
+
+/* TOP BAR */
+#top{background:#111827;border-bottom:1px solid #1e3a5f;padding:7px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+#top .ptitle{font-size:11px;color:#475569;font-weight:700;white-space:nowrap;margin-right:4px}
+.pbadge{background:#0d1424;border:1px solid #1e3a5f;border-radius:20px;padding:2px 9px;font-size:10px;color:#64748b;white-space:nowrap}
+
+/* BODY ROW */
+#body-row{flex:1;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:256px;flex-shrink:0;background:#111827;border-right:1px solid #1e3a5f;display:flex;flex-direction:column;overflow:hidden}
+#sb-head{padding:10px 14px 8px;border-bottom:1px solid #1e3a5f;flex-shrink:0}
+#sb-head h2{font-size:12px;font-weight:700;color:#38bdf8;margin-bottom:8px}
+.preset-row{display:flex;gap:5px;flex-wrap:wrap}
+.btn-preset{padding:3px 8px;border-radius:4px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:10px;cursor:pointer;transition:all .15s}
+.btn-preset:hover{background:#334155;color:#e2e8f0}
+.btn-preset.active{background:#1d4ed8;border-color:#2563eb;color:#fff}
+.sbtn-row{display:flex;gap:5px;margin-top:8px}
+.btn-sm{padding:4px 10px;border-radius:4px;border:none;font-size:11px;cursor:pointer;font-weight:500;transition:all .15s}
+.btn-all{background:#1d4ed8;color:#fff}.btn-all:hover{background:#2563eb}
+.btn-reset{background:#334155;color:#cbd5e1}.btn-reset:hover{background:#475569}
+#sb-body{flex:1;overflow-y:auto;padding:8px 10px}
+#sb-body::-webkit-scrollbar{width:3px}
+#sb-body::-webkit-scrollbar-thumb{background:#334155;border-radius:2px}
+
+.sg{margin-bottom:10px}
+.sg-hdr{display:flex;align-items:center;gap:6px;padding:4px 3px;cursor:pointer;border-radius:4px;transition:background .15s;user-select:none}
+.sg-hdr:hover{background:#1e293b}
+.sg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sg-lbl{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.sg-cnt{margin-left:auto;font-size:9px;color:#334155}
+.sg-arrow{font-size:9px;color:#475569;transition:transform .2s}
+.sg-arrow.open{transform:rotate(90deg)}
+.gcb{cursor:pointer;flex-shrink:0;margin:0 2px;width:12px;height:12px;accent-color:#6366f1}
+.sg-items{padding-left:2px;overflow:hidden;max-height:0;transition:max-height .2s ease}
+.sg-items.open{max-height:500px}
+.cb-row{display:flex;align-items:flex-start;gap:6px;padding:3px 5px;cursor:pointer;border-radius:3px;transition:background .15s}
+.cb-row:hover{background:#1e293b}
+.cb-row input{width:12px;height:12px;accent-color:#3b82f6;cursor:pointer;flex-shrink:0;margin-top:1px}
+.cb-lbl{font-size:11px;color:#64748b;cursor:pointer;line-height:1.3}
+.cb-row.checked .cb-lbl{color:#cbd5e1}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* CANVAS */
+#cv-wrap{flex:1;overflow:auto;padding:12px;background:#0d1424}
+#cv-wrap::-webkit-scrollbar{height:5px;width:5px}
+#cv-wrap::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+#canvas-outer{display:flex;flex-direction:column;gap:8px;position:relative;min-width:fit-content}
+#canvas-mid{display:flex;gap:22px;min-height:420px;align-items:stretch}
+#conn-svg{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;z-index:20}
+/* BANDS */
+.band{display:flex;flex-direction:column;gap:5px}
+.band-hdr{border-radius:5px;padding:5px 16px;font-size:9px;font-weight:700;text-align:center;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
+#band-top .band-hdr{background:rgba(23,13,53,0.55);border:1px solid rgba(109,40,217,0.5);color:#a78bfa}
+#band-bot .band-hdr{background:rgba(15,15,32,0.55);border:1px solid rgba(55,48,163,0.5);color:#818cf8}
+.band-body{display:flex;flex-direction:row;gap:12px;align-items:flex-start}
+.band-body .col-sec-col{flex:0 0 auto;min-width:170px;max-width:220px}
+.band-body .col-section-v{flex:none}
+.band-body>.mod{flex:0 0 auto;min-width:150px;max-width:200px}
+.col-sec-col.col-sec-wide{flex:0 0 auto}
+.col-section.col-section-2col{display:grid;grid-template-columns:repeat(2,minmax(140px,auto));gap:3px;flex:unset}
+.band-top-row{display:flex;flex-direction:row;gap:8px;align-items:stretch}
+.band-top-row>#band-top{flex:0 0 auto}
+#band-topright .band-hdr{background:rgba(8,35,50,.55);border:1px solid rgba(8,145,178,.5);color:#22d3ee}
+#band-bot{align-self:flex-start}
+#band-bot .col-section-v,#band-top .col-section-v,#band-topright .col-section-v{display:flex;flex-direction:row;flex-wrap:wrap;gap:5px;align-items:flex-start}
+#band-bot .col-section-v>.mod,#band-top .col-section-v>.mod,#band-topright .col-section-v>.mod{flex:0 0 auto;min-width:140px;max-width:none}
+#band-bot .band-body .col-sec-col,#band-top .band-body .col-sec-col,#band-topright .band-body .col-sec-col{max-width:none}
+[data-sec-group].hidden{display:none}
+
+/* COLUMNS */
+.col{display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+.col-body{display:flex;flex-direction:column;gap:12px}
+.col-hdr{background:#111827;border:1px solid #1e3a5f;border-radius:5px;padding:5px 8px;font-size:9px;font-weight:700;color:#475569;text-align:center;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0}
+.col-sub-hdr{border-radius:4px;padding:3px 8px;font-size:9px;font-weight:700;text-align:center;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0;margin-top:1px;background:rgba(14,116,144,0.15);border:1px solid rgba(14,116,144,0.4);color:#22d3ee}
+.col-sub-hdr.human  {background:rgba(109,40,217,0.15);border-color:rgba(109,40,217,0.45);color:#a78bfa}
+.col-sub-hdr.machine{background:rgba(8,145,178,0.15); border-color:rgba(8,145,178,0.45); color:#22d3ee}
+.col-sub-hdr.aiagent{background:rgba(217,119,6,0.15); border-color:rgba(217,119,6,0.45);  color:#fbbf24}
+.col-section{display:flex;flex-direction:column;gap:10px;border:1px solid rgba(14,116,144,0.12);border-radius:5px;padding:8px;background:rgba(4,40,48,0.45);flex:1}
+.col-sec-row{display:flex;flex-direction:row;gap:10px;align-self:flex-start}
+.col-sec-col{display:flex;flex-direction:column;gap:5px;flex:0 0 auto;min-width:0}
+
+/* MODULES */
+.mod{border-radius:7px;padding:11px 13px;border:1px solid;transition:opacity .18s,box-shadow .18s,max-height .25s;position:relative;overflow:hidden}
+.mod.hidden{display:none}
+.mod.dimmed{opacity:0.13}
+.mod.hovered{box-shadow:0 0 0 2px #93c5fd,0 0 16px rgba(147,197,253,0.4)}
+.mod.related{box-shadow:0 0 0 1.5px rgba(255,255,255,0.22)}
+#conn-svg g.conn-grp{transition:opacity .18s}
+#conn-svg g.conn-dim{opacity:0.05}
+#conn-svg g.conn-bright path{stroke-width:2.8px !important;opacity:0.85 !important}
+#conn-svg g.conn-bright polygon{opacity:1 !important}
+.col-sub-hdr.hidden{display:none}
+.mod-lbl{font-size:11px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;line-height:1.3}
+.mod-items{display:flex;flex-direction:column;gap:2px}
+.mod-item{font-size:10px;color:#475569;padding:1px 5px;background:rgba(0,0,0,.3);border-radius:3px;line-height:1.4}
+
+/* COLOR THEMES */
+.t-subj{background:#0c1a35;border-color:#1d4ed8}.t-subj .mod-lbl{color:#60a5fa}
+.t-idnt{background:#170d35;border-color:#6d28d9}.t-idnt .mod-lbl{color:#a78bfa}
+.t-mach{background:#031920;border-color:#0e7490}.t-mach .mod-lbl{color:#22d3ee}
+.t-agent{background:#1a1105;border-color:#d97706}.t-agent .mod-lbl{color:#fbbf24}
+.t-accs{background:#0c1a2a;border-color:#0369a1}.t-accs .mod-lbl{color:#38bdf8}
+.t-sase{background:#042830;border-color:#0e7490}.t-sase .mod-lbl{color:#22d3ee}
+.t-rsrc{background:#041f14;border-color:#065f46}.t-rsrc .mod-lbl{color:#34d399}
+.t-ai  {background:#1f1205;border-color:#92400e}.t-ai   .mod-lbl{color:#fbbf24}
+.t-asec{background:#1f0510;border-color:#9f1239}.t-asec .mod-lbl{color:#fb7185}
+.t-ops {background:#0f0f20;border-color:#3730a3}.t-ops  .mod-lbl{color:#818cf8}
+.t-cmp {background:#031a0d;border-color:#14532d}.t-cmp  .mod-lbl{color:#4ade80}
+
+/* VERTICAL SECTION GROUPS */
+.sec-group{display:flex;flex-direction:column;gap:4px}
+.sec-group.hidden{display:none}
+.col-section-v{display:flex;flex-direction:column;gap:8px;border:1px solid rgba(14,116,144,0.2);border-radius:5px;padding:8px;background:rgba(4,40,48,0.3)}
+.col-section-v.human  {border-color:rgba(109,40,217,0.35);background:rgba(23,13,53,0.25)}
+.col-section-v.machine{border-color:rgba(8,145,178,0.3)}
+.col-section-v.aiagent{border-color:rgba(217,119,6,0.35);background:rgba(26,17,5,0.25)}
+
+/* CHANNEL TAGS */
+.ctag{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;font-size:8px;font-weight:800;flex-shrink:0}
+.ctag-A{background:#dc2626;color:#fff}
+.ctag-B{background:#d97706;color:#fff}
+.ctag-C{background:#16a34a;color:#fff}
+
+/* VERIFICATION STRIP (inside SASE column) */
+.verif-strip{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:7px 8px;background:rgba(14,116,144,0.08);border:1px solid rgba(14,116,144,0.25);border-radius:5px;margin-top:2px}
+.verif-strip-hdr{font-size:9px;font-weight:700;color:#0e7490;text-align:center;letter-spacing:.05em;text-transform:uppercase;width:100%;margin-bottom:3px}
+.vid{background:#0c1a35;border:2px solid #1d4ed8;border-radius:5px;padding:4px 7px;font-size:9px;font-weight:800;color:#60a5fa;text-align:center;white-space:nowrap}
+
+/* STATS BAR */
+#stats{background:#111827;border-top:1px solid #1e3a5f;padding:5px 16px;display:flex;gap:20px;font-size:10px;color:#334155;flex-shrink:0;align-items:center}
+.stat{display:flex;gap:4px;align-items:center}
+.stat b{color:#38bdf8;font-weight:700}
+
+/* TOOLTIP */
+#tip{position:fixed;background:#1e293b;border:1px solid #475569;border-radius:6px;padding:8px 12px;font-size:11px;color:#e2e8f0;pointer-events:none;z-index:999;max-width:240px;display:none;line-height:1.4;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+
+<div id="top">
+  <span class="ptitle">设计原则 →</span>
+  <span class="pbadge">身份优先</span>
+  <span class="pbadge">人 / Agent / Workload 同一治理</span>
+  <span class="pbadge">持续验证</span>
+  <span class="pbadge">统一控制面</span>
+  <span class="pbadge">开放协作</span>
+  <span class="pbadge">全球一致 · 区域合规</span>
+  <span class="pbadge">可观测 · 可审计</span>
+</div>
+
+<div id="body-row">
+  <div id="sidebar">
+    <div id="sb-head">
+      <h2>零信任架构设计器</h2>
+      <div class="preset-row" id="presets"></div>
+      <div class="sbtn-row">
+        <button class="btn-sm btn-all" onclick="selectAll()">全选</button>
+        <button class="btn-sm btn-reset" onclick="resetAll()">清空</button>
+      </div>
+    </div>
+    <div id="sb-body"></div>
+  </div>
+
+  <div id="main">
+    <div id="cv-wrap">
+      <div id="canvas-outer">
+        <svg id="conn-svg"></svg>
+      </div>
+    </div>
+    <div id="stats">
+      <div class="stat">已启用模块: <b id="s-mods">0</b></div>
+      <div class="stat">活跃连接: <b id="s-conns">0</b></div>
+      <div class="stat">身份类型: <b id="s-ident">0</b></div>
+      <div class="stat">资源域: <b id="s-res">0</b></div>
+      <div class="stat" style="margin-left:auto;color:#475569;font-size:9px">悬停查看说明 · 勾选组件构建架构</div>
+    </div>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PRESETS = [
+  { id:'p-small',  label:'小型企业',  mods:['m-emp','m-endpointdev','m-sso','m-device','m-remote','m-sase-mu','m-atp','m-aurl','m-adns','m-ipdef','m-internet','m-saas','m-llmgw','m-log'] },
+  { id:'p-mid',    label:'中型企业',  mods:['m-emp','m-contractor','m-endpointdev','m-aiagent','m-sso','m-pam','m-device','m-agtreg','m-mcpauth','m-remote','m-branch','m-sase-mu','m-sase-ep','m-atp','m-awf','m-aurl','m-adns','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-log','m-policy'] },
+  { id:'p-large',  label:'大型跨国',  mods:['m-emp','m-contractor','m-endpointdev','m-iot','m-aiagent','m-sso','m-pam','m-device','m-agtreg','m-mcpauth','m-spiffe','m-wcert','m-remote','m-branch','m-campus','m-byod','m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-atp','m-awf','m-aurl','m-adns','m-sdwan','m-devsec','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-log','m-policy','m-alert','m-compliance'] },
+  { id:'p-ai',     label:'AI 企业',   mods:['m-emp','m-aiagent','m-endpointdev','m-sso','m-pam','m-device','m-agtreg','m-mcpauth','m-remote','m-sase-mu','m-atp','m-awf','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-log','m-policy','m-alert'] },
+];
+
+const GROUPS = [
+  { id:'g-subj',  label:'身份主体',   color:'#1d4ed8', mods:['m-emp','m-contractor','m-aiagent'] },
+  { id:'g-dev',   label:'设备',       color:'#0369a1', mods:['m-endpointdev','m-byod','m-iot'] },
+  { id:'g-idnt',  label:'人类身份',   color:'#7c3aed', mods:['m-sso','m-pam'] },
+  { id:'g-epd',   label:'终端安全',   color:'#0891b2', mods:['m-device'] },
+  { id:'g-aiid',  label:'AI Agent 身份', color:'#d97706', mods:['m-agtreg','m-mcpauth'] },
+  { id:'g-mach',  label:'机器身份',   color:'#0891b2', mods:['m-spiffe','m-wcert'] },
+  { id:'g-accs',  label:'接入方式',   color:'#0369a1', mods:['m-remote','m-branch','m-campus'] },
+  { id:'g-sase',  label:'SASE 接入方式', color:'#0e7490', mods:['m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc'] },
+  { id:'g-sfn',   label:'SASE 安全服务 (CDSS)', color:'#22d3ee', mods:['m-atp','m-awf','m-aurl','m-adns','m-sdwan','m-devsec','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access'] },
+  { id:'g-rsrc',  label:'业务资源',   color:'#065f46', mods:['m-internet','m-saas','m-cloud','m-dc'] },
+  { id:'g-ai',    label:'AI 网关',    color:'#92400e', mods:['m-llmgw','m-mcpgw','m-rtsec'] },
+  { id:'g-cnapp', label:'云安全 (CNAPP)', color:'#0e7490', mods:['m-cspm','m-cwpp','m-ciem','m-cdr','m-aspm'] },
+  { id:'g-ops',   label:'统一运营',   color:'#3730a3', mods:['m-log','m-policy','m-alert','m-compliance'] },
+  { id:'g-soc',   label:'SOC & 自动化', color:'#4338ca', mods:['m-xsiam','m-xsoar','m-agentix'] },
+  { id:'g-xpanse',label:'攻击面管理', color:'#7c3aed', mods:['m-xpanse','m-expomgmt'] },
+];
+
+// col: column index (0-7, 4 = verification strip, skipped for modules)
+const MODS = {
+  // ── Column 0: Identity Subjects (humans + AI agents) ────
+  'm-emp':      { col:0, theme:'t-subj', ch:'A', label:'员工 / 管理员 / 开发者',
+    items:['企业员工（销售 / 财务 / 运维）','IT 管理员 / SRE','开发 / DevOps / AI 开发者'],
+    tip:'内部员工通过人类访问通道（A）进行身份认证。员工使用企业托管设备，设备健康状态是访问决策的关键变量' },
+  'm-contractor':{ col:0, theme:'t-subj', ch:'A', label:'第三方 / 外包 / 临时',
+    items:['外包合作方','临时访问者','便捷访问'],
+    tip:'无企业设备的外部人员，权限受限，需额外审查' },
+  'm-aiagent':  { col:0, theme:'t-subj', ch:'B', label:'AI Agent / MCP',
+    items:['通用 Agent（Claude / GPT）','编程 Agent（Cursor / Devin）','企业 AI Agent','MCP 服务'],
+    tip:'以自主方式调用 API 和工具的 AI 实体，通过 AI 访问通道（B）使用 Agent 身份认证' },
+
+  // ── Column 4: Device Domain ───────────────────────────────
+  'm-endpointdev':{ col:4, theme:'t-subj', label:'托管终端设备',
+    items:['企业托管 PC / Mac / Linux','移动设备 (iOS / Android)','Prisma Access Agent 预装','设备证书 / MDM 注册'],
+    tip:'与员工绑定的企业托管硬件。设备通过 MDM 注册、预装 Prisma Access Agent，设备健康分数实时上报给身份层用于访问判断' },
+  'm-byod':     { col:4, theme:'t-subj', label:'BYOD / 非受管设备',
+    items:['员工个人设备 (BYOD)','非 MDM 托管终端','临时访问终端','第三方承包商设备'],
+    tip:'非企业管控的个人或临时设备；通过 Prisma Browser 隔离浏览器或 EP 代理接入，设备健康评分受限但仍参与访问决策' },
+  'm-iot':      { col:4, theme:'t-subj', ch:'C', label:'IoT / OT 智能设备',
+    items:['摄像头 / 传感器','OT / 工控系统','智能办公设备'],
+    tip:'无完整 OS 的 IoT/OT 设备，通过设备访问通道（C）使用机器身份认证，经 SASE RN 接入网络' },
+
+  // ── Column 1: Identity & Trust ───────────────────────────
+  // 人类身份
+  'm-sso':      { col:1, sec:'人类身份', theme:'t-idnt', label:'SSO / MFA / 身份治理',
+    items:['统一身份平台 (IDIRA/IGA)','SSO / 身份联合 (SAML/OIDC)','MFA / 无密码认证','条件访问 / 会话管理','账号全生命周期管理'],
+    tip:'统一身份治理入口，集中管理员工账号、身份联合、MFA 与自适应认证，替代 IDIRA 独立平台' },
+  'm-pam':      { col:1, sec:'人类身份', theme:'t-idnt', label:'PAM / JIT / ZSP',
+    items:['特权访问管理 (PAM)','即时访问 (JIT Provisioning)','零常设权限 (ZSP)','会话录制与审计'],
+    tip:'特权账号管理，实现最小权限和零常设权限原则，消除长期凭据风险' },
+  'm-device':   { col:8, theme:'t-mach', label:'终端安全 (EPM / XDR)',
+    items:['EPM 终端保护管理 (Cortex/CrowdStrike)','XDR 扩展检测与响应','证书绑定认证 / MDM','持续设备健康评分','不合规设备自动降权'],
+    tip:'EPM 持续保护设备，XDR 检测威胁；两者将设备合规状态上报至身份层，作为每次访问决策的实时输入。用户身份 + 设备健康 = 访问令牌' },
+  // AI Agent 身份
+  'm-agtreg':   { col:1, sec:'AI Agent 身份', theme:'t-agent', label:'AI Agent 身份管理',
+    items:['Agent Registry（注册中心）','Agent Discovery（服务发现）','Owner / Scope 定义','信任评估与分级'],
+    tip:'AI Agent 的身份注册、发现与信任级别管理，确保 Agent 行为可追溯' },
+  'm-mcpauth':  { col:1, sec:'AI Agent 身份', theme:'t-agent', label:'MCP / Tools 认证授权',
+    items:['MCP 工具链认证','JIT 短时免密 / ZSP','API 调用授权','工具调用审计日志'],
+    tip:'针对 AI Agent 调用 MCP 和外部工具的认证与细粒度授权' },
+  // 机器身份
+  'm-spiffe':   { col:1, sec:'机器身份', theme:'t-mach', label:'SPIFFE / SPIRE 机器身份',
+    items:['服务身份标准 (SPIFFE)','SVID 证书颁发 (SPIRE)','Workload 证书 / JIT'],
+    tip:'基于 SPIFFE 标准的服务/工作负载身份，替代静态密码实现服务间零信任' },
+  'm-wcert':    { col:1, sec:'机器身份', theme:'t-mach', label:'Secret / Key 管理',
+    items:['Secret / Key 统一管理','东西向 API 令牌管理','证书轮转自动化'],
+    tip:'机密和密钥的集中管理与自动轮转，消除硬编码凭据风险' },
+
+  // ── Column 2: Access Methods ─────────────────────────────
+  'm-remote':   { col:2, theme:'t-accs', label:'远程接入',
+    items:['海外 / 国内远程访问','居家办公 (WFH)','移动办公'],
+    tip:'用户从任意地点通过互联网发起的远程访问，通过 Prisma SASE 或 EP 客户端接入' },
+  'm-branch':   { col:2, theme:'t-accs', label:'分支机构 / 工厂',
+    items:['海外 / 国内小型分支','小型工厂 / 门店','SD-WAN CPE 接入'],
+    tip:'具有独立网络的中小型分支，通过 SD-WAN 或 IPSec 隧道接入 SASE' },
+  'm-campus':   { col:2, theme:'t-accs', label:'大型园区 / 总部',
+    items:['海外大型园区','国内大型工厂','总部数据中心网络'],
+    tip:'大型企业园区，具有本地网络基础设施，通过 Private Region 或 RN 接入 SASE' },
+  // ── Column 3: SASE Platform — sub-sectioned ──────────────
+  // sec:'SASE接入方式'
+  'm-sase-mu':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'MU — Mobile User',
+    items:['GlobalProtect 客户端接入','无客户端 (Clientless) 访问','私有区域 (Private Region) 选项','全球 100+ PoP 就近接入'],
+    tip:'最常用接入方式。GlobalProtect 代理或无客户端模式为移动用户建立零信任隧道；支持私有区域满足数据不出境合规要求' },
+  'm-sase-ep':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'EP — Explicit Proxy',
+    items:['PAC 文件自动发现','HTTP/S 显式代理转发','无需安装客户端','适合 BYOD / 受限设备'],
+    tip:'通过 PAC 文件将浏览器流量显式转发至 Prisma 代理，无需 GlobalProtect 客户端，适合不允许安装代理的场景' },
+  'm-sase-browser':{ col:3, sec:'SASE 接入方式', theme:'t-sase', label:'Prisma Browser',
+    items:['云端交付隔离浏览器','零日漏洞与恶意代码隔离','无需本地代理安装','适合第三方 / BYOD 访问'],
+    tip:'Prisma Cloud-Delivered Secure Browser — 在云端运行完整隔离浏览器，终端只接收像素流，彻底隔离网页威胁' },
+  'm-sase-rn':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'RN — Remote Network',
+    items:['分支 / 园区整网接入','IPSec / SD-WAN 隧道','BGP 路由协议支持','IoT / OT 网络纳管'],
+    tip:'将分支机构和大型园区的整个网络通过 IPSec/SD-WAN 接入 Prisma SASE，替代传统 MPLS，支持 IoT/OT 统一管控' },
+  'm-sase-sc':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'SC — Service Connect',
+    items:['数据中心服务发布至 Prisma','公有云 VPC 安全接入','东西向服务互联','无需在 DC 部署防火墙'],
+    tip:'Service Connect — 将数据中心和云 VPC 以服务形式发布到 Prisma 网络，用户通过 ZTNA 访问，无需专线或 DC 防火墙' },
+  // sec:'安全服务' — PA CDSS threat protection services
+  'm-atp':      { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced Threat Prevention',
+    items:['IPS 入侵防御（AI 增强）','漏洞利用 / C2 流量阻断','零日威胁实时检测'],
+    tip:'高级威胁防护：基于 AI 的 IPS，实时检测漏洞利用、恶意流量和 C2 通信，提供业界最低误报率的威胁防护' },
+  'm-awf':      { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced WildFire',
+    items:['云端沙箱恶意文件分析','未知威胁 ML 分类','全球威胁情报联动'],
+    tip:'高级 WildFire：云端沙箱对未知文件进行多维度行为分析，检测零日恶意软件并即时分发全球防护签名' },
+  'm-aurl':     { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced URL Filtering',
+    items:['URL 分类与实时过滤','钓鱼 / 恶意网站拦截','实时 URL 信誉评分'],
+    tip:'高级 URL 过滤：基于 PA ML 的 URL 分类与信誉评分，实时拦截钓鱼网站、恶意软件分发站和高风险 URL' },
+  'm-adns':     { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced DNS Security',
+    items:['DNS 隧道 / C2 检测','恶意域名实时拦截','DGA 域名识别'],
+    tip:'高级 DNS 安全：利用 ML 分析 DNS 请求，拦截 C2 通信、DNS 数据渗出隧道和 DGA 生成的恶意域名' },
+  'm-ipdef':    { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced IP Defense',
+    items:['攻击者基础设施识别','扫描 / Exploit 前阻断','恶意 IP 实时拦截'],
+    tip:'高级 IP 防御：在攻击扫描和 Exploit 发起前识别并阻断恶意攻击者的 IP 基础设施，降低暴露面' },
+  'm-sdwan':    { col:3, sec:'安全服务', theme:'t-sase', label:'Advanced SD-WAN',
+    items:['应用感知智能路由','多链路负载与故障切换','分支 / WAN 链路优化'],
+    tip:'高级 SD-WAN：应用感知的多链路智能调度，自动选择最优路径，降低延迟并提升分支和 WAN 访问体验' },
+  'm-devsec':   { col:3, sec:'安全服务', theme:'t-sase', label:'Device Security',
+    items:['IoT/OT/BYOD 设备自动发现','设备风险识别与评估','异常设备隔离保护'],
+    tip:'设备安全：自动发现并分类 IoT/OT/BYOD 等非托管设备，持续评估风险，对异常或不合规设备实施隔离' },
+  'm-edlp':     { col:3, sec:'安全服务', theme:'t-sase', label:'Enterprise DLP',
+    items:['敏感数据识别与分类','跨通道统一数据防泄漏','监管合规（GDPR/PCI/HIPAA）'],
+    tip:'企业数据防泄漏：统一的 DLP 跨 SWG/CASB/ZTNA 通道执行，ML + OCR 精准识别敏感数据并阻断外发' },
+  'm-saas-sec': { col:3, sec:'安全服务', theme:'t-sase', label:'SaaS Security',
+    items:['SaaS 应用发现与风险分析','Inline / API 双模式安全','影子 IT 管控'],
+    tip:'SaaS 安全：发现并评估企业使用的 SaaS 应用风险，通过 Inline 和 API 双模式执行安全策略和数据保护' },
+  'm-ngcasb':   { col:3, sec:'安全服务', theme:'t-sase', label:'Next-Generation CASB',
+    items:['SaaS 访问控制与应用治理','API 模式数据扫描','租户限制 / 数据安全'],
+    tip:'下一代 CASB：细粒度的 SaaS 访问控制与租户隔离，API 模式扫描存储数据，防止数据泄露与合规违规' },
+  'm-ai-access':{ col:3, sec:'安全服务', theme:'t-sase', label:'AI Access Security',
+    items:['GenAI 应用发现与访问管控','Prompt / Response 数据保护','Shadow AI 治理'],
+    tip:'AI 访问安全：发现并管控 ChatGPT / Copilot 等 GenAI 工具的使用，保护 Prompt 和响应中的敏感数据' },
+
+  // ── Column 5: Business Resources ─────────────────────────
+  'm-internet': { col:5, theme:'t-rsrc', label:'Internet / 白名单 IP',
+    items:['一般互联网访问','特殊出口 IP / 白名单','合规 Internet 出口'],
+    tip:'对公共互联网的访问，可实施 IP 白名单出口策略，区分高风险和普通流量' },
+  'm-saas':     { col:5, theme:'t-rsrc', label:'SaaS 应用',
+    items:['Microsoft 365 / Google Workspace','Salesforce / ServiceNow','Slack / Zoom','特殊 SaaS 访问'],
+    tip:'企业使用的 SaaS 软件，通过 CASB 管控和 DLP 保护，防止数据泄露' },
+  'm-cloud':    { col:5, theme:'t-rsrc', label:'公有云 (VPC / K8S / VM)',
+    items:['VPC / 私有网络','K8S 容器平台','VM / Serverless','Cloud NGFW','零信任策略 / 微隔离'],
+    tip:'公有云工作负载，通过 Cloud NGFW 和微隔离实现东西向零信任，保护工作负载间流量' },
+  'm-dc':       { col:5, theme:'t-rsrc', label:'数据中心 (DC / 私有云)',
+    items:['内网办公应用','ERP / CRM / 开发平台','文件系统 / API 服务','硬件 NGFW','零信任策略 / 微隔离'],
+    tip:'企业自建数据中心，通过硬件 NGFW 和微隔离保护南北向和东西向流量' },
+
+  // ── SASE col-3 sec: AI 网关 ──────────────────────────────
+  'm-llmgw':   { col:3, sec:'AI 网关', theme:'t-ai', label:'LLM Gateway',
+    items:['LLM 路由与模型管控','提示词安全过滤','Token / Cost 监控','多模型负载均衡','审计追踪'],
+    tip:'统一 LLM 访问入口：路由到不同模型（OpenAI/Anthropic/私有模型），执行提示词安全、配额控制和审计' },
+  'm-mcpgw':   { col:3, sec:'AI 网关', theme:'t-ai', label:'MCP Gateway',
+    items:['MCP 工具代理 & 路由','JIT 工具授权','工具调用链路追踪','恶意工具链防护','Scope 细粒度管控'],
+    tip:'AI Agent 工具调用的安全网关：代理 MCP 请求，执行 JIT 授权，记录每次工具调用，防止工具滥用' },
+  'm-rtsec':   { col:3, sec:'AI 网关', theme:'t-asec', label:'AI Runtime Security',
+    items:['提示词注入检测','越权行为防护','异常 Agent 行为检测','AI 输出内容过滤','东西向 AI 微隔离'],
+    tip:'Prisma AIRS Runtime — 对 AI 推理请求进行实时安全检测，防止提示词注入、数据泄露和 Agent 越权行为' },
+
+  // ── Column 7: Operations ── sec:'运营 & 合规' ────────────
+  'm-log':      { col:7, sec:'运营 & 合规', theme:'t-ops', label:'统一日志 / SIEM 集成',
+    items:['全域日志统一采集','SIEM / SOAR 集成','策略命中记录','Agent 行为日志'],
+    tip:'全域日志统一采集，对接 Splunk/Sentinel 等 SIEM 进行安全分析与事件关联' },
+  'm-policy':   { col:7, sec:'运营 & 合规', theme:'t-ops', label:'统一策略管理',
+    items:['统一策略控制面','自动化策略下发','策略一致性校验','威胁情报联动'],
+    tip:'跨域统一策略管理，确保 SASE/防火墙/云安全组策略的一致性与自动化下发' },
+  'm-alert':    { col:7, sec:'运营 & 合规', theme:'t-ops', label:'威胁检测 / 统一告警',
+    items:['威胁检测与响应 (XDR)','统一告警中心','安全事件溯源','AI 异常行为告警'],
+    tip:'统一威胁检测、告警和安全事件响应，包含 AI Agent 的异常行为监控' },
+  'm-compliance':{ col:7, sec:'运营 & 合规', theme:'t-cmp', label:'合规与审计',
+    items:['数据主权与本地化','合规审计证据留置','数据日志留存','SPIFFE / SCIM / Open API'],
+    tip:'满足监管要求的合规控制与审计能力，支持等保、GDPR、SOC2 等认证' },
+  // ── Column 7: SOC & 自动化 ────────────────────────────────
+  'm-xsiam':    { col:7, sec:'SOC & 自动化', theme:'t-ops', label:'Cortex XSIAM',
+    items:['AI 驱动 SOC 平台','SIEM + SOAR 一体化','自动化威胁响应','全域数据湖 (XDL)'],
+    tip:'Cortex XSIAM：AI 驱动的下一代 SOC 平台，将 SIEM、SOAR 和威胁情报整合为统一工作台，实现 98% 更快响应' },
+  'm-xsoar':    { col:7, sec:'SOC & 自动化', theme:'t-ops', label:'Cortex XSOAR',
+    items:['1300+ 预置剧本','多云 / 跨工具编排','案例管理与协作','自定义自动化流'],
+    tip:'Cortex XSOAR：SOC 自动化编排平台，1300+ 集成剧本减少 75% 手动工作量，已整合至 XSIAM' },
+  'm-agentix':  { col:7, sec:'SOC & 自动化', theme:'t-agent', label:'AgentiX',
+    items:['AI Agent 安全运营工作流','自然语言告警分析','Agent 驱动溯源调查','SOC 任务自动化'],
+    tip:'AgentiX：构建、部署和治理 AI Agent 安全运营工作流，将 L1/L2 SOC 任务交由 AI Agent 自动处理' },
+  // ── Column 7: 攻击面管理 ─────────────────────────────────
+  'm-xpanse':   { col:7, sec:'攻击面管理', theme:'t-ops', label:'Cortex Xpanse',
+    items:['全互联网资产发现','65000 端口持续扫描','未知资产暴露识别','外部攻击面实时图谱'],
+    tip:'Cortex Xpanse：持续发现并监控对外暴露的所有资产，包括未知 / 影子资产，提供外部攻击面完整视图' },
+  'm-expomgmt': { col:7, sec:'攻击面管理', theme:'t-ops', label:'Exposure Management',
+    items:['漏洞优先级智能排序','修复路径推荐','风险评分与趋势追踪','暴露面减少 99% 噪音'],
+    tip:'Cortex Exposure Management：结合攻击路径分析和业务上下文，将漏洞噪音降低 99%，专注最高风险修复' },
+  // ── Column 9: Cloud Security (CNAPP) ─────────────────────
+  'm-cspm':     { col:9, theme:'t-sase', label:'CSPM 云安全态势',
+    items:['云配置持续合规评估','多云统一安全视图','错误配置自动修复'],
+    tip:'Cloud Security Posture Management：持续评估 AWS/Azure/GCP 配置风险，发现并修复错误配置和合规违规' },
+  'm-cwpp':     { col:9, theme:'t-sase', label:'CWPP 工作负载保护',
+    items:['VM / 容器运行时保护','工作负载漏洞扫描','Serverless 安全防护'],
+    tip:'Cloud Workload Protection Platform：保护云上 VM、容器和无服务器工作负载，提供运行时威胁检测与漏洞管理' },
+  'm-ciem':     { col:9, theme:'t-mach', label:'CIEM 权限治理',
+    items:['云身份过度授权检测','最小权限策略推荐','服务账号风险管控'],
+    tip:'Cloud Identity Entitlement Management：发现并纠正云上过度授权的用户、角色和服务账号，落实最小权限原则' },
+  'm-cdr':      { col:9, theme:'t-sase', label:'CDR 云端检测响应',
+    items:['云原生威胁实时检测','跨云账号攻击关联','自动化响应与隔离'],
+    tip:'Cloud Detection & Response：基于云原生日志和行为分析的威胁检测，跨 AWS/Azure/GCP 的攻击关联与响应' },
+  'm-aspm':     { col:9, theme:'t-sase', label:'ASPM 应用安全',
+    items:['代码 → IaC → 运行时链路','开发管道安全左移','软件供应链风险管控'],
+    tip:'Application Security Posture Management：覆盖代码审查、IaC 扫描到运行时保护的全链路应用安全，在 CI/CD 中左移安全' },
+};
+
+// Cross-column connections: [from, to, color, style('solid'|'dash'|'dot')]
+const CONNS = [
+  // Subjects → Identity
+  ['m-emp',       'm-sso',     '#3b82f6','dash'],
+  ['m-emp',       'm-pam',     '#3b82f6','dash'],
+  ['m-contractor','m-sso',     '#64748b','dash'],
+  ['m-aiagent',   'm-agtreg',  '#f59e0b','dash'],
+  ['m-aiagent',   'm-mcpauth', '#f59e0b','dash'],
+
+  // Subjects → Devices (users go through their endpoint device)
+  ['m-emp',       'm-endpointdev', '#3b82f6','dash'],
+  ['m-emp',       'm-byod',        '#3b82f6','dash'],
+  ['m-contractor','m-byod',        '#64748b','dash'],
+  ['m-aiagent',   'm-endpointdev', '#f59e0b','dash'],
+
+  // Devices → Identity (device posture check)
+  ['m-endpointdev','m-device',  '#0891b2','dash'],
+  ['m-byod',       'm-sso',     '#3b82f6','dash'],
+  ['m-byod',       'm-device',  '#0891b2','dash'],
+  ['m-iot',        'm-spiffe',  '#16a34a','dash'],
+
+  // Devices → Access (devices establish network connectivity)
+  ['m-endpointdev','m-remote',  '#3b82f6','solid'],
+  ['m-endpointdev','m-branch',  '#3b82f6','solid'],
+  ['m-endpointdev','m-campus',  '#3b82f6','solid'],
+  ['m-byod',       'm-remote',  '#64748b','solid'],
+  ['m-iot',        'm-branch',  '#16a34a','solid'],
+
+  // Identity policy: device trust gates access (policy enforcement)
+  ['m-mcpauth','m-mcpgw',   '#f59e0b','solid'],
+
+  // Access → SASE 接入方式
+  ['m-remote',    'm-sase-mu',      '#0e7490','solid'],
+  ['m-remote',    'm-sase-ep',      '#0e7490','solid'],
+  ['m-remote',    'm-sase-browser', '#0e7490','solid'],
+  ['m-branch',    'm-sase-rn',      '#0e7490','solid'],
+  ['m-campus',    'm-sase-sc',      '#0e7490','solid'],
+  ['m-byod',      'm-sase-browser', '#0e7490','solid'],
+  ['m-iot',       'm-sase-rn',      '#16a34a','solid'],
+
+  // SASE 接入方式 → 安全服务（平台内部路由，补全 BFS 链路）
+  ['m-sase-mu', 'm-atp',      '#0e7490','dot'],
+  ['m-sase-mu', 'm-awf',      '#0e7490','dot'],
+  ['m-sase-mu', 'm-aurl',     '#0e7490','dot'],
+  ['m-sase-mu', 'm-adns',     '#0e7490','dot'],
+  ['m-sase-mu', 'm-ipdef',    '#0e7490','dot'],
+  ['m-sase-mu', 'm-edlp',     '#0e7490','dot'],
+  ['m-sase-mu', 'm-saas-sec', '#0e7490','dot'],
+  ['m-sase-mu', 'm-ai-access','#0e7490','dot'],
+  ['m-sase-ep', 'm-atp',      '#0e7490','dot'],
+  ['m-sase-ep', 'm-aurl',     '#0e7490','dot'],
+  ['m-sase-ep', 'm-edlp',     '#0e7490','dot'],
+  ['m-sase-ep', 'm-saas-sec', '#0e7490','dot'],
+  ['m-sase-ep', 'm-ngcasb',   '#0e7490','dot'],
+  ['m-sase-ep', 'm-ai-access','#0e7490','dot'],
+  ['m-sase-browser', 'm-saas-sec', '#0e7490','dot'],
+  ['m-sase-browser', 'm-ngcasb',   '#0e7490','dot'],
+  ['m-sase-browser', 'm-aurl',     '#0e7490','dot'],
+  ['m-sase-browser', 'm-ai-access','#0e7490','dot'],
+  ['m-sase-rn', 'm-atp',      '#0e7490','dot'],
+  ['m-sase-rn', 'm-awf',      '#0e7490','dot'],
+  ['m-sase-rn', 'm-adns',     '#0e7490','dot'],
+  ['m-sase-rn', 'm-sdwan',    '#0e7490','dot'],
+  ['m-sase-rn', 'm-devsec',   '#0e7490','dot'],
+  ['m-sase-rn', 'm-ipdef',    '#0e7490','dot'],
+  ['m-sase-rn', 'm-edlp',     '#0e7490','dot'],
+  ['m-sase-sc', 'm-atp',      '#0e7490','dot'],
+  ['m-sase-sc', 'm-edlp',     '#0e7490','dot'],
+  ['m-sase-sc', 'm-saas-sec', '#0e7490','dot'],
+
+  // 安全服务 → Resources
+  ['m-atp',      'm-internet', '#34d399','dot'],
+  ['m-atp',      'm-dc',       '#34d399','dot'],
+  ['m-awf',      'm-internet', '#34d399','dot'],
+  ['m-awf',      'm-saas',     '#34d399','dot'],
+  ['m-aurl',     'm-internet', '#34d399','solid'],
+  ['m-adns',     'm-internet', '#34d399','dot'],
+  ['m-sdwan',    'm-cloud',    '#34d399','solid'],
+  ['m-sdwan',    'm-dc',       '#34d399','solid'],
+  ['m-ipdef',    'm-internet', '#34d399','dot'],
+  ['m-edlp',     'm-saas',     '#34d399','dot'],
+  ['m-edlp',     'm-cloud',    '#34d399','dot'],
+  ['m-saas-sec', 'm-saas',     '#34d399','solid'],
+  ['m-ngcasb',   'm-saas',     '#34d399','solid'],
+  ['m-ai-access','m-internet', '#34d399','dot'],
+
+  // SASE → AI Gateway
+  ['m-ai-access', 'm-llmgw',  '#fbbf24','solid'],
+  ['m-atp',       'm-llmgw',  '#fbbf24','dot'],
+
+  // AI Gateway → Resources (cloud AI APIs, MCP tools via SaaS)
+  ['m-llmgw',  'm-saas',  '#fbbf24','solid'],
+  ['m-llmgw',  'm-cloud', '#fbbf24','dot'],
+  ['m-mcpgw',  'm-saas',  '#fbbf24','dot'],
+
+  // AI Runtime Security monitors gateway traffic
+  ['m-llmgw',  'm-rtsec', '#fb7185','solid'],
+  ['m-mcpgw',  'm-rtsec', '#fb7185','dot'],
+
+  // Machine identity → AI gateway
+  ['m-wcert',  'm-llmgw', '#22d3ee','dot'],
+  ['m-wcert',  'm-dc',    '#22d3ee','dot'],
+
+  // Business resources → Cloud Security (CNAPP monitors & protects)
+  ['m-cloud',  'm-cspm',  '#0891b2','dot'],
+  ['m-cloud',  'm-cwpp',  '#0891b2','dot'],
+  ['m-cloud',  'm-cdr',   '#0891b2','dot'],
+  ['m-dc',     'm-cwpp',  '#0891b2','dash'],
+  ['m-ciem',   'm-pam',   '#0891b2','dot'],
+
+];
+
+const SEC_COLOR_MAP = {
+  '人类身份':'human','机器身份':'machine','AI Agent 身份':'aiagent',
+  'AI 资源':'machine','AI 安全控制':'aiagent','AI 网关':'aiagent',
+  'SOC & 自动化':'human','攻击面管理':'machine',
+};
+
+const COL_DEFS = [
+  { id:'col-0', label:'身份主体',           width:152 },  // humans + AI agents
+  { id:'col-4', label:'设备域',             width:155 },  // endpoint devices
+  { id:'col-8', label:'终端安全',           width:170, band:'topright' },
+  { id:'col-1', label:'统一身份与信任域',   width:215, band:'top' },
+  { id:'col-2', label:'接入与边界域',       width:162 },
+  { id:'col-3', label:'SASE 安全平台',      width:320, secLayout:'row', autoWidth:true },
+  { id:'col-5', label:'业务资源域',         width:172 },
+  { id:'col-9', label:'云安全 (CNAPP)',     width:175 },
+  { id:'col-7', label:'统一运营 & 合规',    width:172, band:'bot' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+const state = { enabled: new Set(), activePreset: null };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER CANVAS
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: which band does a module belong to
+function getBand(mid) {
+  const col = MODS[mid]?.col;
+  if (col === 1 || col === 8) return 'top';
+  if (col === 7) return 'bot';
+  return 'mid';
+}
+
+// Build a horizontal cross-domain band (top or bottom)
+function buildBandEl(cd, pos) {
+  const band = document.createElement('div');
+  band.id = 'band-' + pos;
+  band.className = 'band';
+
+  const hdr = document.createElement('div');
+  hdr.className = 'band-hdr';
+  hdr.textContent = cd.label;
+  band.appendChild(hdr);
+
+  const body = document.createElement('div');
+  body.className = 'band-body';
+  body.id = cd.id + '-body';
+
+  const colMods = Object.entries(MODS).filter(([,m]) => 'col-' + m.col === cd.id);
+  const hasSecs = colMods.some(([,m]) => m.sec);
+
+  if (hasSecs) {
+    const secMap = new Map();
+    colMods.forEach(([mid, m]) => {
+      const key = m.sec || '';
+      if (!secMap.has(key)) secMap.set(key, []);
+      secMap.get(key).push([mid, m]);
+    });
+    secMap.forEach((mods, sec) => {
+      const secCol = document.createElement('div');
+      secCol.className = 'col-sec-col';
+      if (sec) secCol.dataset.secGroup = sec;  // for updateVis visibility management
+      const cc = SEC_COLOR_MAP[sec] || '';
+      if (sec) {
+        const subHdr = document.createElement('div');
+        subHdr.className = 'col-sub-hdr' + (cc ? ' ' + cc : '');
+        subHdr.textContent = sec;
+        secCol.appendChild(subHdr);
+      }
+      const section = document.createElement('div');
+      section.className = 'col-section-v' + (cc ? ' ' + cc : '');
+      mods.forEach(([mid, m]) => section.appendChild(buildMod(mid, m)));
+      secCol.appendChild(section);
+      body.appendChild(secCol);
+    });
+  } else {
+    colMods.forEach(([mid, m]) => body.appendChild(buildMod(mid, m)));
+  }
+
+  band.appendChild(body);
+  return band;
+}
+
+function renderCanvas() {
+  _connFwd = null; _connBwd = null;
+  const outer = document.getElementById('canvas-outer');
+  const svg = document.getElementById('conn-svg');
+  outer.innerHTML = '';
+  outer.appendChild(svg);
+
+  const topDef      = COL_DEFS.find(cd => cd.band === 'top');
+  const toprightDef = COL_DEFS.find(cd => cd.band === 'topright');
+  const botDef      = COL_DEFS.find(cd => cd.band === 'bot');
+  const midDefs     = COL_DEFS.filter(cd => !cd.band);
+
+  if (toprightDef) {
+    const topRow = document.createElement('div');
+    topRow.className = 'band-top-row';
+    if (topDef) topRow.appendChild(buildBandEl(topDef, 'top'));
+    topRow.appendChild(buildBandEl(toprightDef, 'topright'));
+    outer.appendChild(topRow);
+  } else if (topDef) {
+    outer.appendChild(buildBandEl(topDef, 'top'));
+  }
+
+  // Middle: regular columns
+  const mid = document.createElement('div');
+  mid.id = 'canvas-mid';
+  midDefs.forEach(cd => {
+    const col = document.createElement('div');
+    col.className = 'col';
+    col.id = cd.id;
+    if (!cd.autoWidth) col.style.width = cd.width + 'px';
+    col.style.minWidth = cd.width + 'px';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'col-hdr';
+    hdr.textContent = cd.label;
+    col.appendChild(hdr);
+
+    const body = document.createElement('div');
+    body.className = 'col-body';
+    body.id = cd.id + '-body';
+    col.appendChild(body);
+
+    const colMods = Object.entries(MODS).filter(([,m]) => 'col-' + m.col === cd.id);
+    const hasSecs = colMods.some(([,m]) => m.sec);
+
+    if (hasSecs) {
+      const secLayout = cd.secLayout || 'row';
+      const secMap = new Map();
+      colMods.forEach(([mid, m]) => {
+        const key = m.sec || '';
+        if (!secMap.has(key)) secMap.set(key, []);
+        secMap.get(key).push([mid, m]);
+      });
+
+      if (secLayout === 'row') {
+        if (cd.id === 'col-3') {
+          const strip = document.createElement('div');
+          strip.className = 'verif-strip';
+          const shdr = document.createElement('div');
+          shdr.className = 'verif-strip-hdr';
+          shdr.textContent = '持续验证 — 内置通用原理';
+          strip.appendChild(shdr);
+          ['APP-ID','User-ID','Device-ID','Content-ID'].forEach(t => {
+            const v = document.createElement('div');
+            v.className = 'vid';
+            v.textContent = t;
+            strip.appendChild(v);
+          });
+          body.appendChild(strip);
+        }
+        const row = document.createElement('div');
+        row.className = 'col-sec-row';
+        secMap.forEach((mods, sec) => {
+          const secCol = document.createElement('div');
+          const wide = mods.length > 5;
+          secCol.className = 'col-sec-col' + (wide ? ' col-sec-wide' : '');
+          if (sec) {
+            const subHdr = document.createElement('div');
+            const cc = SEC_COLOR_MAP[sec] || '';
+            subHdr.className = 'col-sub-hdr' + (cc ? ' ' + cc : '');
+            subHdr.textContent = sec;
+            secCol.appendChild(subHdr);
+          }
+          const section = document.createElement('div');
+          section.className = 'col-section' + (wide ? ' col-section-2col' : '');
+          mods.forEach(([mid, m]) => section.appendChild(buildMod(mid, m)));
+          secCol.appendChild(section);
+          row.appendChild(secCol);
+        });
+        body.appendChild(row);
+      } else {
+        secMap.forEach((mods, sec) => {
+          const grp = document.createElement('div');
+          grp.className = 'sec-group';
+          grp.dataset.secGroup = sec;
+          const cc = SEC_COLOR_MAP[sec] || '';
+          if (sec) {
+            const subHdr = document.createElement('div');
+            subHdr.className = 'col-sub-hdr' + (cc ? ' ' + cc : '');
+            subHdr.textContent = sec;
+            grp.appendChild(subHdr);
+          }
+          const section = document.createElement('div');
+          section.className = 'col-section-v' + (cc ? ' ' + cc : '');
+          mods.forEach(([mid, m]) => section.appendChild(buildMod(mid, m)));
+          grp.appendChild(section);
+          body.appendChild(grp);
+        });
+      }
+    } else {
+      colMods.forEach(([mid, m]) => body.appendChild(buildMod(mid, m)));
+    }
+
+    mid.appendChild(col);
+  });
+  outer.appendChild(mid);
+
+  if (botDef) outer.appendChild(buildBandEl(botDef, 'bot'));
+
+  updateVis();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HOVER HIGHLIGHT — bidirectional BFS through CONNS graph
+// ─────────────────────────────────────────────────────────────────────────────
+let _connFwd = null, _connBwd = null;
+function _buildConnMaps() {
+  _connFwd = {}; _connBwd = {};
+  CONNS.forEach(([f, t]) => {
+    (_connFwd[f] = _connFwd[f] || []).push(t);
+    (_connBwd[t] = _connBwd[t] || []).push(f);
+  });
+}
+
+function getRelated(mid) {
+  if (!_connFwd) _buildConnMaps();
+  const visited = new Set([mid]);
+  const fwd = [mid], bwd = [mid];
+  while (fwd.length) { const c = fwd.shift(); (_connFwd[c]||[]).forEach(t=>{ if(!visited.has(t)){visited.add(t);fwd.push(t);} }); }
+  while (bwd.length) { const c = bwd.shift(); (_connBwd[c]||[]).forEach(f=>{ if(!visited.has(f)){visited.add(f);bwd.push(f);} }); }
+  return visited;
+}
+
+function highlightRelated(mid) {
+  const rel = getRelated(mid);
+  Object.keys(MODS).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.classList.contains('hidden')) return;
+    if (id === mid) { el.classList.add('hovered'); el.classList.remove('dimmed','related'); }
+    else if (rel.has(id)) { el.classList.add('related'); el.classList.remove('dimmed','hovered'); }
+    else { el.classList.add('dimmed'); el.classList.remove('related','hovered'); }
+  });
+  document.querySelectorAll('#conn-svg g.conn-grp').forEach(g => {
+    const active = rel.has(g.dataset.from) && rel.has(g.dataset.to);
+    g.classList.toggle('conn-bright', active);
+    g.classList.toggle('conn-dim', !active);
+  });
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.mod').forEach(el => el.classList.remove('dimmed','related','hovered'));
+  document.querySelectorAll('#conn-svg g.conn-grp').forEach(g => {
+    g.classList.remove('conn-bright','conn-dim');
+    const p = g.querySelector('path');
+    if (p && g.dataset.sw) p.setAttribute('stroke-width', g.dataset.sw);
+  });
+}
+
+function buildMod(mid, m) {
+  const el = document.createElement('div');
+  el.className = 'mod ' + m.theme;
+  el.id = mid;
+
+  let ch = '';
+  if (m.ch) ch = `<span class="ctag ctag-${m.ch}">${m.ch}</span>`;
+
+  el.innerHTML = `
+    <div class="mod-lbl">${ch}<span>${m.label}</span></div>
+    <div class="mod-items">${(m.items||[]).map(i=>`<div class="mod-item">${i}</div>`).join('')}</div>
+  `;
+  el.addEventListener('mouseenter', e => { showTip(e, m.tip); highlightRelated(mid); });
+  el.addEventListener('mousemove',  e => moveTip(e));
+  el.addEventListener('mouseleave', () => { hideTip(); clearHighlight(); });
+  return el;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER SIDEBAR
+// ─────────────────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const body = document.getElementById('sb-body');
+  body.innerHTML = '';
+  GROUPS.forEach(g => {
+    const wrap = document.createElement('div');
+    wrap.className = 'sg';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'sg-hdr';
+    const dot = document.createElement('span');
+    dot.className = 'sg-dot'; dot.style.background = g.color;
+    const gcb = document.createElement('input');
+    gcb.type = 'checkbox'; gcb.id = 'gcb-' + g.id; gcb.className = 'gcb';
+    const validMods = g.mods.filter(m => MODS[m]);
+    const enCnt = validMods.filter(m => state.enabled.has(m)).length;
+    gcb.checked = enCnt === validMods.length && validMods.length > 0;
+    gcb.indeterminate = enCnt > 0 && enCnt < validMods.length;
+    gcb.addEventListener('click', e => {
+      e.stopPropagation();
+      const on = gcb.checked;
+      validMods.forEach(mid => toggle(mid, on));
+    });
+    const lbl = document.createElement('span');
+    lbl.className = 'sg-lbl'; lbl.textContent = g.label;
+    const cnt = document.createElement('span');
+    cnt.className = 'sg-cnt'; cnt.textContent = g.mods.length;
+    const arrow = document.createElement('span');
+    arrow.className = 'sg-arrow'; arrow.textContent = '›';
+    hdr.append(dot, gcb, lbl, cnt, arrow);
+
+    const items = document.createElement('div');
+    items.className = 'sg-items open';
+
+    hdr.addEventListener('click', () => {
+      items.classList.toggle('open');
+      arrow.classList.toggle('open', items.classList.contains('open'));
+    });
+    arrow.classList.add('open');
+
+    g.mods.forEach(mid => {
+      const m = MODS[mid];
+      if (!m) return;
+      const row = document.createElement('div');
+      row.className = 'cb-row' + (state.enabled.has(mid) ? ' checked' : '');
+      row.id = 'cbr-' + mid;
+      row.innerHTML = `<input type="checkbox" id="cb-${mid}" ${state.enabled.has(mid)?'checked':''}><span class="cb-lbl">${m.label}</span>`;
+      row.querySelector('input').addEventListener('change', e => toggle(mid, e.target.checked));
+      items.appendChild(row);
+    });
+
+    wrap.appendChild(hdr);
+    wrap.appendChild(items);
+    body.appendChild(wrap);
+  });
+}
+
+function renderPresets() {
+  const bar = document.getElementById('presets');
+  bar.innerHTML = '';
+  PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-preset' + (state.activePreset === p.id ? ' active' : '');
+    btn.textContent = p.label;
+    btn.id = 'pb-' + p.id;
+    btn.addEventListener('click', () => applyPreset(p));
+    bar.appendChild(btn);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE MUTATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+function toggle(mid, on) {
+  if (on) state.enabled.add(mid); else state.enabled.delete(mid);
+  state.activePreset = null;
+  syncCheckbox(mid, on);
+  const pg = GROUPS.find(g => g.mods.includes(mid));
+  if (pg) syncGroupCheckbox(pg.id);
+  updateVis();
+  schedDraw();
+  updateStats();
+  updatePresetBtns();
+}
+
+function syncCheckbox(mid, on) {
+  const cb = document.getElementById('cb-' + mid);
+  const row = document.getElementById('cbr-' + mid);
+  if (cb) cb.checked = on;
+  if (row) row.classList.toggle('checked', on);
+}
+
+function syncGroupCheckbox(gid) {
+  const g = GROUPS.find(g => g.id === gid);
+  const gcb = document.getElementById('gcb-' + gid);
+  if (!g || !gcb) return;
+  const valid = g.mods.filter(m => MODS[m]);
+  const en = valid.filter(m => state.enabled.has(m)).length;
+  gcb.checked = en === valid.length && valid.length > 0;
+  gcb.indeterminate = en > 0 && en < valid.length;
+}
+
+function applyPreset(p) {
+  state.enabled.clear();
+  p.mods.forEach(id => state.enabled.add(id));
+  state.activePreset = p.id;
+  Object.keys(MODS).forEach(mid => syncCheckbox(mid, state.enabled.has(mid)));
+  GROUPS.forEach(g => syncGroupCheckbox(g.id));
+  updateVis();
+  schedDraw();
+  updateStats();
+  updatePresetBtns();
+}
+
+function updatePresetBtns() {
+  PRESETS.forEach(p => {
+    const btn = document.getElementById('pb-' + p.id);
+    if (btn) btn.classList.toggle('active', state.activePreset === p.id);
+  });
+}
+
+function selectAll() {
+  Object.keys(MODS).forEach(id => { state.enabled.add(id); syncCheckbox(id, true); });
+  state.activePreset = null;
+  updateVis(); schedDraw(); updateStats(); updatePresetBtns();
+}
+
+function resetAll() {
+  state.enabled.clear();
+  Object.keys(MODS).forEach(id => syncCheckbox(id, false));
+  state.activePreset = null;
+  updateVis(); drawConns(); updateStats(); updatePresetBtns();
+}
+
+function updateVis() {
+  Object.keys(MODS).forEach(mid => {
+    const el = document.getElementById(mid);
+    if (el) el.classList.toggle('hidden', !state.enabled.has(mid));
+  });
+  // Hide vertical sec-groups (header + box) when all their modules are disabled
+  document.querySelectorAll('[data-sec-group]').forEach(grp => {
+    const s = grp.dataset.secGroup;
+    if (!s) return;
+    const hasEnabled = Object.entries(MODS).some(([mid, m]) => m.sec === s && state.enabled.has(mid));
+    grp.classList.toggle('hidden', !hasEnabled);
+  });
+  // Adjust 2-col grid to 1 col when ≤1 module visible (avoids wasted width)
+  document.querySelectorAll('.col-section-2col').forEach(section => {
+    const vis = section.querySelectorAll('.mod:not(.hidden)').length;
+    section.style.gridTemplateColumns = vis <= 1 ? 'minmax(140px,auto)' : 'repeat(2,minmax(140px,auto))';
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DRAW CONNECTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+let drawTimer = null;
+function schedDraw() {
+  if (drawTimer) cancelAnimationFrame(drawTimer);
+  drawTimer = requestAnimationFrame(() => { requestAnimationFrame(drawConns); });
+}
+
+function drawConns() {
+  const svg = document.getElementById('conn-svg');
+  const outer = document.getElementById('canvas-outer');
+  svg.innerHTML = '';
+
+  const cW = outer.scrollWidth, cH = outer.scrollHeight;
+  svg.setAttribute('width', cW);
+  svg.setAttribute('height', cH);
+
+  const cRect = outer.getBoundingClientRect();
+  let active = 0;
+
+  CONNS.forEach(([fid, tid, color, style]) => {
+    if (!state.enabled.has(fid) || !state.enabled.has(tid)) return;
+    const fe = document.getElementById(fid);
+    const te = document.getElementById(tid);
+    if (!fe || !te) return;
+
+    const fr = fe.getBoundingClientRect();
+    const tr = te.getBoundingClientRect();
+
+    const fBand = getBand(fid);
+    const tBand = getBand(tid);
+    const crossBand = fBand !== tBand;
+
+    let x1, y1, x2, y2, d;
+
+    if (crossBand) {
+      // Vertical bezier: source exits bottom/top, target receives at top/bottom
+      const goDown = (fBand === 'top') || (fBand === 'mid' && tBand === 'bot');
+      if (goDown) {
+        x1 = fr.left + fr.width/2 - cRect.left;  y1 = fr.bottom - cRect.top;
+        x2 = tr.left + tr.width/2 - cRect.left;  y2 = tr.top    - cRect.top;
+      } else {
+        // going up: mid → top or bot → mid
+        x1 = fr.left + fr.width/2 - cRect.left;  y1 = fr.top    - cRect.top;
+        x2 = tr.left + tr.width/2 - cRect.left;  y2 = tr.bottom - cRect.top;
+      }
+      const dy = Math.max(20, Math.abs(y2-y1)*0.45);
+      const sign = y2 > y1 ? 1 : -1;
+      d = `M${x1},${y1} C${x1},${y1+sign*dy} ${x2},${y2-sign*dy} ${x2},${y2}`;
+    } else {
+      // Horizontal bezier (same band or mid-to-mid)
+      x1 = fr.right  - cRect.left;
+      y1 = fr.top + fr.height/2 - cRect.top;
+      x2 = tr.left   - cRect.left;
+      y2 = tr.top + tr.height/2 - cRect.top;
+      const dx = Math.max(20, Math.abs(x2-x1)*0.45);
+      d = `M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`;
+    }
+
+    const sw = style === 'solid' ? '1.8' : '1.4';
+    // Cross-band connections are very faint in static view — hover highlight reveals them
+    const op = crossBand ? 0.12 : (style === 'dot' ? 0.45 : 0.65);
+
+    const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+    grp.classList.add('conn-grp');
+    grp.dataset.from = fid;
+    grp.dataset.to = tid;
+    grp.dataset.sw = sw;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', sw);
+    path.setAttribute('opacity', op);
+    if (style === 'dash') path.setAttribute('stroke-dasharray','7,3');
+    if (style === 'dot')  path.setAttribute('stroke-dasharray','2,5');
+    grp.appendChild(path);
+
+    // Arrowhead — atan2 handles all directions automatically
+    const ang = Math.atan2(y2 - y1, x2 - x1);
+    const s = 5;
+    const pts = [
+      [x2, y2],
+      [x2 - s*Math.cos(ang-0.42), y2 - s*Math.sin(ang-0.42)],
+      [x2 - s*Math.cos(ang+0.42), y2 - s*Math.sin(ang+0.42)],
+    ].map(p=>p.join(',')).join(' ');
+    const arrow = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    arrow.setAttribute('points', pts);
+    arrow.setAttribute('fill', color);
+    arrow.setAttribute('opacity', op);
+    grp.appendChild(arrow);
+    svg.appendChild(grp);
+
+    active++;
+  });
+
+  document.getElementById('s-conns').textContent = active;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATS
+// ─────────────────────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('s-mods').textContent = state.enabled.size;
+  document.getElementById('s-ident').textContent =
+    ['m-emp','m-contractor','m-iot','m-aiagent'].filter(id=>state.enabled.has(id)).length;
+  document.getElementById('s-res').textContent =
+    ['m-internet','m-saas','m-cloud','m-dc'].filter(id=>state.enabled.has(id)).length;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOOLTIP
+// ─────────────────────────────────────────────────────────────────────────────
+function showTip(e, text) {
+  if (!text) return;
+  const t = document.getElementById('tip');
+  t.textContent = text;
+  t.style.display = 'block';
+  moveTip(e);
+}
+function moveTip(e) {
+  const t = document.getElementById('tip');
+  let x = e.clientX + 14, y = e.clientY - 8;
+  if (x + 250 > window.innerWidth) x = e.clientX - 254;
+  if (y + 60 > window.innerHeight) y = e.clientY - 70;
+  t.style.left = x + 'px';
+  t.style.top  = y + 'px';
+}
+function hideTip() { document.getElementById('tip').style.display = 'none'; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  renderCanvas();
+  renderPresets();
+  renderSidebar();
+
+  // Apply medium enterprise default
+  applyPreset(PRESETS[1]);
+
+  // Redraw on scroll/resize
+  document.getElementById('cv-wrap').addEventListener('scroll', schedDraw);
+  window.addEventListener('resize', schedDraw);
+});
+</script>
+</body>
+</html>
