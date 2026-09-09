@@ -95,7 +95,6 @@ body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background
 #col-0 .col-hdr,#col-4 .col-hdr,#col-2 .col-hdr{background:rgba(109,40,217,0.2);border-color:rgba(167,139,250,0.35);color:#a78bfa}
 #col-3 .col-hdr{background:rgba(180,83,9,0.2);border-color:rgba(251,191,36,0.35);color:#fbbf24}
 #col-6 .col-hdr{background:rgba(159,18,57,0.2);border-color:rgba(251,113,133,0.35);color:#fb7185}
-#col-6-body .col-sec-row{flex-wrap:wrap}
 .col-sub-hdr{border-radius:4px;padding:3px 8px;font-size:9px;font-weight:700;text-align:center;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0;margin-top:1px;background:rgba(14,116,144,0.15);border:1px solid rgba(14,116,144,0.4);color:#22d3ee}
 .col-sub-hdr.human  {background:rgba(109,40,217,0.15);border-color:rgba(109,40,217,0.45);color:#a78bfa}
 .col-sub-hdr.machine{background:rgba(8,145,178,0.15); border-color:rgba(8,145,178,0.45); color:#22d3ee}
@@ -257,7 +256,7 @@ const GROUPS = [
   { id:'g-sase',  label:'SASE 接入方式', color:'#b45309', mods:['m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-dem'] },
   { id:'g-sfn',   label:'SASE 安全服务 (CDSS)', color:'#b45309', mods:['m-atp','m-awf','m-aurl','m-adns','m-devsec','m-swmesh','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-atpp'] },
   { id:'g-rsrc',  label:'业务资源',   color:'#0e7490', mods:['m-internet','m-saas','m-cloud','m-dc'] },
-  { id:'g-ai',    label:'AI 网关',    color:'#92400e', mods:['m-llmgw','m-mcpgw','m-rtsec','m-modelsec','m-skillsec','m-redteam'] },
+  { id:'g-ai',    label:'AI 网关',    color:'#92400e', mods:['m-llmgw','m-mcpgw','m-rtsec','m-modelsec','m-skillsec','m-redteam','m-saas-agent'] },
   { id:'g-cnapp', label:'云安全 (CNAPP)', color:'#14532d', mods:['m-cspm','m-dspm','m-cwpp','m-attackpath','m-ciem','m-cdr','m-aspm','m-aispm'] },
   { id:'g-ops',   label:'统一运营',   color:'#14532d', mods:['m-policy','m-alert','m-log','m-compliance'] },
   { id:'g-xpanse',label:'漏洞管理', color:'#14532d', mods:['m-xpanse','m-expomgmt'] },
@@ -427,6 +426,9 @@ const MODS = {
   'm-redteam':  { col:6, sec:'AI Red Teaming', theme:'t-asec', label:'AI Red Teaming',
     items:['AI 应用上线前安全评估','对抗性测试', '数据泄漏测试','提示词注入测试','AIRS 自动化红队报告'],
     tip:'Prisma AIRS Red Teaming — 在 AI 应用进入生产前，通过自动化对抗测试发现模型安全漏洞、越权风险和数据泄露路径' },
+  'm-saas-agent': { col:6, sec:'SaaS Agent 安全', theme:'t-asec', label:'SaaS Agent Security',
+    items:['AI Agent 配置检查','Agent 操作行为审计','Shadow Agent 发现','Agent 交互内容检查','Agent 访问关系可视化'],
+    tip:'保护 AI Agent 对 SaaS 应用（Salesforce / Workday / GitHub 等）的访问安全，实施最小权限、行为审计和影子 Agent 治理' },
 
   // ── Column 7: Operations ── sec:'运营 & 合规' ────────────
   'm-policy':   { col:7, sec:'运营 & 合规', theme:'t-cmp', label:'统一策略管理',
@@ -586,6 +588,9 @@ const CONNS = [
   ['m-redteam',  'm-dc', '#fb7185','dot'],
   ['m-redteam',  'm-saas', '#fb7185','dot'],
 
+  // SaaS Agent Security
+  ['m-saas-agent', 'm-saas',  '#fb7185','dot'],
+
 
   // Machine identity → AI gateway
 //  ['m-wcert',  'm-llmgw', '#22d3ee','dot'],
@@ -615,7 +620,7 @@ const SEC_COLOR_MAP = {
   'AI 资源':'machine','AI 安全控制':'aiagent','AI 网关':'aiagent',
   'SOC & 自动化':'cmp','漏洞管理':'cmp',
   '终端保护':'cmp','XDR 检测':'cmp','设备信任':'cmp',
-  'LLM 网关':'aiagent','MCP 网关':'aiagent','AI 运行时安全':'asec','Supply Chain 安全':'asec','AI Red Teaming':'asec',
+  'LLM 网关':'aiagent','MCP 网关':'aiagent','AI 运行时安全':'asec','Supply Chain 安全':'asec','AI Red Teaming':'asec','SaaS Agent 安全':'asec',
   '态势管理':'cmp','工作负载安全':'cmp','应用安全':'cmp',
   'SASE 接入方式':'sasewarm','安全服务':'sasewarm',
   '运营 & 合规':'cmp','业务资源':'rsrc',
@@ -736,6 +741,7 @@ const I18N = {
       'm-modelsec':{label:'AI Model Supply Chain Security',items:['Model integrity and provenance verification','Backdoor scanning','Third-party model risk scanning'],tip:'Verify model provenance and integrity at ingestion to prevent poisoned models, adversarial samples and unauthorized fine-tuned models from reaching production.'},
       'm-skillsec':{label:'Skill / Tool Supply Chain Security',items:['MCP tool scanning','Malicious tool injection detection'],tip:'Security governance for AI agent tool chains, MCP skills and third-party plugins to prevent malicious tool injection and privilege abuse.'},
       'm-redteam':{label:'AI Red Teaming',items:['Pre-production AI application security assessment','Adversarial input / privilege escalation testing','Prompt injection & data leakage validation','AIRS automated red-team reporting'],tip:'Prisma AIRS Red Teaming — automated adversarial testing of AI applications before production to discover model vulnerabilities, privilege risks and data-leakage paths.'},
+      'm-saas-agent':{label:'SaaS Agent Security',items:['AI Agent SaaS application access control','OAuth / API token least-privilege enforcement','Agent action behavior auditing','Shadow SaaS agent discovery & governance'],tip:'Secure AI agent access to SaaS applications (Salesforce / Workday / GitHub), enforcing least-privilege, behavioral auditing and shadow agent governance.'},
       'm-policy':{label:'Unified Policy Management',items:['Unified policy control plane','Automated policy deployment','Policy consistency checks','Threat intelligence integration'],tip:'Cross-domain policy management keeps SASE, firewall and cloud controls consistent.'},
       'm-alert':{label:'Threat Detection / Unified Alerts',items:['Threat detection and response','Unified alert center','Security-event investigation','AI anomaly alerts'],tip:'Unified threat detection, alerting and response across domains, including AI agents.'},
       'm-log':{label:'Unified Logs / SIEM Integration',items:['Global log collection','SIEM / SOAR integration','Policy-hit records','Agent behavior logs'],tip:'Centralized logs integrate with SIEM tools such as Splunk or Sentinel.'},
@@ -1280,6 +1286,21 @@ function updateVis() {
     const vis = section.querySelectorAll('.mod:not(.hidden)').length;
     section.style.gridTemplateColumns = vis <= 1 ? 'minmax(140px,auto)' : 'repeat(2,minmax(140px,auto))';
   });
+  // col-6: auto 2-row grid when >2 sections visible
+  const c6row = document.querySelector('#col-6-body .col-sec-row');
+  if (c6row) {
+    const visSecs = [...c6row.children].filter(s => s.style.display !== 'none');
+    const n = visSecs.length;
+    if (n > 2) {
+      c6row.style.display = 'grid';
+      c6row.style.gridTemplateColumns = `repeat(${Math.ceil((n + 1) / 2)}, 1fr)`;
+      c6row.style.alignItems = 'start';
+    } else {
+      c6row.style.display = '';
+      c6row.style.gridTemplateColumns = '';
+      c6row.style.alignItems = '';
+    }
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
