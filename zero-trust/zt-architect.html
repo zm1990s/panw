@@ -198,6 +198,9 @@ body.sase-detail #col-3 .verif-strip .vid{padding:8px 10px;display:flex;align-it
   <span class="pbadge" data-i18n="principleGlobal">全球一致 · 区域合规</span>
   <span class="pbadge" data-i18n="principleObservable">可观测 · 可审计</span>
   <div class="top-actions">
+    <button id="export-selected" class="top-toggle" type="button" data-i18n="exportSelected">导出已选</button>
+    <button id="export-highlight" class="top-toggle" type="button" data-i18n="exportHighlight">导出高亮</button>
+    <button id="export-all" class="top-toggle" type="button" data-i18n="exportAll">导出全部</button>
     <button id="lang-toggle" class="top-toggle" type="button" aria-label="Switch language">EN</button>
     <button id="sase-detail-toggle" class="top-toggle" type="button" aria-pressed="false">显示网络安全详情</button>
   </div>
@@ -242,7 +245,7 @@ body.sase-detail #col-3 .verif-strip .vid{padding:8px 10px;display:flex;align-it
 const PRESETS = [
   { id:'p-small',  label:'小型企业',  mods:['m-emp','m-endpointdev','m-sso','m-epm','m-device','m-remote','m-sase-mu','m-atp','m-aurl','m-adns','m-awf','m-internet','m-saas','m-policy'] },
   { id:'p-mid',    label:'中型企业',  mods:['m-emp','m-contractor','m-endpointdev','m-aiagent','m-sso','m-pam','m-itdr','m-epm','m-xdr','m-nbsc','m-device','m-agtreg','m-redteam','m-mcpauth','m-remote','m-branch','m-campus','m-byod','m-sase-mu','m-sase-ep', 'm-sase-rn', 'm-sase-sc', 'm-sase-browser', 'm-atp','m-awf','m-aurl','m-adns','m-devsec','m-swmesh','m-edlp','m-ai-access','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-cspm','m-dspm','m-cwpp','m-policy', 'm-alert','m-expomgmt', 'm-compliance'] },
-  { id:'p-large',  label:'大型跨国',  mods:['m-emp','m-contractor','m-endpointdev','m-iot','m-aiagent','m-sso','m-pam','m-itdr','m-epm','m-xdr','m-nbsc','m-device','m-agtreg','m-mcpauth','m-spiffe','m-wcert','m-remote','m-branch','m-campus','m-byod','m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-dem','m-atp','m-awf','m-aurl','m-adns','m-devsec','m-swmesh','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-atpp','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-modelsec','m-skillsec','m-cspm','m-dspm','m-cwpp','m-attackpath','m-ciem','m-cdr','m-aspm','m-aispm','m-policy','m-alert','m-log','m-compliance','m-xpanse','m-expomgmt','m-xsiam','m-xsoar','m-agentix'] },
+  { id:'p-large',  label:'大型跨国',  mods:['m-emp','m-contractor','m-endpointdev','m-iot','m-aiagent','m-sso','m-pam','m-itdr','m-epm','m-xdr','m-nbsc','m-device','m-agtreg','m-mcpauth','m-spiffe','m-wcert','m-remote','m-branch','m-campus','m-byod','m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-atp','m-awf','m-aurl','m-adns','m-devsec','m-swmesh','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-atpp','m-internet','m-saas','m-cloud','m-dc','m-llmgw','m-mcpgw','m-rtsec','m-modelsec','m-skillsec','m-cspm','m-dspm','m-cwpp','m-attackpath','m-ciem','m-cdr','m-aspm','m-aispm','m-policy','m-alert','m-log','m-compliance','m-xpanse','m-expomgmt','m-xsiam','m-xsoar','m-agentix'] },
  ];
 
 const GROUPS = [
@@ -253,7 +256,7 @@ const GROUPS = [
   { id:'g-aiid',  label:'AI Agent 身份', color:'#d97706', mods:['m-agtreg','m-mcpauth'] },
   { id:'g-mach',  label:'机器身份',   color:'#0891b2', mods:['m-spiffe','m-wcert'] },
   { id:'g-accs',  label:'接入方式',   color:'#0369a1', mods:['m-remote','m-branch','m-campus'] },
-  { id:'g-sase',  label:'SASE 接入方式', color:'#b45309', mods:['m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc','m-dem'] },
+  { id:'g-sase',  label:'SASE 接入方式', color:'#b45309', mods:['m-sase-mu','m-sase-ep','m-sase-browser','m-sase-rn','m-sase-sc'] },
   { id:'g-sfn',   label:'SASE 安全服务 (CDSS)', color:'#b45309', mods:['m-atp','m-awf','m-aurl','m-adns','m-devsec','m-swmesh','m-ipdef','m-edlp','m-saas-sec','m-ngcasb','m-ai-access','m-atpp'] },
   { id:'g-rsrc',  label:'业务资源',   color:'#0e7490', mods:['m-internet','m-saas','m-cloud','m-dc'] },
   { id:'g-ai',    label:'AI 网关',    color:'#92400e', mods:['m-llmgw','m-mcpgw','m-rtsec','m-modelsec','m-skillsec','m-redteam','m-saas-agent'] },
@@ -352,9 +355,6 @@ const MODS = {
   'm-sase-sc':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'SC - Service Connect',
     items:['数据中心服务发布至 Prisma','公有云 VPC 安全接入','东西向服务互联'],
     tip:'Service Connect — 将数据中心和云 VPC 以服务形式发布到 Prisma 网络，用户通过 ZTNA 访问，无需专线或 DC 防火墙' },
-  'm-dem':      { col:3, verif:true, verifLabel:'DEM', theme:'t-sase', label:'DEM 数字体验监测',
-    items:['终端到应用链路质量监测','SaaS / 私有应用性能可见性','故障定位（网络 / 应用 / 设备）','SASE 策略效果持续验证'],
-    tip:'DEM（Digital Experience Monitoring）是 Prisma SASE 的标配组件，从终端视角持续监测应用访问质量，是 ZTNA 策略调优的关键数据来源。' },
   // sec:'安全服务' — PA CDSS threat protection services
   'm-atp':      { col:3, sec:'安全服务', theme:'t-sase', label:'高级威胁防御',
     items:['IPS 入侵防御（AI 增强）','漏洞利用 / C2 流量阻断','零日威胁实时检测'],
@@ -432,34 +432,34 @@ const MODS = {
 
   // ── Column 7: Operations ── sec:'运营 & 合规' ────────────
   'm-policy':   { col:7, sec:'运营 & 合规', theme:'t-cmp', label:'统一策略管理',
-    items:['统一策略控制面','自动化策略下发','策略一致性校验','威胁情报联动'],
-    tip:'跨域统一策略管理，确保 SASE/防火墙/云安全组策略的一致性与自动化下发' },
+    items:['跨域策略统一编排','安全策略分析与优化建议','配置变更下发与回滚','策略一致性与冲突校验'],
+    tip:'统一策略管理：把网络、SASE、云、终端和身份控制面纳入同一治理流程，减少策略漂移并提升变更可审计性' },
   'm-alert':    { col:7, sec:'运营 & 合规', theme:'t-cmp', label:'威胁检测 / 统一告警',
-    items:['威胁检测与响应 (XDR)','统一告警中心','安全事件溯源','AI 异常行为告警'],
-    tip:'统一威胁检测、告警和安全事件响应，包含 AI Agent 的异常行为监控' },
+    items:['端点 / 网络 / 云告警关联','攻击链时间线与根因分析','身份与 Agent 异常检测','自动隔离与响应动作'],
+    tip:'统一告警：将端点、网络、云、身份和 AI Agent 信号关联成统一事件视图，支撑跨域威胁检测、调查和响应' },
   'm-log':      { col:7, sec:'运营 & 合规', theme:'t-cmp', label:'统一日志 / SIEM 集成',
-    items:['全域日志统一采集','SIEM / SOAR 集成','策略命中记录','Agent 行为日志'],
-    tip:'全域日志统一采集，对接 Splunk/Sentinel 等 SIEM 进行安全分析与事件关联' },
+    items:['全域安全日志汇聚','日志标准化与长期留存','SIEM / SOAR 数据接入','第三方分析平台转发'],
+    tip:'统一日志：集中承载网络、云、终端、身份和应用访问日志，为安全分析、事件关联、审计取证和外部 SIEM 集成提供数据底座' },
   'm-compliance':{ col:7, sec:'运营 & 合规', theme:'t-cmp', label:'合规与审计',
-    items:['数据主权与本地化','合规审计证据留置','数据日志留存','SPIFFE / SCIM / Open API'],
-    tip:'满足监管要求的合规控制与审计能力，支持等保、GDPR、SOC2 等认证' },
+    items:['合规基线持续评估','云资源合规扫描','审计证据与报告导出','数据主权与留存策略'],
+    tip:'合规与审计：围绕多云、网络和身份控制持续评估合规状态，沉淀审计证据和报告，支撑等保、GDPR、PCI、SOC 2 等要求' },
   // ── Column 7: 漏洞管理 ─────────────────────────────────
-  'm-xpanse':   { col:7, sec:'漏洞管理', theme:'t-cmp', label:'Cortex Xpanse',
-    items:['全互联网资产发现','65000 端口持续扫描','未知资产暴露识别','外部攻击面实时图谱'],
-    tip:'Cortex Xpanse：持续发现并监控对外暴露的所有资产，包括未知 / 影子资产，提供外部攻击面完整视图' },
-  'm-expomgmt': { col:7, sec:'漏洞管理', theme:'t-cmp', label:'Exposure Management',
-    items:['漏洞优先级智能排序','修复路径推荐','风险评分与趋势追踪','暴露面减少 99% 噪音'],
-    tip:'Cortex Exposure Management：结合攻击路径分析和业务上下文，将漏洞噪音降低 99%，专注最高风险修复' },
+  'm-xpanse':   { col:7, sec:'漏洞管理', theme:'t-cmp', label:'外部攻击面管理',
+    items:['互联网暴露资产发现','未知 / 影子资产识别','开放端口与服务监测','外部攻击面实时图谱'],
+    tip:'外部攻击面管理：持续发现和监控对外暴露资产，包括未知资产、影子 IT、开放端口和高风险服务，帮助安全团队掌握真实暴露面' },
+  'm-expomgmt': { col:7, sec:'漏洞管理', theme:'t-cmp', label:'暴露风险优先级管理',
+    items:['漏洞风险智能排序','攻击路径与业务上下文关联','修复路径推荐','风险评分与趋势追踪'],
+    tip:'暴露风险优先级管理：结合攻击路径、资产重要性、利用可能性和业务影响，把海量漏洞收敛为可执行的高优先级修复队列' },
   // ── Column 7: SOC & 自动化 ────────────────────────────────
-  'm-xsiam':    { col:7, sec:'SOC & 自动化', theme:'t-cmp', label:'Cortex XSIAM',
-    items:['AI 驱动 SOC 平台','SIEM + SOAR 一体化','自动化威胁响应','全域数据湖 (XDL)'],
-    tip:'Cortex XSIAM：AI 驱动的下一代 SOC 平台，将 SIEM、SOAR 和威胁情报整合为统一工作台，实现 98% 更快响应' },
-  'm-xsoar':    { col:7, sec:'SOC & 自动化', theme:'t-cmp', label:'Cortex XSOAR',
-    items:['1300+ 预置剧本','多云 / 跨工具编排','案例管理与协作','自定义自动化流'],
-    tip:'Cortex XSOAR：SOC 自动化编排平台，1300+ 集成剧本减少 75% 手动工作量，已整合至 XSIAM' },
-  'm-agentix':  { col:7, sec:'SOC & 自动化', theme:'t-cmp', label:'AgentiX',
+  'm-xsiam':    { col:7, sec:'SOC & 自动化', theme:'t-cmp', label:'智能安全运营平台',
+    items:['SIEM / SOAR / 威胁情报融合','全域安全数据关联','AI 辅助事件研判','自动化威胁响应'],
+    tip:'智能安全运营平台：统一汇聚日志、告警、威胁情报和调查上下文，帮助 SOC 从单点告警处理转向跨域事件运营' },
+  'm-xsoar':    { col:7, sec:'SOC & 自动化', theme:'t-cmp', label:'安全编排与自动化',
+    items:['预置响应剧本','跨工具动作编排','案例管理与协作','自定义自动化流程'],
+    tip:'安全编排与自动化：把告警分诊、证据收集、封禁隔离、工单流转等重复任务剧本化，减少人工操作并提升响应一致性' },
+  'm-agentix':  { col:7, sec:'SOC & 自动化', theme:'t-cmp', label:'AI 辅助安全运营',
     items:['AI Agent 安全运营工作流','自然语言告警分析','Agent 驱动溯源调查','SOC 任务自动化'],
-    tip:'AgentiX：构建、部署和治理 AI Agent 安全运营工作流，将 L1/L2 SOC 任务交由 AI Agent 自动处理' },
+    tip:'AI 辅助安全运营：通过可治理的 AI Agent 辅助告警解释、上下文检索、溯源调查和响应建议，让一线 SOC 任务更快闭环' },
   // ── Column 9: Cloud Security (CNAPP) ─────────────────────
   'm-cspm':     { col:9, sec:'态势管理', theme:'t-cmp', label:'CSPM 云安全态势',
     items:['云配置持续合规评估','多云统一安全视图','错误配置自动修复'],
@@ -512,13 +512,13 @@ const CONNS = [
   ['m-aiagent',   'm-endpointdev', '#3b82f6','solid'],
 
   // Devices → Identity (device posture check)
-  ['m-endpointdev','m-device',  '#0891b2','dash'],
-  ['m-endpointdev','m-xdr',  '#0891b2','dash'],
-  ['m-endpointdev','m-epm',  '#0891b2','dash'],
-  ['m-endpointdev','m-nbsc',  '#0891b2','dash'],
+  ['m-endpointdev','m-device',  '#0891b2','dot'],
+  ['m-endpointdev','m-xdr',  '#0891b2','dot'],
+  ['m-endpointdev','m-epm',  '#0891b2','dot'],
+  ['m-endpointdev','m-nbsc',  '#0891b2','dot'],
   ['m-byod',       'm-sso',     '#3b82f6','dot'],
 
-  ['m-byod',       'm-device',  '#0891b2','dash'],
+  ['m-byod',       'm-device',  '#0891b2','dot'],
 
   // Devices → Access (devices establish network connectivity)
   ['m-endpointdev','m-remote',  '#3b82f6','solid'],
@@ -644,6 +644,7 @@ const VERIF_PILLS = [
   { id:'v-userid', label:'User-ID', tip:{ zh:'User-ID：把流量、策略和日志绑定到用户与身份组，实现身份感知访问控制。', en:'User-ID binds traffic, policy and logs to users and groups for identity-aware access control.' } },
   { id:'v-deviceid', label:'Device-ID', tip:{ zh:'Device-ID：持续使用设备身份、合规和健康状态作为访问决策信号。', en:'Device-ID continuously uses device identity, compliance and health as access-decision signals.' } },
   { id:'v-contentid', label:'Content-ID', tip:{ zh:'Content-ID：识别威胁、URL、文件和数据内容，在统一路径上执行内容安全。', en:'Content-ID identifies threats, URLs, files and data content to enforce content security inline.' } },
+  { id:'v-dem', label:'DEM', className:'vid-dem', tip:{ zh:'DEM：从终端视角持续监测应用访问体验，反馈 SASE / ZTNA 策略效果与链路质量。', en:'DEM monitors digital experience from the endpoint perspective, feeding back SASE / ZTNA policy effect and path quality.' } },
 ];
 
 const I18N = {
@@ -656,7 +657,8 @@ const I18N = {
       statMods:'已启用模块', statConns:'活跃连接', statIdent:'身份类型', statRes:'资源域',
       hint:'悬停查看说明 · 勾选组件构建架构', showSaseDetail:'显示网络安全详情',
       hideSaseDetail:'隐藏网络安全详情', langToggle:'EN', securityControls:'安全管控',
-      verificationTitle:'持续验证 — 内置通用原理'
+      verificationTitle:'持续验证 — 内置通用原理', exportSelected:'导出已选',
+      exportHighlight:'导出高亮', exportAll:'导出全部'
     }
   },
   en: {
@@ -668,7 +670,8 @@ const I18N = {
       statMods:'Enabled modules', statConns:'Active connections', statIdent:'Identity types', statRes:'Resource domains',
       hint:'Hover for details · Select components to build the architecture', showSaseDetail:'Show network security details',
       hideSaseDetail:'Hide network security details', langToggle:'中', securityControls:'Security Controls',
-      verificationTitle:'Continuous Verification — Built-in Principles'
+      verificationTitle:'Continuous Verification — Built-in Principles', exportSelected:'Export Selected',
+      exportHighlight:'Export Highlight', exportAll:'Export All'
     },
     presets: {'p-small':'Small Business','p-mid':'Mid-Market','p-ai':'AI Enterprise','p-large':'Large Global Enterprise'},
     groups: {
@@ -718,7 +721,6 @@ const I18N = {
       'm-sase-browser':{label:'PB - Prisma Browser',items:['Secure browser','Zero-day and malicious-code isolation','For third-party / BYOD access'],tip:'Secure browser with browser isolation, data protection and web security controls.'},
       'm-sase-rn':{label:'RN - Remote Network',items:['Branch / campus network onboarding','IPSec / SD-WAN tunnels','IoT / OT network governance'],tip:'Onboard whole branch or campus networks to Prisma SASE.'},
       'm-sase-sc':{label:'SC - Service Connect',items:['Publish data-center services to Prisma','Public-cloud VPC secure access','East-west service interconnect'],tip:'Publish data-center and cloud services into Prisma for ZTNA access.'},
-      'm-dem':{label:'DEM Digital Experience Monitoring',items:['Endpoint-to-application path quality monitoring','SaaS / private app performance visibility','Network / app / device fault isolation','Continuous SASE policy-effect validation'],tip:'DEM monitors application experience from the endpoint perspective and provides key feedback for tuning ZTNA and SASE policies.'},
       'm-atp':{label:'Advanced Threat Prevention',items:['AI-enhanced IPS','Exploit / C2 blocking','Real-time zero-day detection'],tip:'AI-powered IPS detects exploits, malicious traffic and C2 communication in real time.'},
       'm-awf':{label:'Advanced WildFire',items:['Cloud sandbox malware analysis','Unknown-threat ML classification','Global threat intelligence sharing'],tip:'Cloud sandboxing analyzes unknown files and distributes protections globally.'},
       'm-aurl':{label:'Advanced URL Filtering',items:['URL categorization and filtering','Phishing / malicious site blocking','Real-time URL reputation'],tip:'Real-time URL classification and reputation block phishing and high-risk sites.'},
@@ -742,15 +744,15 @@ const I18N = {
       'm-skillsec':{label:'Skill / Tool Supply Chain Security',items:['MCP tool scanning','Malicious tool injection detection'],tip:'Security governance for AI agent tool chains, MCP skills and third-party plugins to prevent malicious tool injection and privilege abuse.'},
       'm-redteam':{label:'AI Red Teaming',items:['Pre-production AI application security assessment','Adversarial input / privilege escalation testing','Prompt injection & data leakage validation','AIRS automated red-team reporting'],tip:'Prisma AIRS Red Teaming — automated adversarial testing of AI applications before production to discover model vulnerabilities, privilege risks and data-leakage paths.'},
       'm-saas-agent':{label:'SaaS Agent Security',items:['AI Agent SaaS application access control','OAuth / API token least-privilege enforcement','Agent action behavior auditing','Shadow SaaS agent discovery & governance'],tip:'Secure AI agent access to SaaS applications (Salesforce / Workday / GitHub), enforcing least-privilege, behavioral auditing and shadow agent governance.'},
-      'm-policy':{label:'Unified Policy Management',items:['Unified policy control plane','Automated policy deployment','Policy consistency checks','Threat intelligence integration'],tip:'Cross-domain policy management keeps SASE, firewall and cloud controls consistent.'},
-      'm-alert':{label:'Threat Detection / Unified Alerts',items:['Threat detection and response','Unified alert center','Security-event investigation','AI anomaly alerts'],tip:'Unified threat detection, alerting and response across domains, including AI agents.'},
-      'm-log':{label:'Unified Logs / SIEM Integration',items:['Global log collection','SIEM / SOAR integration','Policy-hit records','Agent behavior logs'],tip:'Centralized logs integrate with SIEM tools such as Splunk or Sentinel.'},
-      'm-compliance':{label:'Compliance & Audit',items:['Data sovereignty and localization','Audit evidence retention','Data log retention','SPIFFE / SCIM / Open API'],tip:'Compliance and audit controls for regulatory requirements and certification evidence.'},
-      'm-xpanse':{label:'Cortex Xpanse',items:['Internet-wide asset discovery','Continuous port scanning','Unknown exposure detection','External attack surface map'],tip:'Continuously discover and monitor exposed assets, including unknown or shadow assets.'},
-      'm-expomgmt':{label:'Exposure Management',items:['Risk-prioritized vulnerabilities','Remediation path recommendations','Risk scoring and trends','Reduce exposure noise'],tip:'Prioritize the highest-risk vulnerabilities using attack paths and business context.'},
-      'm-xsiam':{label:'Cortex XSIAM',items:['AI-driven SOC platform','SIEM + SOAR integration','Automated threat response','Cross-domain data lake'],tip:'AI-driven SOC platform that unifies SIEM, SOAR and threat intelligence.'},
-      'm-xsoar':{label:'Cortex XSOAR',items:['1300+ playbooks','Multi-cloud / cross-tool orchestration','Case management and collaboration','Custom automation flows'],tip:'SOC orchestration platform with prebuilt playbooks and broad integrations.'},
-      'm-agentix':{label:'AgentiX',items:['AI agent security workflows','Natural-language alert analysis','Agent-driven investigation','SOC task automation'],tip:'Build and govern AI-agent workflows for security operations.'},
+      'm-policy':{label:'Unified Policy Management',items:['Cross-domain policy orchestration','Security policy analysis and recommendations','Configuration deployment and rollback','Policy consistency and conflict checks'],tip:'Unified policy management brings network, SASE, cloud, endpoint and identity controls into one governance workflow, reducing drift and improving change auditability.'},
+      'm-alert':{label:'Threat Detection / Unified Alerts',items:['Endpoint / network / cloud alert correlation','Attack timeline and root-cause analysis','Identity and agent anomaly detection','Automated isolation and response'],tip:'Unified alerting correlates endpoint, network, cloud, identity and AI agent signals into a shared incident view for cross-domain detection, investigation and response.'},
+      'm-log':{label:'Unified Logs / SIEM Integration',items:['Cross-domain security log collection','Log normalization and long-term retention','SIEM / SOAR data ingestion','Third-party analytics forwarding'],tip:'Unified logging centralizes network, cloud, endpoint, identity and application-access logs as the data layer for security analytics, incident correlation, audit forensics and external SIEM integration.'},
+      'm-compliance':{label:'Compliance & Audit',items:['Continuous compliance baseline assessment','Cloud resource compliance scanning','Audit evidence and report export','Data residency and retention policy'],tip:'Compliance and audit continuously assess controls across cloud, network and identity domains, producing evidence and reports for requirements such as GDPR, PCI and SOC 2.'},
+      'm-xpanse':{label:'External Attack Surface Management',items:['Internet-exposed asset discovery','Unknown / shadow asset identification','Open port and service monitoring','External attack-surface map'],tip:'External attack surface management continuously discovers and monitors exposed assets, including unknown assets, shadow IT, open ports and high-risk services.'},
+      'm-expomgmt':{label:'Exposure Risk Prioritization',items:['Risk-prioritized vulnerabilities','Attack-path and business-context correlation','Remediation path recommendations','Risk scoring and trends'],tip:'Exposure risk prioritization turns large vulnerability backlogs into executable remediation queues using attack paths, asset criticality, exploitability and business impact.'},
+      'm-xsiam':{label:'Intelligent Security Operations Platform',items:['SIEM / SOAR / threat-intelligence fusion','Cross-domain security data correlation','AI-assisted incident triage','Automated threat response'],tip:'An intelligent security operations platform unifies logs, alerts, threat intelligence and investigation context so the SOC can operate incidents across domains rather than chase isolated alerts.'},
+      'm-xsoar':{label:'Security Orchestration and Automation',items:['Prebuilt response playbooks','Cross-tool action orchestration','Case management and collaboration','Custom automation workflows'],tip:'Security orchestration and automation codifies repeatable tasks such as alert triage, evidence collection, blocking, isolation and ticket handoff to improve response consistency.'},
+      'm-agentix':{label:'AI-Assisted Security Operations',items:['AI agent security workflows','Natural-language alert analysis','Agent-driven investigation','SOC task automation'],tip:'AI-assisted security operations uses governed AI agents to explain alerts, retrieve context, support investigation and recommend response actions.'},
       'm-cspm':{label:'CSPM Cloud Posture',items:['Continuous cloud configuration compliance','Unified multi-cloud view','Automatic misconfiguration remediation'],tip:'Continuously assess AWS, Azure and GCP configuration risk.'},
       'm-dspm':{label:'DSPM Data Security Posture',items:['Sensitive data discovery and classification','Shadow data / zombie data identification','Data access path risk graph','GDPR / PCI data compliance assessment'],tip:'DSPM continuously scans sensitive data in cloud storage such as S3, GCS and ADLS, identifying excessive access and shadow data risk.'},
       'm-cwpp':{label:'CWPP Workload Protection',items:['VM / container runtime protection','Workload vulnerability scanning','Serverless protection'],tip:'Protect cloud VMs, containers and serverless workloads.'},
@@ -896,9 +898,7 @@ function renderCanvas() {
     body.id = cd.id + '-body';
     col.appendChild(body);
 
-    const allColMods = Object.entries(MODS).filter(([,m]) => 'col-' + m.col === cd.id);
-    const verifMods = cd.id === 'col-3' ? allColMods.filter(([,m]) => m.verif) : [];
-    const colMods = allColMods.filter(([,m]) => !m.verif);
+    const colMods = Object.entries(MODS).filter(([,m]) => 'col-' + m.col === cd.id);
     const hasSecs = colMods.some(([,m]) => m.sec);
 
     if (hasSecs) {
@@ -918,10 +918,7 @@ function renderCanvas() {
           shdr.className = 'verif-strip-hdr';
           shdr.textContent = trUI('verificationTitle');
           strip.appendChild(shdr);
-          VERIF_PILLS.forEach(p => strip.appendChild(buildVerifPill(p.id, p.label, p.tip[state.lang])));
-          verifMods.forEach(([mid, m]) => {
-            strip.appendChild(buildVerifPill(mid, m.verifLabel || trMod(mid, m).label, trMod(mid, m).tip, 'vid-dem', true));
-          });
+          VERIF_PILLS.forEach(p => strip.appendChild(buildVerifPill(p.id, p.label, p.tip[state.lang], p.className || '')));
           body.appendChild(strip);
         }
         const row = document.createElement('div');
@@ -1062,7 +1059,6 @@ function highlightRelated(mid) {
   // modules visible in every hover path even when they have no direct line.
   Object.entries(MODS).forEach(([id, m]) => {
     if (m.col === 7 && state.enabled.has(id)) rel.add(id);
-    if (m.verif && state.enabled.has(id)) rel.add(id);
   });
   Object.keys(MODS).forEach(id => {
     const el = document.getElementById(id);
@@ -1409,7 +1405,7 @@ function drawConns() {
       d = `M${x1},${y1} C${x1+sign*dx},${y1} ${c2x},${c2y} ${x2},${y2}`;
     }
 
-    const sw = style === 'solid' ? '1.8' : '1.4';
+    const sw = '1.4';
     // Cross-band connections are very faint in static view — hover highlight reveals them
     const op = crossBand ? 0.12 : (style === 'dot' ? 0.45 : 0.65);
 
@@ -1486,6 +1482,175 @@ function setLanguage(lang) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// EXPORT PNG
+// ─────────────────────────────────────────────────────────────────────────────
+function waitFrame() {
+  return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+function exportBounds(mode) {
+  const outer = document.getElementById('canvas-outer');
+  const cRect = outer.getBoundingClientRect();
+  const targets = mode === 'highlight'
+    ? [...outer.querySelectorAll('.mod.hovered,.mod.related,.vid.hovered,.vid.related')]
+    : [...outer.querySelectorAll('.mod:not(.hidden),.vid:not(.hidden)')];
+  const addTarget = el => {
+    if (el && !targets.includes(el)) targets.push(el);
+  };
+
+  [...targets].forEach(el => {
+    const col = el.closest('.col');
+    const band = el.closest('.band');
+    const secCol = el.closest('.col-sec-col');
+    const secGroup = el.closest('.sec-group');
+    const secWrap = el.closest('.sec-controls-wrap');
+    const colHdr = col?.querySelector(':scope > .col-hdr');
+    const bandHdr = [...(band?.children || [])].find(child => child.classList?.contains('band-hdr'));
+    const secHdr = secCol?.querySelector(':scope > .col-sub-hdr') || secGroup?.querySelector(':scope > .col-sub-hdr');
+    const wrapHdr = secWrap?.querySelector(':scope > .sec-controls-hdr');
+    [colHdr, bandHdr, secHdr, wrapHdr].forEach(addTarget);
+  });
+
+  const connSelector = mode === 'highlight'
+    ? '#conn-svg g.conn-bright path,#conn-svg g.conn-bright polygon'
+    : '#conn-svg g.conn-grp path,#conn-svg g.conn-grp polygon';
+  targets.push(...outer.querySelectorAll(connSelector));
+
+  const visibleTargets = targets.filter(el => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.height > 0;
+  });
+
+  if (!visibleTargets.length) return null;
+  const pad = 18;
+  const box = visibleTargets.reduce((acc, el) => {
+    const r = el.getBoundingClientRect();
+    acc.left = Math.min(acc.left, r.left - cRect.left);
+    acc.top = Math.min(acc.top, r.top - cRect.top);
+    acc.right = Math.max(acc.right, r.right - cRect.left);
+    acc.bottom = Math.max(acc.bottom, r.bottom - cRect.top);
+    return acc;
+  }, { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity });
+
+  const x = Math.max(0, Math.floor(box.left - pad));
+  const y = Math.max(0, Math.floor(box.top - pad));
+  const right = Math.min(outer.scrollWidth, Math.ceil(box.right + pad));
+  const bottom = Math.min(outer.scrollHeight, Math.ceil(box.bottom + pad));
+  return { x, y, w: Math.max(1, right - x), h: Math.max(1, bottom - y) };
+}
+
+async function downloadCanvasPng(filename, mode = 'selected') {
+  hideTip();
+  await waitFrame();
+  drawConns();
+  await waitFrame();
+
+  const outer = document.getElementById('canvas-outer');
+  const bounds = exportBounds(mode);
+  if (!bounds) {
+    alert(mode === 'highlight'
+      ? (state.lang === 'en' ? 'Pin or hover a module first, then export the highlighted area.' : '请先点击固定或悬浮一个模块，再导出高亮部分。')
+      : (state.lang === 'en' ? 'No visible modules to export.' : '当前没有可导出的模块。'));
+    return;
+  }
+
+  const clone = outer.cloneNode(true);
+  clone.querySelector('#conn-svg')?.setAttribute('width', outer.scrollWidth);
+  clone.querySelector('#conn-svg')?.setAttribute('height', outer.scrollHeight);
+  clone.style.position = 'relative';
+  clone.style.width = outer.scrollWidth + 'px';
+  clone.style.height = outer.scrollHeight + 'px';
+  clone.style.minWidth = '0';
+  clone.style.background = 'transparent';
+  clone.style.transform = `translate(${-bounds.x}px,${-bounds.y}px)`;
+  clone.style.transformOrigin = '0 0';
+
+  const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  wrapper.className = 'export-root';
+  wrapper.style.width = bounds.w + 'px';
+  wrapper.style.height = bounds.h + 'px';
+  wrapper.style.overflow = 'hidden';
+  wrapper.style.background = 'transparent';
+  wrapper.innerHTML = `<style>${styles}
+.export-root,.export-root *{font-family:SimHei,"Heiti SC",Arial,sans-serif !important;}</style>`;
+  wrapper.appendChild(clone);
+
+  const serialized = new XMLSerializer().serializeToString(wrapper);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.w}" height="${bounds.h}"><foreignObject width="100%" height="100%">${serialized}</foreignObject></svg>`;
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.onload = () => {
+    const scale = Math.max(2, window.devicePixelRatio || 1);
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(bounds.w * scale);
+    canvas.height = Math.ceil(bounds.h * scale);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.clearRect(0, 0, bounds.w, bounds.h);
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(png => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(png);
+      a.download = filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }, 'image/png');
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    alert(state.lang === 'en' ? 'PNG export failed in this browser.' : '当前浏览器导出 PNG 失败。');
+  };
+  img.src = url;
+}
+
+async function exportPng(mode) {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  if (mode === 'all') {
+    const prevEnabled = new Set(state.enabled);
+    const prevPreset = state.activePreset;
+    const prevPin = state.pinnedHighlight;
+    Object.keys(MODS).forEach(id => state.enabled.add(id));
+    state.activePreset = null;
+    Object.keys(MODS).forEach(id => syncCheckbox(id, true));
+    GROUPS.forEach(g => syncGroupCheckbox(g.id));
+    state.pinnedHighlight = null;
+    clearHighlight();
+    updateVis();
+    await waitFrame();
+    await downloadCanvasPng(`zero-trust-all-${stamp}.png`, 'selected');
+    state.enabled = prevEnabled;
+    state.activePreset = prevPreset;
+    state.pinnedHighlight = prevPin;
+    Object.keys(MODS).forEach(id => syncCheckbox(id, state.enabled.has(id)));
+    GROUPS.forEach(g => syncGroupCheckbox(g.id));
+    updateVis();
+    schedDraw();
+    updateStats();
+    updatePresetBtns();
+    return;
+  }
+
+  if (mode === 'highlight' && state.pinnedHighlight) {
+    clearHighlight();
+    highlightRelated(state.pinnedHighlight);
+  }
+  if (mode === 'selected') {
+    const prevPin = state.pinnedHighlight;
+    state.pinnedHighlight = null;
+    clearHighlight();
+    await downloadCanvasPng(`zero-trust-${mode}-${stamp}.png`, mode);
+    state.pinnedHighlight = prevPin;
+    applyPinnedHighlight();
+    return;
+  }
+  await downloadCanvasPng(`zero-trust-${mode}-${stamp}.png`, mode);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // TOOLTIP
 // ─────────────────────────────────────────────────────────────────────────────
 function showTip(e, text) {
@@ -1523,6 +1688,9 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('lang-toggle').addEventListener('click', () => {
     setLanguage(state.lang === 'zh' ? 'en' : 'zh');
   });
+  document.getElementById('export-selected').addEventListener('click', () => exportPng('selected'));
+  document.getElementById('export-highlight').addEventListener('click', () => exportPng('highlight'));
+  document.getElementById('export-all').addEventListener('click', () => exportPng('all'));
 
   // Redraw on scroll/resize
   document.getElementById('cv-wrap').addEventListener('scroll', schedDraw);
