@@ -766,7 +766,7 @@ const I18N = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
-const state = { enabled: new Set(), activePreset: null, lang: 'zh' };
+const state = { enabled: new Set(), activePreset: null, lang: 'zh', pinnedHighlight: null };
 
 function trUI(key) { return I18N[state.lang]?.ui?.[key] || I18N.zh.ui[key] || key; }
 function trPreset(p) { return I18N[state.lang]?.presets?.[p.id] || p.label; }
@@ -1090,6 +1090,23 @@ function clearHighlight() {
   });
 }
 
+function applyPinnedHighlight() {
+  if (!state.pinnedHighlight) return;
+  const el = document.getElementById(state.pinnedHighlight);
+  if (!el || el.classList.contains('hidden')) {
+    state.pinnedHighlight = null;
+    clearHighlight();
+    return;
+  }
+  highlightRelated(state.pinnedHighlight);
+}
+
+function togglePinnedHighlight(id) {
+  state.pinnedHighlight = state.pinnedHighlight === id ? null : id;
+  clearHighlight();
+  applyPinnedHighlight();
+}
+
 function buildVerifPill(id, label, tip, extraClass = '', relatedModule = false) {
   const el = document.createElement('div');
   el.className = 'vid' + (extraClass ? ' ' + extraClass : '');
@@ -1097,15 +1114,23 @@ function buildVerifPill(id, label, tip, extraClass = '', relatedModule = false) 
   el.textContent = label;
   el.addEventListener('mouseenter', e => {
     showTip(e, tip);
+    if (state.pinnedHighlight) return;
     if (relatedModule) highlightRelated(id);
     else el.classList.add('hovered');
   });
   el.addEventListener('mousemove', e => moveTip(e));
   el.addEventListener('mouseleave', () => {
     hideTip();
+    if (state.pinnedHighlight) return;
     if (relatedModule) clearHighlight();
     else el.classList.remove('hovered');
   });
+  if (relatedModule) {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePinnedHighlight(id);
+    });
+  }
   return el;
 }
 
@@ -1122,9 +1147,19 @@ function buildMod(mid, m) {
     <div class="mod-lbl">${ch}<span>${tm.label}</span></div>
     <div class="mod-items">${(tm.items||[]).map(i=>`<div class="mod-item">${i}</div>`).join('')}</div>
   `;
-  el.addEventListener('mouseenter', e => { showTip(e, trMod(mid, m).tip); highlightRelated(mid); });
+  el.addEventListener('mouseenter', e => {
+    showTip(e, trMod(mid, m).tip);
+    if (!state.pinnedHighlight) highlightRelated(mid);
+  });
   el.addEventListener('mousemove',  e => moveTip(e));
-  el.addEventListener('mouseleave', () => { hideTip(); clearHighlight(); });
+  el.addEventListener('mouseleave', () => {
+    hideTip();
+    if (!state.pinnedHighlight) clearHighlight();
+  });
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    togglePinnedHighlight(mid);
+  });
   return el;
 }
 
@@ -1301,6 +1336,7 @@ function updateVis() {
       c6row.style.alignItems = '';
     }
   }
+  applyPinnedHighlight();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1412,6 +1448,7 @@ function drawConns() {
   });
 
   document.getElementById('s-conns').textContent = active;
+  applyPinnedHighlight();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
