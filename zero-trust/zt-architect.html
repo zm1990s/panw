@@ -12,7 +12,9 @@ body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background
 #top{background:#111827;border-bottom:1px solid #1e3a5f;padding:7px 16px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0}
 #top .ptitle{font-size:11px;color:#475569;font-weight:700;white-space:nowrap;margin-right:4px}
 .pbadge{background:#0d1424;border:1px solid #1e3a5f;border-radius:20px;padding:2px 9px;font-size:10px;color:#64748b;white-space:nowrap}
-.top-actions{margin-left:auto;display:flex;gap:6px;align-items:center}
+.top-actions{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:100%}
+.name-select{font:inherit;font-size:10px;font-weight:700;color:#cbd5e1;background:#0d1424;border:1px solid #334155;border-radius:4px;padding:3px 6px;max-width:100%;cursor:pointer;color-scheme:dark}
+.name-select:focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
 .top-toggle{border:1px solid #334155;background:#0d1424;color:#94a3b8;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
 .top-toggle:hover{background:#1e293b;color:#e2e8f0}
 .top-toggle.active{background:#0e7490;border-color:#22d3ee;color:#ecfeff}
@@ -121,9 +123,9 @@ body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background
 #col-3 .mod{padding:8px 10px}
 #col-3 .mod-lbl{font-size:10.5px;margin-bottom:0}
 #col-3 .mod-items{display:none}
-body.sase-detail #col-3 .mod{padding:11px 13px}
-body.sase-detail #col-3 .mod-lbl{font-size:11px;margin-bottom:5px}
-body.sase-detail #col-3 .mod-items{display:flex}
+.sase-detail #col-3 .mod{padding:11px 13px}
+.sase-detail #col-3 .mod-lbl{font-size:11px;margin-bottom:5px}
+.sase-detail #col-3 .mod-items{display:flex}
 #conn-svg g.conn-grp{transition:opacity .18s}
 #conn-svg g.conn-dim{opacity:0.05}
 #conn-svg g.conn-bright path{stroke-width:2.8px !important;opacity:0.85 !important}
@@ -131,6 +133,8 @@ body.sase-detail #col-3 .mod-items{display:flex}
 .col-sub-hdr.hidden{display:none}
 [id^="sec-"].sec-hl>.col-sub-hdr{box-shadow:0 0 0 1.5px rgba(147,197,253,0.5);color:#93c5fd}
 .mod-lbl{font-size:11px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;line-height:1.3}
+.mod-name{min-width:0;overflow-wrap:anywhere}
+.product-names .mod-name{max-width:240px}
 .mod-items{display:flex;flex-direction:column;gap:2px}
 .mod-item{font-size:10px;color:#475569;padding:1px 5px;background:rgba(0,0,0,.3);border-radius:3px;line-height:1.4}
 
@@ -174,8 +178,8 @@ body.sase-detail #col-3 .mod-items{display:flex}
 .vid.dimmed{opacity:0.13}
 .vid.hovered{box-shadow:0 0 0 2px #93c5fd,0 0 16px rgba(147,197,253,0.4)}
 .vid.related{box-shadow:0 0 0 1.5px rgba(255,255,255,0.22)}
-body.sase-detail #col-3 .verif-strip{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));align-items:stretch}
-body.sase-detail #col-3 .verif-strip .vid{padding:8px 10px;display:flex;align-items:center;justify-content:center}
+.sase-detail #col-3 .verif-strip{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));align-items:stretch}
+.sase-detail #col-3 .verif-strip .vid{padding:8px 10px;display:flex;align-items:center;justify-content:center}
 
 /* STATS BAR */
 #stats{background:#111827;border-top:1px solid #1e3a5f;padding:5px 16px;display:flex;gap:20px;font-size:10px;color:#334155;flex-shrink:0;align-items:center}
@@ -198,6 +202,10 @@ body.sase-detail #col-3 .verif-strip .vid{padding:8px 10px;display:flex;align-it
   <span class="pbadge" data-i18n="principleGlobal">全球一致 · 区域合规</span>
   <span class="pbadge" data-i18n="principleObservable">可观测 · 可审计</span>
   <div class="top-actions">
+    <select id="name-mode" class="name-select" aria-label="模块名称显示方式">
+      <option value="capability" data-i18n="capabilityNames">功能名</option>
+      <option value="product" data-i18n="productNames">Palo Alto Networks 产品名</option>
+    </select>
     <button id="export-selected" class="top-toggle" type="button" data-i18n="exportSelected">导出已选</button>
     <button id="export-highlight" class="top-toggle" type="button" data-i18n="exportHighlight">导出高亮</button>
     <button id="export-all" class="top-toggle" type="button" data-i18n="exportAll">导出全部</button>
@@ -346,7 +354,7 @@ const MODS = {
   'm-sase-ep':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'EP - Explicit Proxy',
     items:['PAC 文件自动发现','HTTP/S 显式代理转发','无需安装客户端'],
     tip:'通过 PAC 文件将浏览器流量显式转发至 Prisma 代理，无需 GlobalProtect 客户端，适合不允许安装代理的场景' },
-  'm-sase-browser':{ col:3, sec:'SASE 接入方式', theme:'t-sase', label:'PB - Prisma Browser',
+  'm-sase-browser':{ col:3, sec:'SASE 接入方式', theme:'t-sase', label:'安全企业浏览器',
     items:['安全浏览器','零日漏洞与恶意代码隔离','适合第三方 / BYOD 访问'],
     tip:'Prisma Browser — 安全浏览器，具备易用的 DLP 及 Web 安全功能' },
   'm-sase-rn':  { col:3, sec:'SASE 接入方式', theme:'t-sase', label:'RN - Remote Network',
@@ -658,7 +666,8 @@ const I18N = {
       hint:'悬停查看说明 · 勾选组件构建架构', showSaseDetail:'显示网络安全详情',
       hideSaseDetail:'隐藏网络安全详情', langToggle:'EN', securityControls:'安全管控',
       verificationTitle:'持续验证 — 内置通用原理', exportSelected:'导出已选',
-      exportHighlight:'导出高亮', exportAll:'导出全部'
+      exportHighlight:'导出高亮', exportAll:'导出全部', nameMode:'模块名称显示方式',
+      capabilityNames:'功能名', productNames:'Palo Alto Networks 产品名'
     }
   },
   en: {
@@ -671,7 +680,8 @@ const I18N = {
       hint:'Hover for details · Select components to build the architecture', showSaseDetail:'Show network security details',
       hideSaseDetail:'Hide network security details', langToggle:'中', securityControls:'Security Controls',
       verificationTitle:'Continuous Verification — Built-in Principles', exportSelected:'Export Selected',
-      exportHighlight:'Export Highlight', exportAll:'Export All'
+      exportHighlight:'Export Highlight', exportAll:'Export All', nameMode:'Module names',
+      capabilityNames:'Capability names', productNames:'Palo Alto Networks products'
     },
     presets: {'p-small':'Small Business','p-mid':'Mid-Market','p-ai':'AI Enterprise','p-large':'Large Global Enterprise'},
     groups: {
@@ -718,11 +728,11 @@ const I18N = {
       'm-campus':{label:'Large Campus / Headquarters',items:['Large campuses','Domestic factories','Headquarters data-center networks'],tip:'Large sites use Private Region or Remote Network access into SASE.'},
       'm-sase-mu':{label:'MU - Mobile User',items:['GlobalProtect client access','Private Region option','100+ global PoPs nearby'],tip:'The common mobile-user access model using client or clientless zero-trust tunnels.'},
       'm-sase-ep':{label:'EP - Explicit Proxy',items:['PAC auto-discovery','HTTP/S explicit proxy forwarding','No client installation'],tip:'Browser traffic is explicitly forwarded to Prisma proxy, useful when agents cannot be installed.'},
-      'm-sase-browser':{label:'PB - Prisma Browser',items:['Secure browser','Zero-day and malicious-code isolation','For third-party / BYOD access'],tip:'Secure browser with browser isolation, data protection and web security controls.'},
+      'm-sase-browser':{label:'Secure Enterprise Browser',items:['Secure browser','Zero-day and malicious-code isolation','For third-party / BYOD access'],tip:'Secure browser with browser isolation, data protection and web security controls.'},
       'm-sase-rn':{label:'RN - Remote Network',items:['Branch / campus network onboarding','IPSec / SD-WAN tunnels','IoT / OT network governance'],tip:'Onboard whole branch or campus networks to Prisma SASE.'},
       'm-sase-sc':{label:'SC - Service Connect',items:['Publish data-center services to Prisma','Public-cloud VPC secure access','East-west service interconnect'],tip:'Publish data-center and cloud services into Prisma for ZTNA access.'},
       'm-atp':{label:'Advanced Threat Prevention',items:['AI-enhanced IPS','Exploit / C2 blocking','Real-time zero-day detection'],tip:'AI-powered IPS detects exploits, malicious traffic and C2 communication in real time.'},
-      'm-awf':{label:'Advanced WildFire',items:['Cloud sandbox malware analysis','Unknown-threat ML classification','Global threat intelligence sharing'],tip:'Cloud sandboxing analyzes unknown files and distributes protections globally.'},
+      'm-awf':{label:'Advanced Cloud Sandboxing',items:['Cloud sandbox malware analysis','Unknown-threat ML classification','Global threat intelligence sharing'],tip:'Cloud sandboxing analyzes unknown files and distributes protections globally.'},
       'm-aurl':{label:'Advanced URL Filtering',items:['URL categorization and filtering','Phishing / malicious site blocking','Real-time URL reputation'],tip:'Real-time URL classification and reputation block phishing and high-risk sites.'},
       'm-adns':{label:'Advanced DNS Security',items:['DNS tunneling / C2 detection','Malicious-domain blocking','DGA domain identification'],tip:'ML-based DNS analysis blocks C2, DNS exfiltration and DGA domains.'},
       'm-ipdef':{label:'Advanced IP Defense',items:['Attacker infrastructure identification','Pre-exploit blocking','Malicious IP blocking'],tip:'Identify and block malicious infrastructure before scanning and exploitation progress.'},
@@ -768,7 +778,68 @@ const I18N = {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────────────────
-const state = { enabled: new Set(), activePreset: null, lang: 'zh', pinnedHighlight: null };
+// Product families may cover several capabilities; suffixes identify the mapped feature.
+// Sources: https://www.paloaltonetworks.com/products/products-a-z
+// https://www.paloaltonetworks.com/ai-security/ai-gateway
+// https://www.paloaltonetworks.com/cortex/agentic-endpoint-security
+// Subjects, devices, access locations and business resources retain their architecture names.
+const PRODUCT_NAMES = {
+  'm-sso':'Idira (IAM / IGA)',
+  'm-pam':'Idira (PAM)',
+  'm-agtreg':'Idira Agentic Identity Security',
+  'm-mcpauth':'Idira Agentic Identity Security (MCP)',
+  'm-spiffe':'Idira Machine Identity Security',
+  'm-wcert':'Idira Secrets Management',
+  'm-itdr':'Cortex ITDR + Idira',
+  'm-device':'Prisma Access (HIP)',
+  'm-epm':'Cortex XDR (Endpoint Protection)',
+  'm-xdr':'Cortex XDR',
+  'm-nbsc':'Cortex AES',
+  'm-sase-mu':'Prisma Access (Mobile Users)',
+  'm-sase-ep':'Prisma Access (Explicit Proxy)',
+  'm-sase-browser':'Prisma Browser',
+  'm-sase-rn':'Prisma Access (Remote Networks)',
+  'm-sase-sc':'Prisma Access (Service Connections)',
+  'm-atp':'Advanced Threat Prevention',
+  'm-awf':'Advanced WildFire',
+  'm-aurl':'Advanced URL Filtering',
+  'm-adns':'Advanced DNS Security',
+  'm-ipdef':'Advanced IP Defense',
+  'm-devsec':'Enterprise Device Security',
+  'm-swmesh':'Cortex AES',
+  'm-edlp':'Enterprise DLP',
+  'm-saas-sec':'SaaS Security',
+  'm-ngcasb':'Next-Generation CASB',
+  'm-ai-access':'AI Access Security',
+  'm-atpp':'Advanced Threat Prevention Plus',
+  'm-llmgw':'Prisma AIRS AI Gateway (LLM)',
+  'm-mcpgw':'Prisma AIRS AI Gateway (MCP)',
+  'm-rtsec':'Prisma AIRS AI Runtime Security',
+  'm-modelsec':'Prisma AIRS AI Model Security',
+  'm-skillsec':'Prisma AIRS Skill Security',
+  'm-redteam':'Prisma AIRS AI Red Teaming',
+  'm-saas-agent':'Prisma AIRS SaaS Agent Security',
+  'm-policy':'Strata Cloud Manager',
+  'm-alert':'Cortex XDR / Cortex XSIAM',
+  'm-log':'Cortex Data Lake / Cortex XSIAM',
+  'm-compliance':'Cortex Cloud (Compliance)',
+  'm-xpanse':'Cortex Xpanse',
+  'm-expomgmt':'Cortex Exposure Management',
+  'm-xsiam':'Cortex XSIAM',
+  'm-xsoar':'Cortex XSOAR',
+  'm-agentix':'Cortex AgentiX',
+  'm-cspm':'Cortex Cloud (CSPM)',
+  'm-dspm':'Cortex Cloud (DSPM)',
+  'm-ciem':'Cortex Cloud (CIEM)',
+  'm-cwpp':'Cortex Cloud (CWPP)',
+  'm-cdr':'Cortex Cloud (CDR)',
+  'm-attackpath':'Cortex Cloud (Attack Path Analysis)',
+  'm-aspm':'Cortex Cloud (ASPM)',
+  'm-aispm':'Cortex Cloud (AI-SPM)',
+  'v-dem':'ADEM'
+};
+
+const state = { enabled: new Set(), activePreset: null, lang: 'zh', nameMode: 'capability', pinnedHighlight: null };
 
 function trUI(key) { return I18N[state.lang]?.ui?.[key] || I18N.zh.ui[key] || key; }
 function trPreset(p) { return I18N[state.lang]?.presets?.[p.id] || p.label; }
@@ -777,7 +848,38 @@ function trCol(cd) { return I18N[state.lang]?.cols?.[cd.id] || cd.label; }
 function trSec(sec) { return I18N[state.lang]?.secs?.[sec] || sec; }
 function trMod(mid, m) {
   const tx = I18N[state.lang]?.mods?.[mid] || {};
-  return { label: tx.label || m.label, items: tx.items || m.items || [], tip: tx.tip || m.tip };
+  const capability = tx.label || m.label;
+  const product = state.nameMode === 'product' ? PRODUCT_NAMES[mid] : null;
+  const tip = tx.tip || m.tip || '';
+  return {
+    label: product || capability,
+    items: tx.items || m.items || [],
+    tip: product ? `${product}\n${capability}\n${tip}` : tip
+  };
+}
+
+function verifLabel(p) {
+  return state.nameMode === 'product' ? PRODUCT_NAMES[p.id] || p.label : p.label;
+}
+
+function setNameMode(mode) {
+  state.nameMode = mode === 'product' ? 'product' : 'capability';
+  document.getElementById('name-mode').value = state.nameMode;
+  document.body.classList.toggle('product-names', state.nameMode === 'product');
+  hideTip();
+  // Update in place to preserve selection, expanded sidebar groups and pinned highlights.
+  Object.entries(MODS).forEach(([mid, m]) => {
+    const label = trMod(mid, m).label;
+    const canvasLabel = document.getElementById(mid)?.querySelector('.mod-name');
+    const sidebarLabel = document.getElementById('cbr-' + mid)?.querySelector('.cb-lbl');
+    if (canvasLabel) canvasLabel.textContent = label;
+    if (sidebarLabel) sidebarLabel.textContent = label;
+  });
+  VERIF_PILLS.forEach(p => {
+    const el = document.getElementById(p.id);
+    if (el) el.textContent = verifLabel(p);
+  });
+  schedDraw();
 }
 
 function localizeStatic() {
@@ -788,6 +890,9 @@ function localizeStatic() {
   });
   const langBtn = document.getElementById('lang-toggle');
   if (langBtn) langBtn.textContent = trUI('langToggle');
+  const nameMenu = document.getElementById('name-mode');
+  nameMenu.setAttribute('aria-label', trUI('nameMode'));
+  nameMenu.value = state.nameMode;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -918,7 +1023,7 @@ function renderCanvas() {
           shdr.className = 'verif-strip-hdr';
           shdr.textContent = trUI('verificationTitle');
           strip.appendChild(shdr);
-          VERIF_PILLS.forEach(p => strip.appendChild(buildVerifPill(p.id, p.label, p.tip[state.lang], p.className || '')));
+          VERIF_PILLS.forEach(p => strip.appendChild(buildVerifPill(p.id, verifLabel(p), p.tip[state.lang], p.className || '')));
           body.appendChild(strip);
         }
         const row = document.createElement('div');
@@ -1140,7 +1245,7 @@ function buildMod(mid, m) {
   if (m.ch) ch = `<span class="ctag ctag-${m.ch}">${m.ch}</span>`;
 
   el.innerHTML = `
-    <div class="mod-lbl">${ch}<span>${tm.label}</span></div>
+    <div class="mod-lbl">${ch}<span class="mod-name">${tm.label}</span></div>
     <div class="mod-items">${(tm.items||[]).map(i=>`<div class="mod-item">${i}</div>`).join('')}</div>
   `;
   el.addEventListener('mouseenter', e => {
@@ -1568,7 +1673,7 @@ async function downloadCanvasPng(filename, mode = 'selected') {
   const styles = [...document.querySelectorAll('style')].map(s => s.textContent).join('\n');
   const wrapper = document.createElement('div');
   wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
-  wrapper.className = 'export-root';
+  wrapper.className = 'export-root ' + document.body.className;
   wrapper.style.width = bounds.w + 'px';
   wrapper.style.height = bounds.h + 'px';
   wrapper.style.overflow = 'hidden';
@@ -1579,8 +1684,6 @@ async function downloadCanvasPng(filename, mode = 'selected') {
 
   const serialized = new XMLSerializer().serializeToString(wrapper);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.w}" height="${bounds.h}"><foreignObject width="100%" height="100%">${serialized}</foreignObject></svg>`;
-  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
   const img = new Image();
   img.onload = () => {
     const scale = Math.max(2, window.devicePixelRatio || 1);
@@ -1591,7 +1694,6 @@ async function downloadCanvasPng(filename, mode = 'selected') {
     ctx.setTransform(scale, 0, 0, scale, 0, 0);
     ctx.clearRect(0, 0, bounds.w, bounds.h);
     ctx.drawImage(img, 0, 0);
-    URL.revokeObjectURL(url);
     canvas.toBlob(png => {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(png);
@@ -1601,10 +1703,10 @@ async function downloadCanvasPng(filename, mode = 'selected') {
     }, 'image/png');
   };
   img.onerror = () => {
-    URL.revokeObjectURL(url);
     alert(state.lang === 'en' ? 'PNG export failed in this browser.' : '当前浏览器导出 PNG 失败。');
   };
-  img.src = url;
+  // Inline SVG keeps foreignObject rasterization origin-clean in Chrome.
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
 async function exportPng(mode) {
@@ -1687,6 +1789,9 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('lang-toggle').addEventListener('click', () => {
     setLanguage(state.lang === 'zh' ? 'en' : 'zh');
+  });
+  document.getElementById('name-mode').addEventListener('change', e => {
+    setNameMode(e.currentTarget.value);
   });
   document.getElementById('export-selected').addEventListener('click', () => exportPng('selected'));
   document.getElementById('export-highlight').addEventListener('click', () => exportPng('highlight'));
