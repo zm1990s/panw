@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Homelab · 零信任拓扑规划</title><style>/* STYLES */</style></head>
+<body>
+<header class="app-header">
+  <div class="brand"><span class="brand-symbol" data-icon="Network"></span><div><strong>HOMELAB</strong><span>零信任部署规划</span></div></div>
+  <input id="project-name" aria-label="拓扑名称" maxlength="100">
+  <span id="save-state" class="save-state" role="status"></span>
+  <div class="header-actions"><button id="import-btn" title="打开 JSON 拓扑" aria-label="打开 JSON 拓扑" data-icon="FolderOpen"></button><button id="save-btn" class="primary"><span data-icon="Save"></span>保存拓扑</button><button id="export-btn" title="导出" aria-label="导出" data-icon="Download"></button></div>
+</header>
+<nav class="top-nav" aria-label="主视图"><div class="tabs">
+  <button data-view="topology" class="active"><span data-icon="Network"></span>拓扑</button><button data-view="inventory"><span data-icon="Server"></span>部署清单</button><button data-view="coverage"><span data-icon="CheckCheck"></span>能力覆盖 <span id="coverage-count" class="count"></span></button><button data-view="phases"><span data-icon="GitBranch"></span>实施阶段</button>
+</div><div class="nav-actions"><button id="settings-btn" title="宿主容量" aria-label="宿主容量" data-icon="Settings2"></button></div></nav>
+<main id="workspace" class="workspace">
+  <aside class="sidebar"><div class="side-title"><strong>部署资源</strong><div class="side-actions"><button id="add-region-side-btn" class="region-add-button" title="添加区域" aria-label="添加区域"><span data-icon="SquarePlus"></span>区域</button><button id="add-btn" aria-label="添加节点" title="添加节点" data-icon="Plus"></button></div></div><label class="search-box"><span data-icon="Search"></span><input id="search" placeholder="搜索节点 / Agent" aria-label="搜索节点或 Agent"></label>
+  <div class="filters"><select id="stage-filter" aria-label="阶段筛选"><option value="all">所有阶段</option><option value="1">01 基础网络</option><option value="2">02 身份与终端</option><option value="3">03 应用与运营</option><option value="4">04 AI 与扩展</option></select><label class="check-line"><input id="show-optional" type="checkbox" checked>包含可选组件</label></div>
+  <div id="node-list" class="node-list"></div><div class="capacity" id="capacity"></div></aside>
+  <section class="main-area"><div id="topology-view" class="view active">
+    <div class="canvas-toolbar"><div class="tool-group"><button id="select-tool" class="active" title="选择 / 拖动节点" aria-label="选择工具" data-icon="MousePointer2"></button><button id="pan-tool" title="平移画布" aria-label="平移画布" data-icon="Hand"></button><button id="connect-tool" title="连线：依次选择两个节点" aria-label="连线工具" data-icon="Cable"></button></div><div class="tool-group"><button id="undo-btn" title="撤销" aria-label="撤销" data-icon="Undo2"></button><button id="redo-btn" title="重做" aria-label="重做" data-icon="Redo2"></button></div><select id="edge-filter" aria-label="连接类型"><option value="all">全部连接</option><option value="traffic">访问流量</option><option value="identity">身份与信任</option><option value="telemetry">日志与监测</option><option value="control">管理与编排</option><option value="mirror">流量镜像</option><option value="none">隐藏连接</option></select><span class="toolbar-spacer"></span><button id="snap-btn" class="active" title="拖动对齐（Alt 临时关闭）" aria-label="拖动自动对齐" aria-pressed="true" data-icon="Magnet"></button><button id="arrange-btn" title="按安全域整理节点" aria-label="整理节点" data-icon="LayoutGrid"></button><button id="fit-btn" title="适应画布" aria-label="适应画布" data-icon="Maximize"></button></div>
+    <div id="canvas" class="canvas" tabindex="0" aria-label="可编辑网络拓扑"><svg id="graph" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Homelab 网络拓扑"></svg><div class="canvas-context"><span class="live-dot"></span><span id="canvas-context-text">规划视图</span></div><div class="zoom-controls"><button id="zoom-out" title="缩小" aria-label="缩小" data-icon="Minus"></button><output id="zoom-value">100%</output><button id="zoom-in" title="放大" aria-label="放大" data-icon="Plus"></button></div><div class="legend"><span><i style="background:#b65d20"></i>接入</span><span><i style="background:#7c4eb5"></i>身份</span><span><i style="background:#20805d"></i>运营</span><span class="legend-outline">虚线 · 可选 / 外部</span></div></div>
+  </div><div id="inventory-view" class="view document-view"></div><div id="coverage-view" class="view document-view"></div><div id="phases-view" class="view document-view"></div></section>
+  <aside id="inspector" class="inspector"></aside>
+  <button id="left-panel-toggle" class="panel-toggle left" title="折叠左侧菜单" aria-label="折叠左侧菜单" aria-pressed="false"><span data-icon="PanelRightClose"></span></button>
+  <button id="right-panel-toggle" class="panel-toggle right" title="折叠右侧菜单" aria-label="折叠右侧菜单" aria-pressed="false"><span data-icon="PanelRightClose"></span></button>
+</main>
+<footer class="statusbar"><span id="status-count"></span><span id="selection-status"></span><span>本地规划 · 不执行实际部署</span></footer>
+<input id="import-file" type="file" accept=".json,application/json" hidden>
+<dialog id="export-dialog"><form method="dialog" class="dialog-heading"><h2>保存与导出</h2><button title="关闭" aria-label="关闭" data-icon="X"></button></form><div class="dialog-content"><button id="download-json" class="export-row"><span data-icon="FileJson"></span><span><strong>拓扑数据 · JSON</strong><small>节点、连接、Agent、能力映射与实施计划</small></span><span data-icon="Download"></span></button><button id="download-html" class="export-row"><span data-icon="FileCode"></span><span><strong>可编辑拓扑 · HTML</strong><small>包含当前规划，可离线打开并继续编辑</small></span><span data-icon="Download"></span></button><div class="export-png"><label>PNG 范围<select id="png-scope"><option value="all">全部节点</option><option value="visible">当前筛选</option><option value="selected">选中节点</option></select></label><label class="check-line"><input id="png-transparent" type="checkbox" checked>透明背景</label><button id="download-png" class="primary"><span data-icon="Image"></span>导出 PNG</button></div></div></dialog>
+<dialog id="settings-dialog"><form id="settings-form"><div class="dialog-heading"><h2>宿主容量参考</h2><button type="button" data-close="settings-dialog" aria-label="关闭" data-icon="X"></button></div><div class="dialog-content"><p class="muted">终端已按两台 2C / 4 GiB Windows 11 规划；宿主容量暂为参考值。</p><div class="form-grid"><label>物理 CPU 核心<input type="number" name="hostCpu" min="1" max="4096" required></label><label>总内存 · GiB<input type="number" name="hostRam" min="1" max="65536" required></label><label>存储 · GiB<input type="number" name="hostDisk" min="1" max="10000000" required></label><label>宿主预留内存 · GiB<input type="number" name="reserveRam" min="0" max="65536" required></label></div><button type="submit" class="primary">保存容量</button></div></form></dialog>
+<dialog id="delete-dialog"><form method="dialog"><div class="dialog-heading"><h2>删除选中内容</h2><button value="cancel" aria-label="关闭" data-icon="X"></button></div><div class="dialog-content"><p id="delete-message"></p><div class="dialog-actions"><button value="cancel">取消</button><button value="delete" class="danger">删除</button></div></div></form></dialog>
+<div id="toast" class="toast" role="status"></div>
+<script id="saved-project" type="application/json">null</script>
+<script>
+'use strict';
+/* CATALOG */
+/* SEED */
+/* FILE_SAVE */
+/* APP */
+</script>
+</body></html>
