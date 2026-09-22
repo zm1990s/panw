@@ -244,15 +244,8 @@ select option{background:var(--s2)}
         <div class="r2">
           <div class="fi"><label data-i="cb_thresh">失败阈值（次）</label>
             <input type="number" id="cb-thresh" value="3" min="1" oninput="upd()"></div>
-          <div class="fi"><label data-i="cb_thresh_pct">阈值百分比（%）</label>
-            <input type="number" id="cb-pct" placeholder="20" min="1" max="100" oninput="upd()">
-            <div class="hint" data-i="cb_pct_h">设置后覆盖次数阈值</div></div>
-        </div>
-        <div class="r2">
           <div class="fi"><label data-i="cb_cooldown">冷却时间（ms）</label>
             <input type="number" id="cb-cool" value="60000" min="30000" step="1000" oninput="upd()"></div>
-          <div class="fi"><label data-i="cb_minreq">最小请求数</label>
-            <input type="number" id="cb-minreq" placeholder="10" oninput="upd()"></div>
         </div>
         <div class="fi"><label data-i="cb_codes">失败状态码 <span class="hint" style="display:inline" data-i="cb_codes_h">（空=&gt;500所有）</span></label>
           <div class="tags" id="cbc-tags"></div>
@@ -386,8 +379,8 @@ zh:{
   retry_codes:'触发状态码', empty_nonx:'（空 = 任意非 2xx）',
   cache_mode:'缓存模式', cache_simple:'simple — 精确匹配', cache_semantic:'semantic — 语义匹配',
   cache_age:'Max Age（秒）',
-  cb_thresh:'失败阈值（次数）', cb_thresh_pct:'阈值百分比（%）', cb_pct_h:'设置后覆盖次数阈值',
-  cb_cooldown:'冷却时间（ms，最小30000）', cb_minreq:'最小请求数',
+  cb_thresh:'失败阈值（次数）',
+  cb_cooldown:'冷却时间（ms，最小30000）',
   cb_codes:'失败状态码', cb_codes_h:'（空 = >500 所有）',
   input_gr:'Input Guardrails（输入护栏）', output_gr:'Output Guardrails（输出护栏）',
   add_igr:'+ 添加输入护栏', add_ogr:'+ 添加输出护栏',
@@ -431,9 +424,8 @@ en:{
   retry_codes:'On Status Codes', empty_nonx:'(empty = any non-2xx)',
   cache_mode:'Mode', cache_simple:'simple — Exact match', cache_semantic:'semantic — Semantic match',
   cache_age:'Max Age (seconds)',
-  cb_thresh:'Failure Threshold (count)', cb_thresh_pct:'Threshold % (rate)',
-  cb_pct_h:'Overrides count threshold if set',
-  cb_cooldown:'Cooldown (ms, min 30000)', cb_minreq:'Minimum Requests',
+  cb_thresh:'Failure Threshold (count)',
+  cb_cooldown:'Cooldown (ms, min 30000)',
   cb_codes:'Failure Status Codes', cb_codes_h:'(empty = all >500)',
   input_gr:'Input Guardrails', output_gr:'Output Guardrails',
   add_igr:'+ Add Input Guardrail', add_ogr:'+ Add Output Guardrail',
@@ -476,8 +468,8 @@ ja:{
   retry_codes:'ステータスコード', empty_nonx:'（空 = 2xx 以外すべて）',
   cache_mode:'モード', cache_simple:'simple — 完全一致', cache_semantic:'semantic — 意味的一致',
   cache_age:'Max Age（秒）',
-  cb_thresh:'失敗閾値（回）', cb_thresh_pct:'閾値（%）', cb_pct_h:'設定時は回数閾値を上書き',
-  cb_cooldown:'クールダウン（ms）', cb_minreq:'最小リクエスト数',
+  cb_thresh:'失敗閾値（回）',
+  cb_cooldown:'クールダウン（ms）',
   cb_codes:'失敗ステータスコード', cb_codes_h:'（空 = 500 超すべて）',
   input_gr:'入力ガードレール', output_gr:'出力ガードレール',
   add_igr:'+ 入力ガードレール追加', add_ogr:'+ 出力ガードレール追加',
@@ -520,8 +512,8 @@ ko:{
   retry_codes:'트리거 상태 코드', empty_nonx:'(비어 있으면 = 2xx 외 모두)',
   cache_mode:'모드', cache_simple:'simple — 정확한 일치', cache_semantic:'semantic — 의미적 일치',
   cache_age:'최대 보존 시간 (초)',
-  cb_thresh:'실패 임계값 (횟수)', cb_thresh_pct:'임계값 비율 (%)', cb_pct_h:'설정 시 횟수 임계값 대체',
-  cb_cooldown:'쿨다운 (ms, 최소 30000)', cb_minreq:'최소 요청 수',
+  cb_thresh:'실패 임계값 (횟수)',
+  cb_cooldown:'쿨다운 (ms, 최소 30000)',
   cb_codes:'실패 상태 코드', cb_codes_h:'(비어 있으면 = 500 초과 모두)',
   input_gr:'입력 가드레일', output_gr:'출력 가드레일',
   add_igr:'+ 입력 가드레일 추가', add_ogr:'+ 출력 가드레일 추가',
@@ -709,8 +701,8 @@ function renderGRs(type){
         <option value="false"${!g.deny?' selected':''}>${i('gr_warn')}</option>
       </select>
       <select style="width:auto" onchange="grs['${type}'][${idx}].async=this.value==='true';upd()">
-        <option value="false">${i('gr_sync')}</option>
-        <option value="true">${i('gr_async')}</option>
+        <option value="false"${!g.async?' selected':''}>${i('gr_sync')}</option>
+        <option value="true"${g.async?' selected':''}>${i('gr_async')}</option>
       </select>
       <button class="ic" onclick="rmGR('${type}',${idx})">🗑</button>
     </div>`).join('');
@@ -1063,14 +1055,10 @@ function buildCfg(){
   if (feat.cb){
     const cb = {};
     const thr = document.getElementById('cb-thresh').value;
-    const pct = document.getElementById('cb-pct').value;
     const cool = document.getElementById('cb-cool').value;
-    const mr = document.getElementById('cb-minreq').value;
     const cc = getTag('cbc').map(Number);
-    if (pct) cb.failure_threshold_percentage = Number(pct);
-    else if (thr) cb.failure_threshold = Number(thr);
-    if (cool) cb.cooldown_interval = Number(cool);
-    if (mr) cb.minimum_requests = Number(mr);
+    cb.failure_threshold = Number(thr || 3);
+    cb.cooldown_interval = Number(cool || 60000);
     if (cc.length) cb.failure_status_codes = cc;
     out.cb_config = cb;
   }
@@ -1221,6 +1209,12 @@ function validateCfg(){
       if (mode === 'conditional' && !t.name) warns.push(`Target ${n}: Name is required (used in conditions)`);
     });
     if (mode === 'conditional'){
+      const targetNames = tgts.map(t=>t.name).filter(Boolean);
+      const targetNameSet = new Set(targetNames);
+      const condDefault = (document.getElementById('cond-default')?.value || '').trim();
+      if (!conds.length) warns.push('Conditional strategy: At least one condition is required');
+      if (!condDefault) warns.push('Conditional strategy: Default target is required');
+      else if (!targetNameSet.has(condDefault)) warns.push('Conditional strategy: Default target must match an existing target name');
       conds.forEach((c,idx)=>{
         const n = idx+1;
         if (c.logic==='$and'||c.logic==='$or'){
@@ -1230,6 +1224,7 @@ function validateCfg(){
           if (!c.value) warns.push(`Condition ${n}: Value is required`);
         }
         if (!c.then) warns.push(`Condition ${n}: Target (then) is required`);
+        else if (!targetNameSet.has(c.then)) warns.push(`Condition ${n}: Target (then) must match an existing target name`);
       });
     }
   }
@@ -1358,9 +1353,7 @@ function importCfg(cfg){
   setFeat('cb', hasCb);
   if (hasCb){
     if (cbCfg.failure_threshold !== undefined) document.getElementById('cb-thresh').value = cbCfg.failure_threshold;
-    if (cbCfg.failure_threshold_percentage !== undefined) document.getElementById('cb-pct').value = cbCfg.failure_threshold_percentage;
     if (cbCfg.cooldown_interval !== undefined) document.getElementById('cb-cool').value = cbCfg.cooldown_interval;
-    if (cbCfg.minimum_requests !== undefined) document.getElementById('cb-minreq').value = cbCfg.minimum_requests;
     tagSt['cbc'] = (cbCfg.failure_status_codes||[]).map(String);
     renderTag('cbc');
   }
@@ -1579,7 +1572,7 @@ function renderDiag(cfg){
 
   if (hasCB){
     const cb=cfg.cb_config;
-    const sub=cb.failure_threshold_percentage?`${cb.failure_threshold_percentage}% → ${(cb.cooldown_interval||60000)/1000}s cd`:`${cb.failure_threshold||3} fails → ${(cb.cooldown_interval||60000)/1000}s cd`;
+    const sub=`${cb.failure_threshold||3} fails → ${(cb.cooldown_interval||60000)/1000}s cd`;
     els+=mkN(RX,ry,MW,MH,[i('d_cb'),sub],'warn');
     els+=`<line x1="${RX}" y1="${ry+MH/2}" x2="${ncx+NW}" y2="${PAD+NH/2}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>`;
   }
