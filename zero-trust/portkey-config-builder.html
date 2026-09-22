@@ -413,6 +413,7 @@ zh:{
   t_drop:'Drop Params', t_drop_h:'转发前删除',
   t_retry:'Target 级 Retry', t_retry_a:'重试次数', t_retry_c:'触发状态码',
   btn_add:'+ 添加', btn_del:'移除',
+  p_add:'⊕ 添加参数', p_mgr:'✎ 管理参数',
   gr_id:'Guardrail ID', gr_deny:'deny（拦截）', gr_warn:'warn（放行）',
   gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
@@ -457,6 +458,7 @@ en:{
   t_drop:'Drop Params', t_drop_h:'Remove from request before forwarding',
   t_retry:'Per-Target Retry', t_retry_a:'Attempts', t_retry_c:'On Status Codes',
   btn_add:'+ Add', btn_del:'Remove',
+  p_add:'⊕ Add Parameter', p_mgr:'✎ Manage Parameters',
   gr_id:'Guardrail ID', gr_deny:'deny (block)', gr_warn:'warn (allow)',
   gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
@@ -500,6 +502,7 @@ ja:{
   t_drop:'Drop Params', t_drop_h:'転送前に削除',
   t_retry:'ターゲット別リトライ', t_retry_a:'回数', t_retry_c:'ステータスコード',
   btn_add:'+ 追加', btn_del:'削除',
+  p_add:'⊕ パラメータ追加', p_mgr:'✎ パラメータ管理',
   gr_id:'Guardrail ID', gr_deny:'deny（ブロック）', gr_warn:'warn（通過）',
   gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
@@ -543,6 +546,7 @@ ko:{
   t_drop:'Drop Params', t_drop_h:'전달 전 제거',
   t_retry:'타겟별 재시도', t_retry_a:'횟수', t_retry_c:'트리거 상태 코드',
   btn_add:'+ 추가', btn_del:'삭제',
+  p_add:'⊕ 파라미터 추가', p_mgr:'✎ 파라미터 관리',
   gr_id:'Guardrail ID', gr_deny:'deny (차단)', gr_warn:'warn (허용)',
   gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
@@ -900,7 +904,7 @@ function renderPCtrl(tid,f,p,val){
       <button class="btn bg2 sm" style="margin-top:4px" onclick="addPKV(${tid},'${f}','${p}')">+</button>`;break;}
     case 'guardrail_list':{
       const gla=Array.isArray(val)?val:[];
-      c=gla.map((g,gi)=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center;margin-bottom:5px"><input type="text" placeholder="Guardrail ID" value="${esc(g.id||'')}" oninput="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].id=this.value;upd()"><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].deny=this.value==='true';upd()"><option value="true"${g.deny!==false?' selected':''}>deny</option><option value="false"${g.deny===false?' selected':''}>warn</option></select><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].async=this.value==='true';upd()"><option value="false"${!g.async?' selected':''}>sync</option><option value="true"${g.async?' selected':''}>async</option></select><button class="ic" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].splice(${gi},1);renderTargets();upd()">×</button></div>`).join('')+`<button class="btn bg2 sm" style="margin-top:4px" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].push({id:'',deny:true,async:false});renderTargets();upd()">+</button>`;break;}
+      c=gla.map((g,gi)=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center;margin-bottom:5px"><input type="text" placeholder="${i('gr_id')}" value="${esc(g.id||'')}" oninput="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].id=this.value;upd()"><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].deny=this.value==='true';upd()"><option value="true"${g.deny!==false?' selected':''}>${i('gr_deny')}</option><option value="false"${g.deny===false?' selected':''}>${i('gr_warn')}</option></select><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].async=this.value==='true';upd()"><option value="false"${!g.async?' selected':''}>${i('gr_sync')}</option><option value="true"${g.async?' selected':''}>${i('gr_async')}</option></select><button class="ic" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].splice(${gi},1);renderTargets();upd()">×</button></div>`).join('')+`<button class="btn bg2 sm" style="margin-top:4px" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].push({id:'',deny:true,async:false});renderTargets();upd()">${i('btn_add')}</button>`;break;}
   }
   return `<div class="pctl"><div class="pctl-hd">
     <span class="pctl-k">${esc(p)}</span>
@@ -927,7 +931,7 @@ function renderPSection(tid,f,tgt,label,hint){
   return `<div class="fi"><label>${label} <span class="hint" style="display:inline">${hint}</span></label>
     ${pHtml}
     <button class="btn bg2 sm padd-btn" onclick="togPicker(${tid},'${f}')">
-      ${Object.keys(sel).length?'✎ 管理参数':'⊕ 添加参数'}
+      ${Object.keys(sel).length?i('p_mgr'):i('p_add')}
     </button>
     ${tgt[openKey]?renderPPicker(tid,f,sel):''}
   </div>`;
