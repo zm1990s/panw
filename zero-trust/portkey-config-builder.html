@@ -162,12 +162,12 @@ select option{background:var(--s2)}
   <h1 data-i="title">AI Gateway Portkey Config Builder</h1>
   <span class="badge">Prisma AIRS AI Gateway</span>
   <div class="spacer"></div>
-  <div class="lang-sw">
-    <button class="lb on" onclick="setLang('en')">EN</button>
-    <button class="lb" onclick="setLang('zh')">中文</button>
-    <button class="lb" onclick="setLang('ja')">日本語</button>
-    <button class="lb" onclick="setLang('ko')">한국어</button>
-  </div>
+  <select id="lang-sel" onchange="setLang(this.value)" style="font-size:10px;padding:1px 4px;background:var(--s3);color:var(--t1);border:1px solid var(--bd);border-radius:4px;cursor:pointer;height:22px;width:auto;flex-shrink:0">
+    <option value="en">EN</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>
+    <option value="ko">한국어</option>
+  </select>
   <button class="btn bg2 sm" onclick="resetAll()" data-i="reset">↺ Reset</button>
   <button class="btn bg2 sm" onclick="trigImport()" data-i="imp">⬆ Import</button>
   <button class="btn bg2 sm" onclick="exportFile()" data-i="exp">⬇ Export</button>
@@ -262,7 +262,7 @@ select option{background:var(--s2)}
     </div>
 
     <!-- Guardrails -->
-    <div class="sub cl" id="s-gr">
+    <div class="sub" id="s-gr">
       <div class="shd" onclick="toggleSub('s-gr')">
         <div class="sht"><span class="shi">🛡️</span><span data-i="s_gr">Guardrails 护栏</span></div>
         <span class="chev">▼</span>
@@ -414,7 +414,7 @@ zh:{
   t_retry:'Target 级 Retry', t_retry_a:'重试次数', t_retry_c:'触发状态码',
   btn_add:'+ 添加', btn_del:'移除',
   gr_id:'Guardrail ID', gr_deny:'deny（拦截）', gr_warn:'warn（放行）',
-  gr_sync:'sync', gr_async:'async',
+  gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
   d_req:'Request', d_resp:'Return Response', d_err:'Return Error',
   d_retry:'重试', d_cache:'缓存', d_cb:'熔断器', d_igr:'输入护栏', d_ogr:'输出护栏',
@@ -458,7 +458,7 @@ en:{
   t_retry:'Per-Target Retry', t_retry_a:'Attempts', t_retry_c:'On Status Codes',
   btn_add:'+ Add', btn_del:'Remove',
   gr_id:'Guardrail ID', gr_deny:'deny (block)', gr_warn:'warn (allow)',
-  gr_sync:'sync', gr_async:'async',
+  gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
   d_req:'Request', d_resp:'Return Response', d_err:'Return Error',
   d_retry:'Retry', d_cache:'Cache', d_cb:'Circuit Breaker', d_igr:'Input Guardrail', d_ogr:'Output Guardrail',
@@ -501,7 +501,7 @@ ja:{
   t_retry:'ターゲット別リトライ', t_retry_a:'回数', t_retry_c:'ステータスコード',
   btn_add:'+ 追加', btn_del:'削除',
   gr_id:'Guardrail ID', gr_deny:'deny（ブロック）', gr_warn:'warn（通過）',
-  gr_sync:'sync', gr_async:'async',
+  gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
   d_req:'リクエスト', d_resp:'レスポンス返却', d_err:'エラー返却',
   d_retry:'リトライ', d_cache:'キャッシュ', d_cb:'サーキットブレーカー', d_igr:'入力ガードレール', d_ogr:'出力ガードレール',
@@ -544,7 +544,7 @@ ko:{
   t_retry:'타겟별 재시도', t_retry_a:'횟수', t_retry_c:'트리거 상태 코드',
   btn_add:'+ 추가', btn_del:'삭제',
   gr_id:'Guardrail ID', gr_deny:'deny (차단)', gr_warn:'warn (허용)',
-  gr_sync:'sync', gr_async:'async',
+  gr_sync:'sync', gr_async:'async', gr_input:'Input Guardrails', gr_output:'Output Guardrails',
   lbl_primary:'PRIMARY', lbl_fallback:'FALLBACK', lbl_target:'TARGET',
   d_req:'요청', d_resp:'응답 반환', d_err:'오류 반환',
   d_retry:'재시도', d_cache:'캐시', d_cb:'서킷 브레이커', d_igr:'입력 가드레일', d_ogr:'출력 가드레일',
@@ -563,17 +563,15 @@ function applyLang() {
     const v = i(el.getAttribute('data-i-opt'));
     if (v !== el.getAttribute('data-i-opt')) el.textContent = v;
   });
-  document.querySelectorAll('.lb').forEach(btn => {
-    btn.classList.toggle('on', btn.getAttribute('onclick').includes(`'${lang}'`));
-  });
+  const sel = document.getElementById('lang-sel');
+  if (sel) sel.value = lang;
   renderTargets(); renderGRs('input'); renderGRs('output'); renderConds();
 }
 
 function setLang(l) {
   lang = l;
-  document.querySelectorAll('.lb').forEach(btn =>
-    btn.classList.toggle('on', btn.getAttribute('onclick').includes(`'${l}'`))
-  );
+  const sel = document.getElementById('lang-sel');
+  if (sel) sel.value = l;
   applyLang(); upd();
 }
 
@@ -613,6 +611,8 @@ const PS = {
   logprobs:     {g:'Logging', t:'bool'},
   top_logprobs: {g:'Logging', t:'number', min:0, max:20, ph:'0'},
   logit_bias:   {g:'Logging', t:'kv', ph_k:'token_id', ph_v:'bias (-100~100)'},
+  input_guardrails:  {g:'Guardrails', t:'guardrail_list'},
+  output_guardrails: {g:'Guardrails', t:'guardrail_list'},
 };
 
 /* ════════════════════════════════════
@@ -797,7 +797,7 @@ function pDefault(p){
   const s=PS[p]; if(!s) return '';
   if(s.t==='bool') return false;
   if(s.t==='slider') return parseFloat(((s.min+s.max)/2).toFixed(2));
-  if(s.t==='tags'||s.t==='kv') return [];
+  if(s.t==='tags'||s.t==='kv'||s.t==='guardrail_list') return [];
   if(s.t==='compound'){
     const v={};
     s.sub.forEach(sf=>{ if(!sf.showIf){
@@ -898,6 +898,9 @@ function renderPCtrl(tid,f,p,val){
         <button class="ic" onclick="rmPKV(${tid},'${f}','${p}',${ki})">×</button>
       </div>`).join('')}</div>
       <button class="btn bg2 sm" style="margin-top:4px" onclick="addPKV(${tid},'${f}','${p}')">+</button>`;break;}
+    case 'guardrail_list':{
+      const gla=Array.isArray(val)?val:[];
+      c=gla.map((g,gi)=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center;margin-bottom:5px"><input type="text" placeholder="Guardrail ID" value="${esc(g.id||'')}" oninput="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].id=this.value;upd()"><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].deny=this.value==='true';upd()"><option value="true"${g.deny!==false?' selected':''}>deny</option><option value="false"${g.deny===false?' selected':''}>warn</option></select><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].async=this.value==='true';upd()"><option value="false"${!g.async?' selected':''}>sync</option><option value="true"${g.async?' selected':''}>async</option></select><button class="ic" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].splice(${gi},1);renderTargets();upd()">×</button></div>`).join('')+`<button class="btn bg2 sm" style="margin-top:4px" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].push({id:'',deny:true,async:false});renderTargets();upd()">+</button>`;break;}
   }
   return `<div class="pctl"><div class="pctl-hd">
     <span class="pctl-k">${esc(p)}</span>
@@ -1161,6 +1164,7 @@ function serPS(params){
       case 'bool': out[p]=val===true||val==='true'; break;
       case 'tags': if(Array.isArray(val)&&val.length) out[p]=val; break;
       case 'kv': if(Array.isArray(val)){const o2={};val.filter(kv=>kv.k).forEach(kv=>o2[kv.k]=pv(String(kv.v)));if(Object.keys(o2).length)out[p]=o2;} break;
+      case 'guardrail_list': if(Array.isArray(val)){const gf=val.filter(g=>g.id);if(gf.length)out[p]=gf.map(g=>{const r={id:g.id,deny:g.deny!==false};if(g.async)r.async=true;return r;});} break;
       case 'compound':
         if(p==='response_format'){
           const v=val||{}; const rf={type:v.type||'text'};
@@ -1306,6 +1310,8 @@ function deserPS(params){
       st[k] = Object.entries(v||{}).map(([ek,ev])=>({k:ek,v:String(ev)}));
     } else if (spec.t === 'tags'){
       st[k] = Array.isArray(v) ? [...v] : [];
+    } else if (spec.t === 'guardrail_list'){
+      st[k] = Array.isArray(v) ? v.map(g=>({id:g.id||'',deny:g.deny!==false,async:!!g.async})) : [];
     } else {
       st[k] = v;
     }
@@ -1722,5 +1728,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 </script>
+<footer style="text-align:center;padding:10px 0 14px;font-size:11px;color:var(--t2);opacity:0.6">
+  v1.0 &nbsp;·&nbsp; Author: Matt Zhang
+</footer>
 </body>
 </html>
