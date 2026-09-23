@@ -178,6 +178,9 @@ select option{background:var(--s2)}
     <option value="ja">日本語</option>
     <option value="ko">한국어</option>
   </select>
+  <select id="preset-sel" aria-label="Preset" title="Preset" onchange="loadPreset(this.value)" style="width:auto;max-width:210px;flex-shrink:1;min-width:80px">
+    <option value="">Preset...</option>
+  </select>
   <button class="btn bg2 sm" onclick="resetAll()" data-i="reset">↺ Reset</button>
   <button class="btn bg2 sm" onclick="trigImport()" data-i="imp">⬆ Import</button>
   <button class="btn bg2 sm" onclick="exportFile()" data-i="exp">⬇ Export</button>
@@ -1091,7 +1094,6 @@ function renderTargetList(list, mode, parentId=null, depth=0, path=[]){
   const isSingle = mode==='single';
   return list.map((tgt,idx) => {
     const isStrategy = tgt.node_type === 'strategy';
-    const hideConditionalGroupAdvanced = isStrategy && tgt.child_mode === 'conditional';
     const canNest = depth < MAX_NEST_DEPTH && mode !== 'single';
     const num = [...path, idx+1].join('.');
     const lbl = isFB ? (idx===0?i('lbl_primary'):`${i('lbl_fallback')} ${idx}`) :
@@ -1158,7 +1160,7 @@ function renderTargetList(list, mode, parentId=null, depth=0, path=[]){
               oninput="setTgtField(${tgt.id},'provider',this.value);this.style.borderColor=this.value?'':'var(--req-bd)'"
               style="${!tgt.provider?'border-color:var(--req-bd)':''}">
             <div class="hint">${i('t_prov_h')}</div></div>`}
-          ${!isSingle&&!hideConditionalGroupAdvanced?`<div class="fi"><label>${i('t_timeout')}</label>
+          ${!isSingle&&!isStrategy?`<div class="fi"><label>${i('t_timeout')}</label>
             <input type="number" placeholder="10000" value="${tgt.request_timeout}"
               oninput="setTgtField(${tgt.id},'request_timeout',this.value)"></div>`:''}
         </div>
@@ -1172,9 +1174,9 @@ function renderTargetList(list, mode, parentId=null, depth=0, path=[]){
           <div class="tags" id="t${tgt.id}-on_status_codes-tags">${tgt.on_status_codes.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'on_status_codes','${v}')">×</button></span>`).join('')}</div>
           <div class="trow"><input id="t${tgt.id}-on_status_codes-in" type="number" placeholder="500" onkeydown="ttEnter(event,${tgt.id},'on_status_codes')">
           <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'on_status_codes')">+</button></div></div>`:''}
-        ${!hideConditionalGroupAdvanced?renderPSection(tgt.id,'ovr_params',tgt,i('t_ovr'),i('t_ovr_h')):''}
-        ${!hideConditionalGroupAdvanced?renderPSection(tgt.id,'def_params',tgt,i('t_def'),i('t_def_h')):''}
-        ${!hideConditionalGroupAdvanced?`<div class="fi"><label>${i('t_drop')} <span class="hint" style="display:inline">${i('t_drop_h')}</span></label>
+        ${!isStrategy?renderPSection(tgt.id,'ovr_params',tgt,i('t_ovr'),i('t_ovr_h')):''}
+        ${!isStrategy?renderPSection(tgt.id,'def_params',tgt,i('t_def'),i('t_def_h')):''}
+        ${!isStrategy?`<div class="fi"><label>${i('t_drop')} <span class="hint" style="display:inline">${i('t_drop_h')}</span></label>
           <div class="tags" id="t${tgt.id}-drop_params-tags">${tgt.drop_params.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'drop_params','${v}')">×</button></span>`).join('')}</div>
           <div class="trow"><input id="t${tgt.id}-drop_params-in" type="text" placeholder="tools[*].function.strict" onkeydown="ttEnter(event,${tgt.id},'drop_params')">
           <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'drop_params')">+</button></div></div>`:''}
@@ -1238,7 +1240,7 @@ function buildStrategySpec(mode, condList, defTarget, fallbackCodes){
 }
 function buildTargetCfg(tgt,parentMode){
   const o = {};
-  const skipAdvanced = tgt.node_type === 'strategy' && tgt.child_mode === 'conditional';
+  const skipAdvanced = tgt.node_type === 'strategy';
   if (tgt.name) o.name = tgt.name;
   if (parentMode==='loadbalance'&&tgt.weight!==''&&tgt.weight!==null) o.weight=Number(tgt.weight);
   if (!skipAdvanced && tgt.request_timeout) o.request_timeout=Number(tgt.request_timeout);
@@ -1470,6 +1472,51 @@ function copyJSON(){
 /* ════════════════════════════════════
    IMPORT / EXPORT
 ════════════════════════════════════ */
+function readPresets(){
+  const ids = new Set();
+  return Array.from(document.querySelectorAll('script[data-preset-id]'), block => {
+    const id = block.dataset.presetId.trim();
+    const name = (block.dataset.presetName || '').trim();
+    if (!id || !name || ids.has(id)) throw new Error('Missing preset name or duplicate preset ID: ' + id);
+    ids.add(id);
+    return {id, name, encoded:block.textContent.trim()};
+  });
+}
+
+function decodePreset(encoded){
+  const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+  const config = JSON.parse(new TextDecoder('utf-8', {fatal:true}).decode(bytes));
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    throw new Error('Invalid preset data');
+  }
+  return config;
+}
+
+function initPresets(){
+  const select = document.getElementById('preset-sel');
+  try {
+    readPresets().forEach(p => select.add(new Option(p.name, p.id)));
+  } catch (err) {
+    select.disabled = true;
+    select.title = 'Unable to load presets: ' + err.message;
+  }
+}
+
+function loadPreset(id){
+  if (!id) return;
+  try {
+    const preset = readPresets().find(p => p.id === id);
+    if (!preset) throw new Error('Preset not found');
+    const config = decodePreset(preset.encoded);
+    if (dirty && !confirm(lang === 'zh' ? '加载 Preset 将替换当前未保存的配置，继续？' : 'Replace the current unsaved configuration with this preset?')) return;
+    importCfg(config);
+  } catch (err) {
+    alert('Unable to load preset: ' + err.message);
+  } finally {
+    document.getElementById('preset-sel').value = '';
+  }
+}
+
 function trigImport(){ document.getElementById('imp-file').click(); }
 
 async function exportFile(){
@@ -2132,6 +2179,7 @@ function renderDiag(cfg){
    INIT
 ════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded',()=>{
+  initPresets();
   ['rc','cbc','fb','fh'].forEach(g=>initTag(g));
   onModeChange();
   renderTargets();
@@ -2148,6 +2196,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 </script>
+<!-- Each preset contains one UTF-8 JSON encoded as Base64. Copy a block and use a unique data-preset-id to add a preset. -->
+<script type="application/octet-stream" data-preset-id="fallback" data-preset-name="Example 1 - Fallback">
+eyJyZXRyeSI6eyJhdHRlbXB0cyI6M30sImlucHV0X2d1YXJkcmFpbHMiOlt7ImlkIjoicGctYWlndy1kLTM2YzllMiIsImRlbnkiOnRydWV9XSwib3V0cHV0X2d1YXJkcmFpbHMiOlt7ImlkIjoicGctYWlndy1kLTM2YzllMiIsImRlbnkiOnRydWV9XSwiY2FjaGUiOnsibW9kZSI6InNlbWFudGljIn0sInN0cmF0ZWd5Ijp7Im1vZGUiOiJmYWxsYmFjayJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoicHJpbWFyeS1mbGF0LXJvdXRlciIsInN0cmF0ZWd5Ijp7Im1vZGUiOiJjb25kaXRpb25hbCIsImNvbmRpdGlvbnMiOlt7InF1ZXJ5Ijp7Im1ldGFkYXRhLnJvbGUiOnsiJGVxIjoiY3VzdG9tZXIifX0sInRoZW4iOiJjdXN0b21lci1tb2RlbCJ9LHsicXVlcnkiOnsibWV0YWRhdGEucm9sZSI6eyIkZXEiOiJkZXZlbG9wZXIifSwibWV0YWRhdGEudGFzayI6eyIkZXEiOiJjb2RpbmcifX0sInRoZW4iOiJjb2RpbmctbW9kZWwifSx7InF1ZXJ5Ijp7Im1ldGFkYXRhLnJvbGUiOnsiJGVxIjoiZGV2ZWxvcGVyIn0sIm1ldGFkYXRhLnRhc2siOnsiJGVxIjoid3JpdGluZyJ9fSwidGhlbiI6IndyaXRpbmctbW9kZWwifSx7InF1ZXJ5Ijp7Im1ldGFkYXRhLnJvbGUiOnsiJGVxIjoiZGV2ZWxvcGVyIn0sIm1ldGFkYXRhLnRhc2siOnsiJGVxIjoidmlzaW9uIn19LCJ0aGVuIjoidmlzaW9uLW1vZGVsIn1dLCJkZWZhdWx0IjoiZ2VuZXJhbC1tb2RlbCJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoiY3VzdG9tZXItbW9kZWwiLCJwcm92aWRlciI6IkBnY3AtdmVydGV4Iiwib3ZlcnJpZGVfcGFyYW1zIjp7Im1vZGVsIjoiZ2VtaW5pLTIuNS1mbGFzaCJ9fSx7Im5hbWUiOiJjb2RpbmctbW9kZWwiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJAYXdzLWJlZHJvY2svbWV0YS5sbGFtYTMtOGItaW5zdHJ1Y3QtdjE6MCJ9fSx7Im5hbWUiOiJ3cml0aW5nLW1vZGVsIiwicHJvdmlkZXIiOiJAYXdzLWJlZHJvY2siLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJtb29uc2hvdC5raW1pLWsyLXRoaW5raW5nIn19LHsibmFtZSI6ImdlbmVyYWwtbW9kZWwiLCJwcm92aWRlciI6IkBnY3AtdmVydGV4Iiwib3ZlcnJpZGVfcGFyYW1zIjp7Im1vZGVsIjoiZ2VtaW5pLTIuNS1mbGFzaCJ9fSx7Im5hbWUiOiJ2aXNpb24tbW9kZWwiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJAYXdzLWJlZHJvY2svdXMuYW1hem9uLm5vdmEtMi1saXRlLXYxOjAifX1dfSx7Im5hbWUiOiJnbG9iYWwtZmFsbGJhY2stYmFja3VwLTEiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJAYXdzLWJlZHJvY2svb3BlbmFpLmdwdC1vc3MtMjBiLTE6MCJ9fSx7Im5hbWUiOiJnbG9iYWwtZmFsbGJhY2stYmFja3VwLTIiLCJwcm92aWRlciI6IkBhd3MtYmVkcm9jayIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6InVzLmFtYXpvbi5ub3ZhLXByby12MTowIn19LHsibmFtZSI6Imdsb2JhbC1mYWxsYmFjay1iYWNrdXAtMyIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6IkBhd3MtYmVkcm9jay91cy5hbnRocm9waWMuY2xhdWRlLTMtNS1oYWlrdS0yMDI0MTAyMi12MTowIn19LHsibmFtZSI6Imdsb2JhbC1mYWxsYmFjay1iYWNrdXAtNCIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6IkBhd3MtYmVkcm9jay91cy5tZXRhLmxsYW1hMy0zLTcwYi1pbnN0cnVjdC12MTowIn19XX0=
+</script>
+
+<script type="application/octet-stream" data-preset-id="conditional" data-preset-name="Example 2 - Conditional">
+eyJyZXRyeSI6eyJhdHRlbXB0cyI6M30sImNhY2hlIjp7Im1vZGUiOiJzaW1wbGUifSwiaW5wdXRfZ3VhcmRyYWlscyI6W3siaWQiOiJwcmlzbWEtYWlycyIsImRlbnkiOnRydWV9XSwib3V0cHV0X2d1YXJkcmFpbHMiOlt7ImlkIjoicHJpc21hLWFpcnMiLCJkZW55Ijp0cnVlfV0sInN0cmF0ZWd5Ijp7Im1vZGUiOiJjb25kaXRpb25hbCIsImNvbmRpdGlvbnMiOlt7InF1ZXJ5Ijp7Im1ldGFkYXRhLnRhc2siOnsiJGVxIjoiY29kaW5nIn19LCJ0aGVuIjoiY29kaW5nLW1vZGVsIn0seyJxdWVyeSI6eyJtZXRhZGF0YS50YXNrIjp7IiRlcSI6IndyaXRpbmcifX0sInRoZW4iOiJ3cml0aW5nLW1vZGVsIn0seyJxdWVyeSI6eyJtZXRhZGF0YS50YXNrIjp7IiRlcSI6ImdlbmVyYWwifX0sInRoZW4iOiJnZW5lcmFsLW1vZGVsIn1dLCJkZWZhdWx0IjoiZGVmYXVsdC1tb2RlbCJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoiY29kaW5nLW1vZGVsIiwib3ZlcnJpZGVfcGFyYW1zIjp7Im1vZGVsIjoic29ubmV0LTUifSwicHJvdmlkZXIiOiJAYXdzIn0seyJuYW1lIjoid3JpdGluZy1tb2RlbCIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6ImdwdC01In0sInByb3ZpZGVyIjoiQGF3cyJ9LHsibmFtZSI6ImdlbmVyYWwtbW9kZWwiLCJzdHJhdGVneSI6eyJtb2RlIjoibG9hZGJhbGFuY2UifSwidGFyZ2V0cyI6W3sibmFtZSI6ImxiLTEiLCJ3ZWlnaHQiOjEsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6InNvbm5ldC01In0sInByb3ZpZGVyIjoiQGF3cyJ9LHsibmFtZSI6ImxiLTIiLCJ3ZWlnaHQiOjEsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6ImdwdC00MCJ9LCJwcm92aWRlciI6IkBhd3MifSx7Im5hbWUiOiJsYi0zIiwid2VpZ2h0IjoxLCJwcm92aWRlciI6IkBhd3MifSx7Im5hbWUiOiJ0YXJnZXQtZmFpbG92ZXIiLCJ3ZWlnaHQiOjEsInN0cmF0ZWd5Ijp7Im1vZGUiOiJmYWxsYmFjayJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoiZmItMSIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6InNvbm5ldC00In0sInByb3ZpZGVyIjoiQGF3cyJ9LHsibmFtZSI6ImZiLTIiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJvcHVzLTQifSwicHJvdmlkZXIiOiJAYXdzIn1dfV19LHsibmFtZSI6ImRlZmF1bHQtbW9kZWwiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJncHQtMy41In0sInByb3ZpZGVyIjoiQGF3cyJ9XX0=
+</script>
+
 <footer style="text-align:center;padding:10px 0 14px;font-size:11px;color:var(--t2);opacity:0.6">
   v2.0 &nbsp;·&nbsp; Author: Matt Zhang & His Minions
 </footer>
