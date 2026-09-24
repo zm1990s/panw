@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portkey Config Builder v2.0</title>
+<title>Prisma AIRS AI Gateway Config Builder v2.0</title>
 <style>
 :root{
   --bg:#0d1117;--s1:#161b27;--s2:#1e2536;--s3:#252d40;
@@ -40,10 +40,43 @@ header h1{font-size:15px;font-weight:700;letter-spacing:-.3px;white-space:nowrap
 .jv{padding:14px;display:flex;flex-direction:column;gap:10px;height:100%}
 .jtb{display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .jtb .lbl{font-size:11px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.jtb{flex-wrap:wrap;gap:8px}
+.jtb>div{flex-wrap:wrap;min-width:0}
+#json-code{display:grid;grid-template-columns:auto minmax(0,1fr);flex:1;min-height:240px;overflow:hidden;border:1px solid var(--bd);border-radius:8px;background:var(--s1)}
+#json-surface{position:relative;min-width:0;overflow:hidden}
+#json-lines{margin:0;padding:14px 10px 32px;color:var(--mu);background:var(--s2);border-right:1px solid var(--bd);text-align:right;overflow:hidden;user-select:none}
+#json-code #jo,#json-highlight,#json-editor{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:14px;border:0;border-radius:0;overflow:auto;white-space:pre;overflow-wrap:normal;resize:none;background:transparent}
+#json-code #jo,#json-highlight,#json-editor,#json-lines{font-family:'Fira Code','Cascadia Code',monospace;font-size:12px;font-weight:400;line-height:20px;letter-spacing:0;tab-size:2;font-variant-ligatures:none}
+#json-editor{color:transparent;caret-color:var(--tx);-webkit-text-fill-color:transparent;z-index:1;outline:none}
+#json-editor::selection{background:rgba(80,140,220,.35)}
+#json-highlight{pointer-events:none}
+#json-count{font-size:11px;color:var(--mu);white-space:nowrap}
+#json-apply[hidden],#json-cancel[hidden],#json-editor[hidden],#json-highlight[hidden],#jo[hidden]{display:none!important}
+#json-status{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:140px;overflow:auto;color:var(--mu)}
+.fp[inert]{opacity:.55}
 pre#jo{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:14px;font-family:'Fira Code','Cascadia Code',monospace;font-size:12px;line-height:1.7;overflow:auto;flex:1}
 .dv{padding:20px;display:flex;justify-content:center;align-items:flex-start;overflow:auto;flex:1}
-.flowbar{display:flex;gap:6px;align-items:center;justify-content:flex-end;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--s1);flex-shrink:0}
+.flowbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--s1);flex-shrink:0}
+#flow-export-status{font-size:11px;color:var(--mu);overflow-wrap:anywhere}
+.flow-export-wrap{position:relative}
+#flow-export-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:190px;max-width:calc(100vw - 32px);padding:4px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+#flow-export-menu[hidden]{display:none}
+#flow-export-menu button{display:block;width:100%;padding:9px 12px;text-align:left;background:none;border:0;border-radius:4px;color:var(--tx);font:inherit;cursor:pointer}
+#flow-export-menu button:hover,#flow-export-menu button:focus-visible{background:var(--s3);outline:1px solid var(--ac)}
 .flowzoom{font-size:11px;color:var(--mu);font-family:monospace;min-width:42px;text-align:center}
+.treebar{display:flex;justify-content:flex-end;gap:6px;padding:8px 12px;border-bottom:1px solid var(--bd)}
+.config-tree{padding:18px 14px;overflow:auto;flex:1;font-family:monospace;font-size:12px;line-height:1.6}
+.tree-children{margin:6px 0 0 15px;padding-left:20px;border-left:1px dashed var(--bd)}
+.tree-node{margin:7px 0;min-width:0}
+.tree-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 9px;width:fit-content;max-width:100%;padding:8px 11px;border:1px solid #24634e;border-radius:6px;background:rgba(40,120,85,.12);overflow-wrap:anywhere}
+summary.tree-row{cursor:pointer;list-style:none;border-color:#69428d;background:rgba(130,75,165,.14)}
+summary.tree-row::-webkit-details-marker{display:none}
+summary.tree-row::before{content:'\25B6';font-size:10px;color:var(--mu)}
+details[open] > summary.tree-row::before{content:'\25BC'}
+.tree-name{font-weight:700;color:var(--tx)}
+.tree-strategy,.tree-provider{color:#78d8f3}
+.tree-model{color:#ff9c43}
+.tree-meta,.tree-number{color:var(--mu);font-size:11px}
 	#dsvg{transform-origin:top center;transition:transform .12s ease}
 	#dsvg .node-tip{cursor:help}
 
@@ -169,7 +202,7 @@ select option{background:var(--s2)}
 
 <header>
   <span style="font-size:18px">🔧</span>
-  <h1 data-i="title">AI Gateway Portkey Config Builder</h1>
+  <h1 data-i="title">AI Gateway Config Builder</h1>
   <span class="badge">Prisma AIRS AI Gateway</span>
   <div class="spacer"></div>
   <select id="lang-sel" onchange="setLang(this.value)" style="font-size:10px;padding:1px 4px;background:var(--s3);color:var(--t1);border:1px solid var(--bd);border-radius:4px;cursor:pointer;height:22px;width:auto;flex-shrink:0">
@@ -357,17 +390,30 @@ select option{background:var(--s2)}
   <div class="tabs">
     <div class="tab on" onclick="switchTab('j')" data-i="tab_j">{ } JSON</div>
     <div class="tab" onclick="switchTab('d')" data-i="tab_d">⬡ 流程图</div>
+    <div class="tab" onclick="switchTab('t')" data-i="tab_t">⎇ 结构树</div>
   </div>
   <div class="tc on" id="tj">
     <div class="jv">
       <div class="jtb">
         <span class="lbl" data-i="j_lbl">Config JSON</span>
+        <span id="json-count"></span>
         <div style="display:flex;gap:6px;align-items:center">
           <span id="cp-fb" style="font-size:11px;color:var(--ok);display:none" data-i="copied">✓ 已复制</span>
+          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input id="json-edit-toggle" type="checkbox" role="switch" style="width:auto" onchange="toggleJSONEdit(this.checked)">Edit JSON</label>
+          <button id="json-apply" class="btn bg2 sm" hidden onclick="applyJSONEdit()">Apply</button>
+          <button id="json-cancel" class="btn bg2 sm" hidden onclick="toggleJSONEdit(false)">Cancel</button>
           <button class="btn bg2 sm" onclick="copyJSON()" data-i="copy_s">⎘ 复制</button>
         </div>
       </div>
-      <pre id="jo"></pre>
+      <div id="json-code">
+        <pre id="json-lines" aria-hidden="true"></pre>
+        <div id="json-surface">
+          <pre id="jo" onscroll="syncJSONScroll(this)"></pre>
+          <pre id="json-highlight" hidden aria-hidden="true"></pre>
+          <textarea id="json-editor" hidden wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Config JSON editor" onscroll="syncJSONScroll(this)" oninput="dirty=true;document.getElementById('json-status').textContent='';renderJSONEditor()"></textarea>
+        </div>
+      </div>
+      <div id="json-status" role="status" aria-live="polite"></div>
     </div>
   </div>
   <div class="tc" id="td">
@@ -376,8 +422,23 @@ select option{background:var(--s2)}
       <span class="flowzoom" id="flow-zoom">100%</span>
       <button class="btn bg2 sm" onclick="setFlowZoom(flowZoom+.1)">+</button>
       <button class="btn bg2 sm" onclick="setFlowZoom(1)">Reset</button>
+      <div class="flow-export-wrap">
+        <button id="flow-export" class="btn bg2 sm" onclick="toggleFlowExportMenu()" aria-haspopup="menu" aria-expanded="false" aria-controls="flow-export-menu" data-i="flow_export">↓ 导出 PNG</button>
+        <div id="flow-export-menu" role="menu" aria-labelledby="flow-export" hidden>
+          <button role="menuitem" onclick="exportFlowImage('dark')" data-i="flow_dark">默认深色背景</button>
+          <button role="menuitem" onclick="exportFlowImage('transparent')" data-i="flow_transparent">透明背景</button>
+        </div>
+      </div>
+      <span id="flow-export-status" role="status" aria-live="polite"></span>
     </div>
     <div class="dv"><svg id="dsvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </div>
+  <div class="tc" id="tt">
+    <div class="treebar">
+      <button class="btn bg2 sm" onclick="expandConfigTree(true)" data-i="tree_expand">展开全部</button>
+      <button class="btn bg2" onclick="expandConfigTree(false)" data-i="tree_collapse">折叠全部</button>
+    </div>
+    <div id="config-tree" class="config-tree" aria-label="Config structure"></div>
   </div>
 </div>
 </div>
@@ -388,7 +449,8 @@ select option{background:var(--s2)}
 ════════════════════════════════════ */
 const L = {
 zh:{
-  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
+  flow_dark:'默认深色背景', flow_transparent:'透明背景', flow_export:'↓ 导出 PNG',
+  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ 重置', imp:'⬆ 导入', exp:'⬇ 导出', copy:'⎘ 复制 JSON', copy_s:'⎘ 复制', copied:'✓ 已复制！',
   unload_msg:'关闭页面后配置将丢失，建议先导出保存。',
   c_base:'基础配置 Base Config', c_strat:'主策略 Primary Strategy', c_tgt:'目标 Targets',
@@ -414,7 +476,7 @@ zh:{
   add_subcond:'添加子条件',
   cond_default:'默认 Target（无条件命中时）', add_cond:'+ 添加条件',
   add_tgt:'+ 添加 Target',
-  tab_j:'{ } JSON', tab_d:'⬡ 流程图', j_lbl:'Config JSON',
+  tab_j:'{ } JSON', tab_d:'⬡ 流程图', tab_t:'⎇ 结构树', tree_expand:'展开全部', tree_collapse:'折叠全部', j_lbl:'Config JSON',
   // target fields
   t_name:'Target 名称', t_name_h:'所有 target/group 必填；conditional 路由中用于匹配 then/default',
   t_prov:'Provider', t_prov_h:'例如 @openai-prod',
@@ -434,7 +496,8 @@ zh:{
   d_cond:'条件路由', d_default:'默认',
 },
 en:{
-  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
+  flow_dark:'Default dark background', flow_transparent:'Transparent background', flow_export:'↓ Export PNG',
+  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ Reset', imp:'⬆ Import', exp:'⬇ Export', copy:'⎘ Copy JSON', copy_s:'⎘ Copy', copied:'✓ Copied!',
   unload_msg:'Config will be lost when you close this page. Export first to save your work.',
   c_base:'Base Config', c_strat:'Primary Strategy', c_tgt:'Targets',
@@ -459,7 +522,7 @@ en:{
   add_subcond:'Add sub-condition',
   cond_default:'Default Target (no match)', add_cond:'+ Add Condition',
   add_tgt:'+ Add Target',
-  tab_j:'{ } JSON', tab_d:'⬡ Flow', j_lbl:'Config JSON',
+  tab_j:'{ } JSON', tab_d:'⬡ Flow', tab_t:'⎇ Structure', tree_expand:'Expand all', tree_collapse:'Collapse all', j_lbl:'Config JSON',
   t_name:'Target Name', t_name_h:'Required for every target/group; used by conditional then/default',
   t_prov:'Provider', t_prov_h:'e.g. @openai-prod',
   t_timeout:'Timeout (ms)', t_weight:'Weight', t_weight_h:'Auto-normalized. 0=paused',
@@ -478,7 +541,8 @@ en:{
   d_cond:'Conditional Router', d_default:'default',
 },
 ja:{
-  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
+  flow_dark:'標準の暗い背景', flow_transparent:'透明な背景', flow_export:'↓ PNG を保存',
+  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ リセット', imp:'⬆ インポート', exp:'⬇ エクスポート', copy:'⎘ JSON コピー', copy_s:'⎘ コピー', copied:'✓ コピー完了！',
   unload_msg:'ページを閉じると設定が失われます。先にエクスポートして保存してください。',
   c_base:'基本設定', c_strat:'Primary Strategy', c_tgt:'ターゲット',
@@ -503,7 +567,7 @@ ja:{
   add_subcond:'サブ条件を追加',
   cond_default:'デフォルトターゲット', add_cond:'+ 条件追加',
   add_tgt:'+ ターゲット追加',
-  tab_j:'{ } JSON', tab_d:'⬡ フロー図', j_lbl:'Config JSON',
+  tab_j:'{ } JSON', tab_d:'⬡ フロー図', tab_t:'⎇ 構造ツリー', tree_expand:'すべて展開', tree_collapse:'すべて折りたたむ', j_lbl:'Config JSON',
   t_name:'ターゲット名', t_name_h:'すべての target/group で必須。conditional の then/default で参照',
   t_prov:'Provider', t_prov_h:'例: @openai-prod',
   t_timeout:'タイムアウト（ms）', t_weight:'ウェイト', t_weight_h:'自動正規化。0=一時停止',
@@ -522,7 +586,8 @@ ja:{
   d_cond:'条件ルーター', d_default:'デフォルト',
 },
 ko:{
-  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
+  flow_dark:'기본 어두운 배경', flow_transparent:'투명 배경', flow_export:'↓ PNG 내보내기',
+  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ 초기화', imp:'⬆ 가져오기', exp:'⬇ 내보내기', copy:'⎘ JSON 복사', copy_s:'⎘ 복사', copied:'✓ 복사됨!',
   unload_msg:'페이지를 닫으면 설정이 사라집니다. 먼저 내보내기로 저장하세요.',
   c_base:'기본 설정', c_strat:'Primary Strategy', c_tgt:'타겟',
@@ -547,7 +612,7 @@ ko:{
   add_subcond:'서브 조건 추가',
   cond_default:'기본 타겟 (일치 없을 때)', add_cond:'+ 조건 추가',
   add_tgt:'+ 타겟 추가',
-  tab_j:'{ } JSON', tab_d:'⬡ 플로우', j_lbl:'Config JSON',
+  tab_j:'{ } JSON', tab_d:'⬡ 플로우', tab_t:'⎇ 구조 트리', tree_expand:'모두 펼치기', tree_collapse:'모두 접기', j_lbl:'Config JSON',
   t_name:'타겟 이름', t_name_h:'모든 target/group에 필수. conditional의 then/default에서 참조',
   t_prov:'Provider', t_prov_h:'예: @openai-prod',
   t_timeout:'타임아웃 (ms)', t_weight:'가중치', t_weight_h:'자동 정규화. 0=일시정지',
@@ -1380,21 +1445,139 @@ function serPS(params){
    JSON HIGHLIGHT
 ════════════════════════════════════ */
 function hl(obj){
-  const j = JSON.stringify(obj,null,2);
-  return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m=>{
-    if(/^"/.test(m)) return/:$/.test(m)?`<span class="jk">${m}</span>`:`<span class="js">${m}</span>`;
-    if(/true|false/.test(m)) return `<span class="jb">${m}</span>`;
-    if(/null/.test(m)) return `<span class="jnull">${m}</span>`;
-    return `<span class="jn">${m}</span>`;
-  });
+  return highlightJSON(JSON.stringify(obj,null,2));
+}
+function highlightJSON(text){
+  const tokens = /"(?:\\.|[^"\\])*"(?:[ \t]*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+  let html = '', offset = 0;
+  for (const match of text.matchAll(tokens)) {
+    const token = match[0];
+    const type = token.startsWith('"') ? (token.endsWith(':')?'jk':'js') : token==='null'?'jnull':/^(true|false)$/.test(token)?'jb':'jn';
+    html += esc(text.slice(offset,match.index)) + `<span class="${type}">${esc(token)}</span>`;
+    offset = match.index + token.length;
+  }
+  return html + esc(text.slice(offset));
+}
+function updateJSONLines(text){
+  const count = text.split('\n').length;
+  document.getElementById('json-lines').textContent = Array.from({length:count},(_,idx)=>idx+1).join('\n');
+  document.getElementById('json-count').textContent = `${count} ${lang==='zh'?'行':'lines'}`;
+}
+function syncJSONScroll(source){
+  document.getElementById('json-lines').scrollTop = source.scrollTop;
+  if (source.id === 'json-editor') {
+    const highlight = document.getElementById('json-highlight');
+    highlight.scrollTop = source.scrollTop;
+    highlight.scrollLeft = source.scrollLeft;
+  }
+}
+function renderJSONEditor(){
+  const editor = document.getElementById('json-editor');
+  document.getElementById('json-highlight').innerHTML = highlightJSON(editor.value) + '\n ';
+  updateJSONLines(editor.value);
+  syncJSONScroll(editor);
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+let jsonEditing = false;
+let jsonApplying = false;
+let jsonEditWasDirty = false;
+
+function toggleJSONEdit(enabled){
+  const editor = document.getElementById('json-editor');
+  const toggle = document.getElementById('json-edit-toggle');
+  if (!enabled && jsonEditing && editor.value !== JSON.stringify(buildCfg(),null,2) &&
+      !confirm(lang==='zh'?'放弃未应用的 JSON 修改？':'Discard unapplied JSON changes?')) {
+    toggle.checked = true;
+    return;
+  }
+  if (enabled) {
+    jsonEditWasDirty = dirty;
+    editor.value = JSON.stringify(buildCfg(),null,2);
+  } else if (jsonEditing) dirty = jsonEditWasDirty;
+  setJSONEditMode(enabled);
+  document.getElementById('json-status').textContent = enabled
+    ? (lang==='zh'?'JSON 编辑中，左侧已锁定。':'Editing JSON; form locked.') : '';
+  if (enabled) editor.focus();
+}
+
+function setJSONEditMode(enabled){
+  jsonEditing = enabled;
+  document.querySelector('.fp').inert = enabled;
+  document.getElementById('json-edit-toggle').checked = enabled;
+  document.getElementById('jo').hidden = enabled;
+  for (const id of ['json-editor','json-highlight','json-apply','json-cancel']) document.getElementById(id).hidden = !enabled;
+  if (enabled) renderJSONEditor();
+  else {
+    updateJSONLines(JSON.stringify(buildCfg(),null,2));
+    syncJSONScroll(document.getElementById('jo'));
+  }
+  document.querySelectorAll('header button, #preset-sel, #imp-file, .jtb button[data-i="copy_s"]').forEach(el=>el.disabled=enabled);
+}
+
+function jsonDifference(a,b,path='$'){
+  if (a === b) return '';
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a)!==Array.isArray(b)) return path;
+  for (const key of new Set([...Object.keys(a),...Object.keys(b)])) {
+    if (!Object.hasOwn(a,key) || !Object.hasOwn(b,key)) return `${path}.${key}`;
+    const diff = jsonDifference(a[key],b[key],`${path}.${key}`);
+    if (diff) return diff;
+  }
+  return '';
+}
+
+function applyJSONEdit(){
+  if (!jsonEditing) return;
+  const status = document.getElementById('json-status');
+  let cfg;
+  try {
+    cfg = JSON.parse(document.getElementById('json-editor').value);
+    if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) throw new Error('Config must be a JSON object.');
+  } catch (error) { status.textContent = error.message; return; }
+  // Preserve live form values and state so rejected imports are atomic.
+  const form = document.querySelector('.fp');
+  const savedForm = form.cloneNode(true);
+  const controls = form.querySelectorAll('input,select,textarea');
+  savedForm.querySelectorAll('input,select,textarea').forEach((el,idx)=>{
+    el.value = controls[idx].value;
+    if ('checked' in el) el.checked = controls[idx].checked;
+  });
+  const saved = structuredClone({tgts,conds,tagSt,feat,grs,nid,dirty});
+  jsonApplying = true;
+  try {
+    document.getElementById('retry-after').value = 'false';
+    importCfg(cfg);
+    const diff = jsonDifference(cfg,buildCfg());
+    if (diff) throw new Error((lang==='zh'?'UI 无法原样保留该配置，请检查：':'UI cannot preserve this configuration: ')+diff);
+    const warnings = validateCfg();
+    setJSONEditMode(false);
+    jsonApplying = false;
+    upd();
+    status.textContent = warnings.length ? warnings.join('\n') : (lang==='zh'?'已应用，UI 和 Flow 已更新。':'Applied; UI and Flow updated.');
+  } catch (error) {
+    form.replaceWith(savedForm);
+    tgts = saved.tgts;
+    conds.splice(0,conds.length,...saved.conds);
+    for (const [dest,src] of [[tagSt,saved.tagSt],[feat,saved.feat],[grs,saved.grs]]) {
+      Object.keys(dest).forEach(key=>delete dest[key]);
+      Object.assign(dest,src);
+    }
+    nid = saved.nid;
+    dirty = saved.dirty;
+    jsonApplying = false;
+    status.textContent = error.message;
+  }
+}
+
 function upd(){
+  if (jsonEditing || jsonApplying) return;
   dirty = true;
   const cfg = buildCfg();
   document.getElementById('jo').innerHTML = hl(cfg);
+  updateJSONLines(JSON.stringify(cfg,null,2));
+  syncJSONScroll(document.getElementById('jo'));
   renderDiag(cfg);
+  renderConfigTree(cfg);
 }
 
 function validateCfg(){
@@ -1759,12 +1942,126 @@ function resetAll(){
    TABS
 ════════════════════════════════════ */
 function switchTab(n){
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',i===(n==='j'?0:1)));
-  document.querySelectorAll('.tc').forEach((el,i)=>el.classList.toggle('on',i===(n==='j'?0:1)));
+  const index = ['j','d','t'].indexOf(n);
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',i===index));
+  document.querySelectorAll('.tc').forEach((el,i)=>el.classList.toggle('on',i===index));
   if (n==='d') renderDiag(buildCfg());
+  if (n==='t') renderConfigTree(buildCfg());
+}
+
+function expandConfigTree(open){
+  document.querySelectorAll('#config-tree details').forEach(node=>node.open=open);
+}
+
+function renderConfigTree(cfg){
+  const container = document.getElementById('config-tree');
+  const closed = new Set([...container.querySelectorAll('details:not([open])')].map(node=>node.dataset.path));
+  const meta = (label,value)=>value===undefined||value===''?'':`<span class="tree-meta">${esc(label)}:${esc(String(value))}</span>`;
+  function branch(node,path,parentMode,root=false){
+    const children = root && !node.strategy && node.provider ? [node] : (node.targets||[]);
+    const group = root || !!node.strategy;
+    const mode = node.strategy?.mode || (root ? (node.provider?'single':'none') : '');
+    const name = root?'config':(node.name||'Unnamed target');
+    const number = root?'':`<span class="tree-number">${esc(path)}</span>`;
+    const fields = group
+      ? `<span class="tree-strategy">[${esc(mode)}]</span>${meta('default',node.strategy?.default)}${meta('codes',node.strategy?.on_status_codes?.join(', '))}`
+      : `<span aria-hidden="true">&#8594;</span><span class="tree-model">${esc(String(node.override_params?.model??node.default_params?.model??'—'))}</span><span class="tree-provider">(provider ${esc(node.provider||node.virtual_key||'—')})</span>`;
+    const routing = parentMode==='loadbalance'?meta('w',node.weight):parentMode==='fallback'?meta('codes',node.on_status_codes?.join(', ')):'';
+    const row = `${number}<span class="tree-name">${esc(name)}</span>${fields}${routing}`;
+    if (!group) return `<div class="tree-node"><div class="tree-row">${row}</div></div>`;
+    return `<details class="tree-node" data-path="${esc(path)}" ${closed.has(path)?'':'open'}><summary class="tree-row">${row}</summary><div class="tree-children">${children.map((child,idx)=>branch(child,root?String(idx+1):`${path}.${idx+1}`,mode)).join('')}</div></details>`;
+  }
+  container.innerHTML = branch(cfg,'root','',true);
 }
 
 let flowZoom = 1;
+function toggleFlowExportMenu(open){
+  const menu = document.getElementById('flow-export-menu');
+  const show = open === undefined ? menu.hidden : open;
+  menu.hidden = !show;
+  document.getElementById('flow-export').setAttribute('aria-expanded',String(show));
+  if (show) menu.querySelector('button').focus();
+}
+document.addEventListener('click',event=>{
+  if (!event.target.closest('.flow-export-wrap')) toggleFlowExportMenu(false);
+});
+document.addEventListener('keydown',event=>{
+  const menu = document.getElementById('flow-export-menu');
+  if (menu.hidden) return;
+  if (event.key==='Escape') {
+    event.preventDefault();
+    toggleFlowExportMenu(false);
+    document.getElementById('flow-export').focus();
+  } else if (event.key==='ArrowDown' || event.key==='ArrowUp') {
+    event.preventDefault();
+    const items = [...menu.querySelectorAll('button')];
+    const index = items.indexOf(document.activeElement);
+    items[(index+(event.key==='ArrowDown'?1:-1)+items.length)%items.length].focus();
+  }
+});
+document.addEventListener('focusin',event=>{
+  if (!event.target.closest('.flow-export-wrap')) toggleFlowExportMenu(false);
+});
+
+async function exportFlowImage(background='dark'){
+  const button = document.getElementById('flow-export');
+  if (button.disabled) return;
+  toggleFlowExportMenu(false);
+  button.focus();
+  const status = document.getElementById('flow-export-status');
+  button.disabled = true;
+  status.textContent = lang==='zh'?'正在生成图片…':'Generating image…';
+  let sourceURL;
+  try {
+    renderDiag(buildCfg());
+    await document.fonts.ready;
+    const svg = document.getElementById('dsvg');
+    const {x,y,width,height} = svg.viewBox.baseVal;
+    if (!(width>0 && height>0)) throw new Error('Flow has no drawable area.');
+    // Export the full viewBox; the preview zoom must not affect the saved image.
+    const clone = svg.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.removeAttribute('style');
+    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    clone.setAttribute('viewBox',`${x} ${y} ${width} ${height}`);
+    clone.setAttribute('width',width);
+    clone.setAttribute('height',height);
+    sourceURL = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml;charset=utf-8'}));
+    const image = new Image();
+    await new Promise((resolve,reject)=>{
+      image.onload = resolve;
+      image.onerror = ()=>reject(new Error('Unable to render Flow image.'));
+      image.src = sourceURL;
+    });
+    const scale = Math.min(2,8192/width,8192/height,Math.sqrt(16000000/(width*height)));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1,Math.floor(width*scale));
+    canvas.height = Math.max(1,Math.floor(height*scale));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas is unavailable.');
+    if (background==='dark') {
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0d1117';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+    ctx.drawImage(image,0,0,canvas.width,canvas.height);
+    const png = await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('PNG export failed.')),'image/png'));
+    const downloadURL = URL.createObjectURL(png);
+    const link = document.createElement('a');
+    link.href = downloadURL;
+    link.download = `portkey-flow-${background}.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(downloadURL),60000);
+    status.textContent = `${canvas.width} × ${canvas.height} PNG`;
+  } catch (error) {
+    status.textContent = (lang==='zh'?'导出失败：':'Export failed: ')+error.message;
+  } finally {
+    if (sourceURL) URL.revokeObjectURL(sourceURL);
+    button.disabled = false;
+  }
+}
+
 function setFlowZoom(v){
   flowZoom = Math.min(2, Math.max(0.4, Math.round(v*10)/10));
   applyFlowZoom();
