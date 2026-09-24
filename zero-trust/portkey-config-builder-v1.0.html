@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!-- Author : Matt Zhang，Nessia Lu -->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prisma AIRS AI Gateway Config Builder v2.0</title>
+<title>Portkey Config Builder</title>
 <style>
 :root{
   --bg:#0d1117;--s1:#161b27;--s2:#1e2536;--s3:#252d40;
@@ -41,45 +40,8 @@ header h1{font-size:15px;font-weight:700;letter-spacing:-.3px;white-space:nowrap
 .jv{padding:14px;display:flex;flex-direction:column;gap:10px;height:100%}
 .jtb{display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .jtb .lbl{font-size:11px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.jtb{flex-wrap:wrap;gap:8px}
-.jtb>div{flex-wrap:wrap;min-width:0}
-#json-code{display:grid;grid-template-columns:auto minmax(0,1fr);flex:1;min-height:240px;overflow:hidden;border:1px solid var(--bd);border-radius:8px;background:var(--s1)}
-#json-surface{position:relative;min-width:0;overflow:hidden}
-#json-lines{margin:0;padding:14px 10px 32px;color:var(--mu);background:var(--s2);border-right:1px solid var(--bd);text-align:right;overflow:hidden;user-select:none}
-#json-code #jo,#json-highlight,#json-editor{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:14px;border:0;border-radius:0;overflow:auto;white-space:pre;overflow-wrap:normal;resize:none;background:transparent}
-#json-code #jo,#json-highlight,#json-editor,#json-lines{font-family:'Fira Code','Cascadia Code',monospace;font-size:12px;font-weight:400;line-height:20px;letter-spacing:0;tab-size:2;font-variant-ligatures:none}
-#json-editor{color:transparent;caret-color:var(--tx);-webkit-text-fill-color:transparent;z-index:1;outline:none}
-#json-editor::selection{background:rgba(80,140,220,.35)}
-#json-highlight{pointer-events:none}
-#json-count{font-size:11px;color:var(--mu);white-space:nowrap}
-#json-apply[hidden],#json-cancel[hidden],#json-editor[hidden],#json-highlight[hidden],#jo[hidden]{display:none!important}
-#json-status{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:140px;overflow:auto;color:var(--mu)}
-.fp[inert]{opacity:.55}
 pre#jo{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:14px;font-family:'Fira Code','Cascadia Code',monospace;font-size:12px;line-height:1.7;overflow:auto;flex:1}
-.dv{padding:20px;display:flex;justify-content:center;align-items:flex-start;overflow:auto;flex:1}
-.flowbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--s1);flex-shrink:0}
-#flow-export-status{font-size:11px;color:var(--mu);overflow-wrap:anywhere}
-.flow-export-wrap{position:relative}
-#flow-export-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:190px;max-width:calc(100vw - 32px);padding:4px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
-#flow-export-menu[hidden]{display:none}
-#flow-export-menu button{display:block;width:100%;padding:9px 12px;text-align:left;background:none;border:0;border-radius:4px;color:var(--tx);font:inherit;cursor:pointer}
-#flow-export-menu button:hover,#flow-export-menu button:focus-visible{background:var(--s3);outline:1px solid var(--ac)}
-.flowzoom{font-size:11px;color:var(--mu);font-family:monospace;min-width:42px;text-align:center}
-.treebar{display:flex;justify-content:flex-end;gap:6px;padding:8px 12px;border-bottom:1px solid var(--bd)}
-.config-tree{padding:18px 14px;overflow:auto;flex:1;font-family:monospace;font-size:12px;line-height:1.6}
-.tree-children{margin:6px 0 0 15px;padding-left:20px;border-left:1px dashed var(--bd)}
-.tree-node{margin:7px 0;min-width:0}
-.tree-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 9px;width:fit-content;max-width:100%;padding:8px 11px;border:1px solid #24634e;border-radius:6px;background:rgba(40,120,85,.12);overflow-wrap:anywhere}
-summary.tree-row{cursor:pointer;list-style:none;border-color:#69428d;background:rgba(130,75,165,.14)}
-summary.tree-row::-webkit-details-marker{display:none}
-summary.tree-row::before{content:'\25B6';font-size:10px;color:var(--mu)}
-details[open] > summary.tree-row::before{content:'\25BC'}
-.tree-name{font-weight:700;color:var(--tx)}
-.tree-strategy,.tree-provider{color:#78d8f3}
-.tree-model{color:#ff9c43}
-.tree-meta,.tree-number{color:var(--mu);font-size:11px}
-	#dsvg{transform-origin:top center;transition:transform .12s ease}
-	#dsvg .node-tip{cursor:help}
+.dv{padding:20px;display:flex;justify-content:center;align-items:flex-start;overflow:auto}
 
 /* BUTTONS */
 .btn{padding:5px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;line-height:1.4;white-space:nowrap}
@@ -144,12 +106,6 @@ select option{background:var(--s2)}
 
 /* TARGET CARD */
 .tcard{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:11px;margin-bottom:8px}
-.tcard.nested{background:rgba(255,255,255,.025);border-color:#34405f}
-.nested-wrap{border-left:2px solid var(--bd);margin-top:8px;padding-left:10px}
-.node-type{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
-.node-type button{border:1px solid var(--bd);background:var(--s2);color:var(--mu)}
-.node-type button.on{background:var(--acd);border-color:var(--ac);color:var(--tx)}
-.depth-badge{font-size:10px;color:var(--mu);font-family:monospace}
 .thd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 .tnum{font-size:10px;font-weight:700;color:var(--ac);background:var(--acd);padding:2px 8px;border-radius:3px;letter-spacing:.5px}
 .tbdy{display:flex;flex-direction:column;gap:8px}
@@ -203,7 +159,7 @@ select option{background:var(--s2)}
 
 <header>
   <span style="font-size:18px">🔧</span>
-  <h1 data-i="title">AI Gateway Config Builder</h1>
+  <h1 data-i="title">AI Gateway Portkey Config Builder</h1>
   <span class="badge">Prisma AIRS AI Gateway</span>
   <div class="spacer"></div>
   <select id="lang-sel" onchange="setLang(this.value)" style="font-size:10px;padding:1px 4px;background:var(--s3);color:var(--t1);border:1px solid var(--bd);border-radius:4px;cursor:pointer;height:22px;width:auto;flex-shrink:0">
@@ -211,9 +167,6 @@ select option{background:var(--s2)}
     <option value="zh">中文</option>
     <option value="ja">日本語</option>
     <option value="ko">한국어</option>
-  </select>
-  <select id="preset-sel" aria-label="Preset" title="Preset" onchange="loadPreset(this.value)" style="width:auto;max-width:210px;flex-shrink:1;min-width:80px">
-    <option value="">Preset...</option>
   </select>
   <button class="btn bg2 sm" onclick="resetAll()" data-i="reset">↺ Reset</button>
   <button class="btn bg2 sm" onclick="trigImport()" data-i="imp">⬆ Import</button>
@@ -334,7 +287,7 @@ select option{background:var(--s2)}
 <!-- ② STRATEGY -->
 <div class="card" id="c-strat">
   <div class="chd" onclick="toggleCard('c-strat')">
-    <div class="ct"><span class="ci">🔀</span><span data-i="c_strat">主策略 Primary Strategy</span></div>
+    <div class="ct"><span class="ci">🔀</span><span data-i="c_strat">策略 Strategy</span></div>
     <span class="chev">▼</span>
   </div>
   <div class="cbd">
@@ -391,55 +344,21 @@ select option{background:var(--s2)}
   <div class="tabs">
     <div class="tab on" onclick="switchTab('j')" data-i="tab_j">{ } JSON</div>
     <div class="tab" onclick="switchTab('d')" data-i="tab_d">⬡ 流程图</div>
-    <div class="tab" onclick="switchTab('t')" data-i="tab_t">⎇ 结构树</div>
   </div>
   <div class="tc on" id="tj">
     <div class="jv">
       <div class="jtb">
         <span class="lbl" data-i="j_lbl">Config JSON</span>
-        <span id="json-count"></span>
         <div style="display:flex;gap:6px;align-items:center">
           <span id="cp-fb" style="font-size:11px;color:var(--ok);display:none" data-i="copied">✓ 已复制</span>
-          <label style="display:flex;align-items:center;gap:5px;white-space:nowrap"><input id="json-edit-toggle" type="checkbox" role="switch" style="width:auto" onchange="toggleJSONEdit(this.checked)">Edit JSON</label>
-          <button id="json-apply" class="btn bg2 sm" hidden onclick="applyJSONEdit()">Apply</button>
-          <button id="json-cancel" class="btn bg2 sm" hidden onclick="toggleJSONEdit(false)">Cancel</button>
           <button class="btn bg2 sm" onclick="copyJSON()" data-i="copy_s">⎘ 复制</button>
         </div>
       </div>
-      <div id="json-code">
-        <pre id="json-lines" aria-hidden="true"></pre>
-        <div id="json-surface">
-          <pre id="jo" onscroll="syncJSONScroll(this)"></pre>
-          <pre id="json-highlight" hidden aria-hidden="true"></pre>
-          <textarea id="json-editor" hidden wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Config JSON editor" onscroll="syncJSONScroll(this)" oninput="dirty=true;document.getElementById('json-status').textContent='';renderJSONEditor()"></textarea>
-        </div>
-      </div>
-      <div id="json-status" role="status" aria-live="polite"></div>
+      <pre id="jo"></pre>
     </div>
   </div>
   <div class="tc" id="td">
-    <div class="flowbar">
-      <button class="btn bg2 sm" onclick="setFlowZoom(flowZoom-.1)">−</button>
-      <span class="flowzoom" id="flow-zoom">100%</span>
-      <button class="btn bg2 sm" onclick="setFlowZoom(flowZoom+.1)">+</button>
-      <button class="btn bg2 sm" onclick="setFlowZoom(1)">Reset</button>
-      <div class="flow-export-wrap">
-        <button id="flow-export" class="btn bg2 sm" onclick="toggleFlowExportMenu()" aria-haspopup="menu" aria-expanded="false" aria-controls="flow-export-menu" data-i="flow_export">↓ 导出 PNG</button>
-        <div id="flow-export-menu" role="menu" aria-labelledby="flow-export" hidden>
-          <button role="menuitem" onclick="exportFlowImage('dark')" data-i="flow_dark">默认深色背景</button>
-          <button role="menuitem" onclick="exportFlowImage('transparent')" data-i="flow_transparent">透明背景</button>
-        </div>
-      </div>
-      <span id="flow-export-status" role="status" aria-live="polite"></span>
-    </div>
     <div class="dv"><svg id="dsvg" xmlns="http://www.w3.org/2000/svg"></svg></div>
-  </div>
-  <div class="tc" id="tt">
-    <div class="treebar">
-      <button class="btn bg2 sm" onclick="expandConfigTree(true)" data-i="tree_expand">展开全部</button>
-      <button class="btn bg2" onclick="expandConfigTree(false)" data-i="tree_collapse">折叠全部</button>
-    </div>
-    <div id="config-tree" class="config-tree" aria-label="Config structure"></div>
   </div>
 </div>
 </div>
@@ -450,11 +369,10 @@ select option{background:var(--s2)}
 ════════════════════════════════════ */
 const L = {
 zh:{
-  flow_dark:'默认深色背景', flow_transparent:'透明背景', flow_export:'↓ 导出 PNG',
-  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
+  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ 重置', imp:'⬆ 导入', exp:'⬇ 导出', copy:'⎘ 复制 JSON', copy_s:'⎘ 复制', copied:'✓ 已复制！',
   unload_msg:'关闭页面后配置将丢失，建议先导出保存。',
-  c_base:'基础配置 Base Config', c_strat:'主策略 Primary Strategy', c_tgt:'目标 Targets',
+  c_base:'基础配置 Base Config', c_strat:'策略 Strategy', c_tgt:'目标 Targets',
   s_retry:'Retry 重试', s_cache:'Cache 缓存', s_cb:'Circuit Breaker 熔断',
   s_gr:'Guardrails 护栏',
   attempts:'重试次数', retry_after:'遵守 Retry-After 头',
@@ -477,9 +395,9 @@ zh:{
   add_subcond:'添加子条件',
   cond_default:'默认 Target（无条件命中时）', add_cond:'+ 添加条件',
   add_tgt:'+ 添加 Target',
-  tab_j:'{ } JSON', tab_d:'⬡ 流程图', tab_t:'⎇ 结构树', tree_expand:'展开全部', tree_collapse:'折叠全部', j_lbl:'Config JSON',
+  tab_j:'{ } JSON', tab_d:'⬡ 流程图', j_lbl:'Config JSON',
   // target fields
-  t_name:'Target 名称', t_name_h:'所有 target/group 必填；conditional 路由中用于匹配 then/default',
+  t_name:'Target 名称', t_name_h:'conditional 路由中用于匹配 then/default',
   t_prov:'Provider', t_prov_h:'例如 @openai-prod',
   t_timeout:'超时（ms）', t_weight:'权重', t_weight_h:'自动归一化，0=暂停',
   t_fb_codes:'Fallback 触发码', t_fb_codes_h:'（空=继承全局）',
@@ -497,11 +415,10 @@ zh:{
   d_cond:'条件路由', d_default:'默认',
 },
 en:{
-  flow_dark:'Default dark background', flow_transparent:'Transparent background', flow_export:'↓ Export PNG',
-  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
+  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ Reset', imp:'⬆ Import', exp:'⬇ Export', copy:'⎘ Copy JSON', copy_s:'⎘ Copy', copied:'✓ Copied!',
   unload_msg:'Config will be lost when you close this page. Export first to save your work.',
-  c_base:'Base Config', c_strat:'Primary Strategy', c_tgt:'Targets',
+  c_base:'Base Config', c_strat:'Strategy', c_tgt:'Targets',
   s_retry:'Retry', s_cache:'Cache', s_cb:'Circuit Breaker', s_gr:'Guardrails',
   attempts:'Attempts', retry_after:'Use Retry-After Header',
   retry_codes:'On Status Codes', empty_nonx:'(empty = any non-2xx)',
@@ -523,8 +440,8 @@ en:{
   add_subcond:'Add sub-condition',
   cond_default:'Default Target (no match)', add_cond:'+ Add Condition',
   add_tgt:'+ Add Target',
-  tab_j:'{ } JSON', tab_d:'⬡ Flow', tab_t:'⎇ Structure', tree_expand:'Expand all', tree_collapse:'Collapse all', j_lbl:'Config JSON',
-  t_name:'Target Name', t_name_h:'Required for every target/group; used by conditional then/default',
+  tab_j:'{ } JSON', tab_d:'⬡ Flow', j_lbl:'Config JSON',
+  t_name:'Target Name', t_name_h:'Used by conditional then/default',
   t_prov:'Provider', t_prov_h:'e.g. @openai-prod',
   t_timeout:'Timeout (ms)', t_weight:'Weight', t_weight_h:'Auto-normalized. 0=paused',
   t_fb_codes:'Fallback Trigger Codes', t_fb_codes_h:'(empty = inherit global)',
@@ -542,11 +459,10 @@ en:{
   d_cond:'Conditional Router', d_default:'default',
 },
 ja:{
-  flow_dark:'標準の暗い背景', flow_transparent:'透明な背景', flow_export:'↓ PNG を保存',
-  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
+  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ リセット', imp:'⬆ インポート', exp:'⬇ エクスポート', copy:'⎘ JSON コピー', copy_s:'⎘ コピー', copied:'✓ コピー完了！',
   unload_msg:'ページを閉じると設定が失われます。先にエクスポートして保存してください。',
-  c_base:'基本設定', c_strat:'Primary Strategy', c_tgt:'ターゲット',
+  c_base:'基本設定', c_strat:'ストラテジー', c_tgt:'ターゲット',
   s_retry:'リトライ', s_cache:'キャッシュ', s_cb:'サーキットブレーカー', s_gr:'ガードレール',
   attempts:'リトライ回数', retry_after:'Retry-After ヘッダー使用',
   retry_codes:'ステータスコード', empty_nonx:'（空 = 2xx 以外すべて）',
@@ -568,8 +484,8 @@ ja:{
   add_subcond:'サブ条件を追加',
   cond_default:'デフォルトターゲット', add_cond:'+ 条件追加',
   add_tgt:'+ ターゲット追加',
-  tab_j:'{ } JSON', tab_d:'⬡ フロー図', tab_t:'⎇ 構造ツリー', tree_expand:'すべて展開', tree_collapse:'すべて折りたたむ', j_lbl:'Config JSON',
-  t_name:'ターゲット名', t_name_h:'すべての target/group で必須。conditional の then/default で参照',
+  tab_j:'{ } JSON', tab_d:'⬡ フロー図', j_lbl:'Config JSON',
+  t_name:'ターゲット名', t_name_h:'conditional の then/default で参照',
   t_prov:'Provider', t_prov_h:'例: @openai-prod',
   t_timeout:'タイムアウト（ms）', t_weight:'ウェイト', t_weight_h:'自動正規化。0=一時停止',
   t_fb_codes:'フォールバックトリガーコード', t_fb_codes_h:'（空=グローバル継承）',
@@ -587,11 +503,10 @@ ja:{
   d_cond:'条件ルーター', d_default:'デフォルト',
 },
 ko:{
-  flow_dark:'기본 어두운 배경', flow_transparent:'투명 배경', flow_export:'↓ PNG 내보내기',
-  title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
+  title:'Portkey Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ 초기화', imp:'⬆ 가져오기', exp:'⬇ 내보내기', copy:'⎘ JSON 복사', copy_s:'⎘ 복사', copied:'✓ 복사됨!',
   unload_msg:'페이지를 닫으면 설정이 사라집니다. 먼저 내보내기로 저장하세요.',
-  c_base:'기본 설정', c_strat:'Primary Strategy', c_tgt:'타겟',
+  c_base:'기본 설정', c_strat:'전략', c_tgt:'타겟',
   s_retry:'재시도', s_cache:'캐시', s_cb:'서킷 브레이커', s_gr:'가드레일',
   attempts:'재시도 횟수', retry_after:'Retry-After 헤더 사용',
   retry_codes:'트리거 상태 코드', empty_nonx:'(비어 있으면 = 2xx 외 모두)',
@@ -613,8 +528,8 @@ ko:{
   add_subcond:'서브 조건 추가',
   cond_default:'기본 타겟 (일치 없을 때)', add_cond:'+ 조건 추가',
   add_tgt:'+ 타겟 추가',
-  tab_j:'{ } JSON', tab_d:'⬡ 플로우', tab_t:'⎇ 구조 트리', tree_expand:'모두 펼치기', tree_collapse:'모두 접기', j_lbl:'Config JSON',
-  t_name:'타겟 이름', t_name_h:'모든 target/group에 필수. conditional의 then/default에서 참조',
+  tab_j:'{ } JSON', tab_d:'⬡ 플로우', j_lbl:'Config JSON',
+  t_name:'타겟 이름', t_name_h:'conditional의 then/default에서 참조',
   t_prov:'Provider', t_prov_h:'예: @openai-prod',
   t_timeout:'타임아웃 (ms)', t_weight:'가중치', t_weight_h:'자동 정규화. 0=일시정지',
   t_fb_codes:'Fallback 트리거 코드', t_fb_codes_h:'(비어 있으면 = 전역 상속)',
@@ -704,56 +619,16 @@ const tagSt = {};
 const feat = { retry: false, cache: false, cb: false };
 const grs = { input: [], output: [] };
 const conds = [];  // { field, op, value, then }
-const MAX_NEST_DEPTH = 3;
 
 function mkTgt() {
-  return { id: nid++, node_type: 'leaf', name: '', provider: '', weight: 1, request_timeout: '',
+  return { id: nid++, name: '', provider: '', weight: 1, request_timeout: '',
     on_status_codes: [],
     ovr_params: {}, ovr_open: false,
     def_params: {}, def_open: false,
     drop_params: [],
-    retry_enabled: false, retry_attempts: 1, retry_on_status_codes: [],
-    child_mode: 'fallback', child_targets: [], child_conds: [], child_default: '', child_on_status_codes: [],
-    collapsed: false };
+    retry_enabled: false, retry_attempts: 1, retry_on_status_codes: [] };
 }
 let tgts = [mkTgt()];
-
-function findTgt(id, arr=tgts){
-  for (const t of arr){
-    if (t.id === id) return t;
-    const found = findTgt(id, t.child_targets||[]);
-    if (found) return found;
-  }
-  return null;
-}
-function findTgtParent(id, arr=tgts, parent=null){
-  for (const t of arr){
-    if (t.id === id) return parent;
-    const found = findTgtParent(id, t.child_targets||[], t);
-    if (found !== null) return found;
-  }
-  return null;
-}
-function childList(t){
-  if (!Array.isArray(t.child_targets)) t.child_targets = [];
-  if (!t.child_targets.length) t.child_targets.push(mkTgt());
-  return t.child_targets;
-}
-function setTgtType(id,type){
-  const t = findTgt(id); if (!t) return;
-  t.node_type = type;
-  if (type === 'strategy') {
-    t.provider = '';
-    childList(t);
-  }
-  renderTargets(); upd();
-}
-function setChildMode(id,mode){
-  const t = findTgt(id); if (!t) return;
-  t.child_mode = mode;
-  childList(t);
-  renderTargets(); upd();
-}
 
 /* TAG HELPERS */
 function initTag(g){ if(!tagSt[g]) tagSt[g]=[]; }
@@ -775,7 +650,7 @@ function tagEnter(e,g){ if(e.key==='Enter'){e.preventDefault();addTag(g);} }
 
 /* Target-scoped tags */
 function addTTag(tid,g){
-  const tgt = findTgt(tid); if (!tgt) return;
+  const tgt = tgts.find(t=>t.id===tid); if (!tgt) return;
   const inp = document.getElementById(`t${tid}-${g}-in`); if (!inp) return;
   const v = inp.value.trim(); if (!v) return;
   const k = g.replace(/-/g,'_');
@@ -783,14 +658,14 @@ function addTTag(tid,g){
   inp.value=''; renderTTag(tid,g); upd();
 }
 function rmTTag(tid,g,v){
-  const tgt = findTgt(tid); if (!tgt) return;
+  const tgt = tgts.find(t=>t.id===tid); if (!tgt) return;
   const k = g.replace(/-/g,'_');
   tgt[k]=tgt[k].filter(x=>x!==v);
   renderTTag(tid,g); upd();
 }
 function renderTTag(tid,g){
   const el = document.getElementById(`t${tid}-${g}-tags`); if (!el) return;
-  const tgt = findTgt(tid);
+  const tgt = tgts.find(t=>t.id===tid);
   const arr = tgt ? tgt[g.replace(/-/g,'_')] : [];
   el.innerHTML = arr.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tid},'${g}','${v}')">×</button></span>`).join('');
 }
@@ -836,8 +711,6 @@ function renderGRs(type){
 /* CONDITIONS */
 function addCond(){ conds.push({logic:'',field:'metadata.',op:'$eq',value:'',then:'',subconds:[]}); renderConds(); }
 function rmCond(idx){ conds.splice(idx,1); renderConds(); upd(); }
-function cloneCond(c){ return JSON.parse(JSON.stringify(c||{logic:'',field:'metadata.',op:'$eq',value:'',then:'',subconds:[]})); }
-function dupCond(idx){ conds.splice(idx+1,0,cloneCond(conds[idx])); renderConds(); upd(); }
 function setCondLogic(ci,val){
   conds[ci].logic=val;
   if ((val==='$and'||val==='$or')&&!(conds[ci].subconds||[]).length)
@@ -898,10 +771,7 @@ function renderConds(){
         <div style="display:flex;align-items:center;gap:0">
           <span class="cond-num">Condition ${ci+1}</span>${lSel}
         </div>
-        <div style="display:flex;align-items:center;gap:4px">
-          <button class="btn bg2 sm" onclick="dupCond(${ci})">Duplicate</button>
-          <button class="ic" onclick="rmCond(${ci})">×</button>
-        </div>
+        <button class="ic" onclick="rmCond(${ci})">×</button>
       </div>
       ${body}
     </div>`;
@@ -936,19 +806,19 @@ function pDefault(p){
   return '';
 }
 
-function togPicker(tid,f){ const t=findTgt(tid); if(!t)return;
+function togPicker(tid,f){ const t=tgts.find(x=>x.id===tid); if(!t)return;
   const k=f==='ovr_params'?'ovr_open':'def_open'; t[k]=!t[k]; renderTargets(); }
-function togParam(tid,f,p){ const t=findTgt(tid); if(!t)return;
+function togParam(tid,f,p){ const t=tgts.find(x=>x.id===tid); if(!t)return;
   if(t[f][p]!==undefined) delete t[f][p]; else t[f][p]=pDefault(p);
   renderTargets(); upd(); }
-function setPV(tid,f,p,v){ const t=findTgt(tid); if(!t)return; t[f][p]=v; upd(); }
-function setPSub(tid,f,p,sk,v){ const t=findTgt(tid); if(!t)return;
+function setPV(tid,f,p,v){ const t=tgts.find(x=>x.id===tid); if(!t)return; t[f][p]=v; upd(); }
+function setPSub(tid,f,p,sk,v){ const t=tgts.find(x=>x.id===tid); if(!t)return;
   if(typeof t[f][p]!=='object'||!t[f][p]) t[f][p]={};
   t[f][p][sk]=v;
   const spec=PS[p];
   if(spec&&spec.t==='compound'&&spec.sub.some(s=>s.showIf&&s.showIf[sk]!==undefined)) renderTargets();
   upd(); }
-function addPTag(tid,f,p,uid){ const t=findTgt(tid); if(!t)return;
+function addPTag(tid,f,p,uid){ const t=tgts.find(x=>x.id===tid); if(!t)return;
   const el=document.getElementById(uid+'-tin'); if(!el)return;
   const v=el.value.trim(); if(!v)return;
   if(!Array.isArray(t[f][p]))t[f][p]=[];
@@ -956,12 +826,12 @@ function addPTag(tid,f,p,uid){ const t=findTgt(tid); if(!t)return;
   const te=document.getElementById(uid+'-tgs');
   if(te) te.innerHTML=t[f][p].map((x,i)=>`<span class="tag">${esc(x)}<button onclick="rmPTag(${tid},'${f}','${p}',${i})">×</button></span>`).join('');
   upd(); }
-function rmPTag(tid,f,p,i){ const t=findTgt(tid); if(!t)return; t[f][p].splice(i,1); renderTargets(); upd(); }
-function addPKV(tid,f,p){ const t=findTgt(tid); if(!t)return;
+function rmPTag(tid,f,p,i){ const t=tgts.find(x=>x.id===tid); if(!t)return; t[f][p].splice(i,1); renderTargets(); upd(); }
+function addPKV(tid,f,p){ const t=tgts.find(x=>x.id===tid); if(!t)return;
   if(!Array.isArray(t[f][p]))t[f][p]=[];
   t[f][p].push({k:'',v:''}); renderTargets(); }
-function rmPKV(tid,f,p,i){ const t=findTgt(tid); if(!t)return; t[f][p].splice(i,1); renderTargets(); upd(); }
-function setPKV(tid,f,p,i,k,v){ const t=findTgt(tid); if(!t)return; t[f][p][i][k]=v; upd(); }
+function rmPKV(tid,f,p,i){ const t=tgts.find(x=>x.id===tid); if(!t)return; t[f][p].splice(i,1); renderTargets(); upd(); }
+function setPKV(tid,f,p,i,k,v){ const t=tgts.find(x=>x.id===tid); if(!t)return; t[f][p][i][k]=v; upd(); }
 
 function renderPCtrl(tid,f,p,val){
   const s=PS[p]; if(!s)return '';
@@ -1026,7 +896,7 @@ function renderPCtrl(tid,f,p,val){
       <button class="btn bg2 sm" style="margin-top:4px" onclick="addPKV(${tid},'${f}','${p}')">+</button>`;break;}
     case 'guardrail_list':{
       const gla=Array.isArray(val)?val:[];
-      c=gla.map((g,gi)=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center;margin-bottom:5px"><input type="text" placeholder="${i('gr_id')}" value="${esc(g.id||'')}" oninput="findTgt(${tid})['${f}']['${p}'][${gi}].id=this.value;upd()"><select style="width:auto" onchange="findTgt(${tid})['${f}']['${p}'][${gi}].deny=this.value==='true';upd()"><option value="true"${g.deny!==false?' selected':''}>${i('gr_deny')}</option><option value="false"${g.deny===false?' selected':''}>${i('gr_warn')}</option></select><select style="width:auto" onchange="findTgt(${tid})['${f}']['${p}'][${gi}].async=this.value==='true';upd()"><option value="false"${!g.async?' selected':''}>${i('gr_sync')}</option><option value="true"${g.async?' selected':''}>${i('gr_async')}</option></select><button class="ic" onclick="findTgt(${tid})['${f}']['${p}'].splice(${gi},1);renderTargets();upd()">×</button></div>`).join('')+`<button class="btn bg2 sm" style="margin-top:4px" onclick="findTgt(${tid})['${f}']['${p}'].push({id:'',deny:true,async:false});renderTargets();upd()">${i('btn_add')}</button>`;break;}
+      c=gla.map((g,gi)=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center;margin-bottom:5px"><input type="text" placeholder="${i('gr_id')}" value="${esc(g.id||'')}" oninput="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].id=this.value;upd()"><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].deny=this.value==='true';upd()"><option value="true"${g.deny!==false?' selected':''}>${i('gr_deny')}</option><option value="false"${g.deny===false?' selected':''}>${i('gr_warn')}</option></select><select style="width:auto" onchange="tgts.find(x=>x.id==${tid})['${f}']['${p}'][${gi}].async=this.value==='true';upd()"><option value="false"${!g.async?' selected':''}>${i('gr_sync')}</option><option value="true"${g.async?' selected':''}>${i('gr_async')}</option></select><button class="ic" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].splice(${gi},1);renderTargets();upd()">×</button></div>`).join('')+`<button class="btn bg2 sm" style="margin-top:4px" onclick="tgts.find(x=>x.id==${tid})['${f}']['${p}'].push({id:'',deny:true,async:false});renderTargets();upd()">${i('btn_add')}</button>`;break;}
   }
   return `<div class="pctl"><div class="pctl-hd">
     <span class="pctl-k">${esc(p)}</span>
@@ -1060,200 +930,16 @@ function renderPSection(tid,f,tgt,label,hint){
 }
 
 /* TARGETS */
-function addTgt(parentId=null){
-  const list = parentId ? childList(findTgt(parentId)) : tgts;
-  list.push(mkTgt()); renderTargets(); upd();
+function addTgt(){ tgts.push(mkTgt()); renderTargets(); upd(); }
+function rmTgt(id){
+  if (tgts.length<=1) return;
+  tgts=tgts.filter(t=>t.id!==id); renderTargets(); upd();
 }
-function rmTgt(id,parentId=null){
-  const list = parentId ? childList(findTgt(parentId)) : tgts;
-  if (list.length<=1) return;
-  const idx = list.findIndex(t=>t.id===id);
-  if (idx>=0) list.splice(idx,1);
-  renderTargets(); upd();
-}
-function cloneTgt(t){
-  const copy = JSON.parse(JSON.stringify(t));
-  const reid = node => {
-    node.id = nid++;
-    node.collapsed = false;
-    (node.child_targets||[]).forEach(reid);
-  };
-  reid(copy);
-  return copy;
-}
-function dupTgt(id,parentId=null){
-  const list = parentId ? childList(findTgt(parentId)) : tgts;
-  const idx = list.findIndex(t=>t.id===id);
-  if (idx<0) return;
-  list.splice(idx+1,0,cloneTgt(list[idx]));
-  renderTargets(); upd();
-}
-function moveTgt(id,parentId=null,dir){
-  const list = parentId ? childList(findTgt(parentId)) : tgts;
-  const idx = list.findIndex(t=>t.id===id);
-  const next = idx + dir;
-  if (idx<0 || next<0 || next>=list.length) return;
-  [list[idx], list[next]] = [list[next], list[idx]];
-  renderTargets(); upd();
-}
-function setTgtField(id,k,v){ const tgt=findTgt(id); if(!tgt)return; tgt[k]=v; upd(); }
-function toggleTgtCollapsed(id){ const tgt=findTgt(id); if(!tgt)return; tgt.collapsed=!tgt.collapsed; renderTargets(); }
-function togTRetry(tid){ const tgt=findTgt(tid); if (!tgt) return; tgt.retry_enabled=!tgt.retry_enabled; renderTargets(); upd(); }
-function addChildCond(tid){ const tgt=findTgt(tid); if(!tgt)return; (tgt.child_conds=tgt.child_conds||[]).push({field:'metadata.',op:'$eq',value:'',then:''}); renderTargets(); upd(); }
-function rmChildCond(tid,idx){ const tgt=findTgt(tid); if(!tgt)return; tgt.child_conds.splice(idx,1); renderTargets(); upd(); }
-function dupChildCond(tid,idx){ const tgt=findTgt(tid); if(!tgt)return; tgt.child_conds.splice(idx+1,0,cloneCond(tgt.child_conds[idx])); renderTargets(); upd(); }
-function setChildCond(tid,idx,k,v){ const tgt=findTgt(tid); if(!tgt)return; tgt.child_conds[idx][k]=v; upd(); }
-function setChildCondLogic(tid,idx,val){
-  const tgt=findTgt(tid); if(!tgt)return;
-  const c=tgt.child_conds[idx]; c.logic=val;
-  if ((val==='$and'||val==='$or')&&!(c.subconds||[]).length) c.subconds=[{field:'metadata.',op:'$eq',value:''}];
-  renderTargets(); upd();
-}
-function addChildSubCond(tid,idx){ const tgt=findTgt(tid); if(!tgt)return; (tgt.child_conds[idx].subconds=tgt.child_conds[idx].subconds||[]).push({field:'metadata.',op:'$eq',value:''}); renderTargets(); upd(); }
-function rmChildSubCond(tid,idx,si){ const tgt=findTgt(tid); if(!tgt)return; tgt.child_conds[idx].subconds.splice(si,1); renderTargets(); upd(); }
-function setChildSubCond(tid,idx,si,k,v){ const tgt=findTgt(tid); if(!tgt)return; tgt.child_conds[idx].subconds[si][k]=v; upd(); }
-
-function modeLabel(mode){
-  return mode==='fallback'?'fallback':mode==='loadbalance'?'loadbalance':mode==='conditional'?'conditional':mode;
-}
-function renderChildConditions(tgt){
-  const rows=(tgt.child_conds||[]).map((c,idx)=>`
-    <div class="cond-block">
-      <div class="cond-head">
-        <select class="logic-sel" onchange="setChildCondLogic(${tgt.id},${idx},this.value)">
-          <option value=""${!c.logic?' selected':''}>simple</option>
-          <option value="$and"${c.logic==='$and'?' selected':''}>$and</option>
-          <option value="$or"${c.logic==='$or'?' selected':''}>$or</option>
-        </select>
-        <div style="display:flex;align-items:center;gap:4px">
-          <button class="btn bg2 sm" onclick="dupChildCond(${tgt.id},${idx})">Duplicate</button>
-          <button class="ic" onclick="rmChildCond(${tgt.id},${idx})">×</button>
-        </div>
-      </div>
-      ${c.logic==='$and'||c.logic==='$or' ? `${(c.subconds||[]).map((s,si)=>`
-        <div class="cond-sub">
-          <input type="text" value="${esc(s.field)}" placeholder="metadata.x-task" oninput="setChildSubCond(${tgt.id},${idx},${si},'field',this.value)">
-          <select onchange="setChildSubCond(${tgt.id},${idx},${si},'op',this.value)">${['$eq','$ne','$in','$nin','$gt','$gte','$lt','$lte','$regex'].map(op=>`<option value="${op}"${s.op===op?' selected':''}>${op}</option>`).join('')}</select>
-          <input type="text" value="${esc(s.value)}" placeholder="value" oninput="setChildSubCond(${tgt.id},${idx},${si},'value',this.value)">
-          <button class="ic" onclick="rmChildSubCond(${tgt.id},${idx},${si})">−</button>
-        </div>`).join('')}
-        <button class="btn bg2 sm" style="width:100%;margin-top:2px;margin-bottom:8px" onclick="addChildSubCond(${tgt.id},${idx})">+ ${i('add_subcond')}</button>
-        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px;align-items:center"><span style="font-size:11px;color:var(--mu);white-space:nowrap">${i('cond_then')}</span><input type="text" value="${esc(c.then)}" placeholder="target-name" oninput="setChildCond(${tgt.id},${idx},'then',this.value)"></div>` : `
-        <div class="cond-simple">
-          <input type="text" value="${esc(c.field)}" placeholder="metadata.x-task" oninput="setChildCond(${tgt.id},${idx},'field',this.value)">
-          <select onchange="setChildCond(${tgt.id},${idx},'op',this.value)">${['$eq','$ne','$in','$nin','$gt','$gte','$lt','$lte','$regex'].map(op=>`<option value="${op}"${c.op===op?' selected':''}>${op}</option>`).join('')}</select>
-          <input type="text" value="${esc(c.value)}" placeholder="value" oninput="setChildCond(${tgt.id},${idx},'value',this.value)">
-          <input type="text" value="${esc(c.then)}" placeholder="target-name" oninput="setChildCond(${tgt.id},${idx},'then',this.value)">
-        </div>`}
-    </div>`).join('');
-  return `<div class="fi"><label>Child Conditions <span class="hint" style="display:inline">(then must match child target name)</span></label>
-    ${rows}
-    <button class="btn bg2 sm" style="width:100%;margin-top:4px" onclick="addChildCond(${tgt.id})">+ Add Condition</button>
-  </div>
-  <div class="fi"><label>Child Default Target<span class="req">*</span></label>
-    <input type="text" value="${esc(tgt.child_default||'')}" placeholder="target-default" oninput="setTgtField(${tgt.id},'child_default',this.value);upd()">
-  </div>`;
-}
-
-function renderTargetList(list, mode, parentId=null, depth=0, path=[]){
-  const isLB = mode==='loadbalance', isFB = mode==='fallback', isCond = mode==='conditional';
-  const isSingle = mode==='single';
-  return list.map((tgt,idx) => {
-    const isStrategy = tgt.node_type === 'strategy';
-    const canNest = depth < MAX_NEST_DEPTH && mode !== 'single';
-    const num = [...path, idx+1].join('.');
-    const lbl = isFB ? (idx===0?i('lbl_primary'):`${i('lbl_fallback')} ${idx}`) :
-                isCond ? (tgt.name||`${i('lbl_target')} ${idx+1}`) :
-                isLB ? `${i('lbl_target')} ${idx+1}` : '';
-    const strategyHtml = isStrategy ? `
-      ${tgt.child_mode==='fallback'?`<div class="fi"><label>Child Fallback Trigger Codes</label>
-        <div class="tags" id="t${tgt.id}-child_on_status_codes-tags">${(tgt.child_on_status_codes||[]).map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'child_on_status_codes','${v}')">×</button></span>`).join('')}</div>
-        <div class="trow"><input id="t${tgt.id}-child_on_status_codes-in" type="number" placeholder="429" onkeydown="ttEnter(event,${tgt.id},'child_on_status_codes')">
-        <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'child_on_status_codes')">+</button></div></div>`:''}
-      ${tgt.child_mode==='conditional'?renderChildConditions(tgt):''}
-      <div class="nested-wrap">
-        ${renderTargetList(childList(tgt), tgt.child_mode, tgt.id, depth+1, [...path, idx+1])}
-        <button class="btn bg2 sm" style="width:100%;margin-top:2px" onclick="addTgt(${tgt.id})">+ Add Child Target</button>
-      </div>` : '';
-    const leafRetryHtml = !isSingle ? `<div class="fi"><label style="display:flex;align-items:center;gap:8px">
-      <div class="tog${tgt.retry_enabled?' on':''}" id="t${tgt.id}-rt" onclick="togTRetry(${tgt.id})"></div>
-      ${i('t_retry')}</label>
-    ${tgt.retry_enabled?`
-    <div class="r2" style="margin-top:6px">
-      <div><label>${i('t_retry_a')}</label>
-        <input type="number" value="${tgt.retry_attempts}" min="1"
-          oninput="setTgtField(${tgt.id},'retry_attempts',this.value)"></div>
-      <div><label>${i('t_retry_c')}</label>
-        <div class="tags" id="t${tgt.id}-retry_on_status_codes-tags">${tgt.retry_on_status_codes.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'retry_on_status_codes','${v}')">×</button></span>`).join('')}</div>
-        <div class="trow"><input id="t${tgt.id}-retry_on_status_codes-in" type="number" placeholder="500" onkeydown="ttEnter(event,${tgt.id},'retry_on_status_codes')">
-        <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'retry_on_status_codes')">+</button></div></div>
-    </div>`:''}
-  </div>` : '';
-    return `
-    <div class="tcard${depth?' nested':''}" id="tc-${tgt.id}">
-      <div class="thd">
-        <div style="display:flex;align-items:center;gap:6px">
-          <button class="ic" style="color:var(--mu);font-size:12px" onclick="toggleTgtCollapsed(${tgt.id})">${tgt.collapsed?'▶':'▼'}</button>
-          <span class="tnum">${esc(num)}</span>
-          ${lbl?`<span class="depth-badge">${esc(lbl)}</span>`:''}
-          <span class="depth-badge">${esc(tgt.name||'Unnamed target')}${isStrategy?' · group':''}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:4px">
-          <button class="btn bg2 sm" onclick="moveTgt(${tgt.id},${parentId||'null'},-1)" ${idx===0?'disabled style="opacity:.35;cursor:not-allowed"':''}>↑</button>
-          <button class="btn bg2 sm" onclick="moveTgt(${tgt.id},${parentId||'null'},1)" ${idx===list.length-1?'disabled style="opacity:.35;cursor:not-allowed"':''}>↓</button>
-          <button class="btn bg2 sm" onclick="dupTgt(${tgt.id},${parentId||'null'})">Duplicate</button>
-          ${list.length>1?`<button class="btn br sm" onclick="rmTgt(${tgt.id},${parentId||'null'})">${i('btn_del')}</button>`:''}
-        </div>
-      </div>
-      <div class="tbdy" style="${tgt.collapsed?'display:none':''}">
-        ${canNest?`<div class="node-type">
-          <button class="btn sm${!isStrategy?' on':''}" onclick="setTgtType(${tgt.id},'leaf')">Single Target</button>
-          <button class="btn sm${isStrategy?' on':''}" onclick="setTgtType(${tgt.id},'strategy')">Strategy Group</button>
-        </div>`:''}
-        <div class="fi"><label>${i('t_name')}<span class="req">*</span></label>
-          <input type="text" placeholder="target-title" value="${esc(tgt.name)}"
-            oninput="setTgtField(${tgt.id},'name',this.value);this.style.borderColor=this.value?'':'var(--req-bd)'"
-            style="${!tgt.name?'border-color:var(--req-bd)':''}">
-          <div class="hint">${i('t_name_h')}</div></div>
-        <div class="${isStrategy?'':'r2'}">
-          ${isStrategy?`<div class="fi"><label>Child Strategy<span class="req">*</span></label>
-            <select onchange="setChildMode(${tgt.id},this.value)">
-              <option value="fallback"${tgt.child_mode==='fallback'?' selected':''}>fallback</option>
-              <option value="loadbalance"${tgt.child_mode==='loadbalance'?' selected':''}>loadbalance</option>
-              <option value="conditional"${tgt.child_mode==='conditional'?' selected':''}>conditional</option>
-            </select></div>`:`<div class="fi"><label>${i('t_prov')}<span class="req">*</span></label>
-            <input type="text" placeholder="@my-virtual-key" value="${esc(tgt.provider)}"
-              oninput="setTgtField(${tgt.id},'provider',this.value);this.style.borderColor=this.value?'':'var(--req-bd)'"
-              style="${!tgt.provider?'border-color:var(--req-bd)':''}">
-            <div class="hint">${i('t_prov_h')}</div></div>`}
-          ${!isSingle&&!isStrategy?`<div class="fi"><label>${i('t_timeout')}</label>
-            <input type="number" placeholder="10000" value="${tgt.request_timeout}"
-              oninput="setTgtField(${tgt.id},'request_timeout',this.value)"></div>`:''}
-        </div>
-        ${isLB?`
-        <div class="fi"><label>${i('t_weight')}<span class="req">*</span></label>
-          <input type="number" placeholder="1" min="0" step="0.1" value="${tgt.weight!==''?tgt.weight:1}"
-            oninput="setTgtField(${tgt.id},'weight',this.value)">
-          <div class="hint">${i('t_weight_h')}</div></div>`:''}
-        ${isFB?`
-        <div class="fi"><label>${i('t_fb_codes')} <span class="hint" style="display:inline">${i('t_fb_codes_h')}</span></label>
-          <div class="tags" id="t${tgt.id}-on_status_codes-tags">${tgt.on_status_codes.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'on_status_codes','${v}')">×</button></span>`).join('')}</div>
-          <div class="trow"><input id="t${tgt.id}-on_status_codes-in" type="number" placeholder="500" onkeydown="ttEnter(event,${tgt.id},'on_status_codes')">
-          <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'on_status_codes')">+</button></div></div>`:''}
-        ${!isStrategy?renderPSection(tgt.id,'ovr_params',tgt,i('t_ovr'),i('t_ovr_h')):''}
-        ${!isStrategy?renderPSection(tgt.id,'def_params',tgt,i('t_def'),i('t_def_h')):''}
-        ${!isStrategy?`<div class="fi"><label>${i('t_drop')} <span class="hint" style="display:inline">${i('t_drop_h')}</span></label>
-          <div class="tags" id="t${tgt.id}-drop_params-tags">${tgt.drop_params.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'drop_params','${v}')">×</button></span>`).join('')}</div>
-          <div class="trow"><input id="t${tgt.id}-drop_params-in" type="text" placeholder="tools[*].function.strict" onkeydown="ttEnter(event,${tgt.id},'drop_params')">
-          <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'drop_params')">+</button></div></div>`:''}
-        ${isStrategy?strategyHtml:leafRetryHtml}
-      </div>
-    </div>`;
-  }).join('');
-}
+function togTRetry(tid){ const tgt=tgts.find(t=>t.id===tid); if (!tgt) return; tgt.retry_enabled=!tgt.retry_enabled; renderTargets(); upd(); }
 
 function renderTargets(){
   const mode = document.getElementById('strat-mode').value;
+  const isLB = mode==='loadbalance', isFB = mode==='fallback', isCond = mode==='conditional';
   const isSingle = mode==='single';
   const isNone = mode==='none';
 
@@ -1271,7 +957,68 @@ function renderTargets(){
   if (addBtn) addBtn.style.display = isSingle ? 'none' : '';
 
   const el = document.getElementById('tgt-list');
-  el.innerHTML = isSingle ? renderTargetList(tgts, 'single', null, 0, []) : renderTargetList(tgts, mode, null, 0, []);
+
+  el.innerHTML = tgts.map((tgt,idx) => {
+    const lbl = isFB ? (idx===0?i('lbl_primary'):`${i('lbl_fallback')} ${idx}`) :
+                isCond ? (tgt.name||`${i('lbl_target')} ${idx+1}`) :
+                isLB ? `${i('lbl_target')} ${idx+1}` : '';
+    return `
+    <div class="tcard" id="tc-${tgt.id}">
+      <div class="thd">
+        ${lbl?`<span class="tnum">${esc(lbl)}</span>`:''}
+        ${tgts.length>1?`<button class="btn br sm" onclick="rmTgt(${tgt.id})">${i('btn_del')}</button>`:''}
+      </div>
+      <div class="tbdy">
+        ${isCond?`
+        <div class="fi"><label>${i('t_name')}<span class="req">*</span></label>
+          <input type="text" placeholder="target-title" value="${esc(tgt.name)}"
+            oninput="tgts.find(x=>x.id==${tgt.id}).name=this.value;var l=document.querySelector('#tc-${tgt.id} .tnum');if(l)l.textContent=this.value||'${i('lbl_target')} ${idx+1}';this.style.borderColor=this.value?'':'var(--req-bd)';upd()"
+            style="${!tgt.name?'border-color:var(--req-bd)':''}">
+          <div class="hint">${i('t_name_h')}</div></div>`:``}
+        <div class="${isSingle?'':'r2'}">
+          <div class="fi"><label>${i('t_prov')}<span class="req">*</span></label>
+            <input type="text" placeholder="@my-virtual-key" value="${esc(tgt.provider)}"
+              oninput="tgts.find(x=>x.id==${tgt.id}).provider=this.value;this.style.borderColor=this.value?'':'var(--req-bd)';upd()"
+              style="${!tgt.provider?'border-color:var(--req-bd)':''}">
+            <div class="hint">${i('t_prov_h')}</div></div>
+          ${!isSingle?`<div class="fi"><label>${i('t_timeout')}</label>
+            <input type="number" placeholder="10000" value="${tgt.request_timeout}"
+              oninput="tgts.find(x=>x.id==${tgt.id}).request_timeout=this.value;upd()"></div>`:''}
+        </div>
+        ${isLB?`
+        <div class="fi"><label>${i('t_weight')}<span class="req">*</span></label>
+          <input type="number" placeholder="1" min="0" step="0.1" value="${tgt.weight!==''?tgt.weight:1}"
+            oninput="tgts.find(x=>x.id==${tgt.id}).weight=this.value;upd()">
+          <div class="hint">${i('t_weight_h')}</div></div>`:''}
+        ${isFB?`
+        <div class="fi"><label>${i('t_fb_codes')} <span class="hint" style="display:inline">${i('t_fb_codes_h')}</span></label>
+          <div class="tags" id="t${tgt.id}-on_status_codes-tags">${tgt.on_status_codes.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'on_status_codes','${v}')">×</button></span>`).join('')}</div>
+          <div class="trow"><input id="t${tgt.id}-on_status_codes-in" type="number" placeholder="500" onkeydown="ttEnter(event,${tgt.id},'on_status_codes')">
+          <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'on_status_codes')">+</button></div></div>`:''}
+        ${renderPSection(tgt.id,'ovr_params',tgt,i('t_ovr'),i('t_ovr_h'))}
+        ${renderPSection(tgt.id,'def_params',tgt,i('t_def'),i('t_def_h'))}
+        <div class="fi"><label>${i('t_drop')} <span class="hint" style="display:inline">${i('t_drop_h')}</span></label>
+          <div class="tags" id="t${tgt.id}-drop_params-tags">${tgt.drop_params.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'drop_params','${v}')">×</button></span>`).join('')}</div>
+          <div class="trow"><input id="t${tgt.id}-drop_params-in" type="text" placeholder="tools[*].function.strict" onkeydown="ttEnter(event,${tgt.id},'drop_params')">
+          <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'drop_params')">+</button></div></div>
+        ${!isSingle?`<div class="fi"><label style="display:flex;align-items:center;gap:8px">
+            <div class="tog${tgt.retry_enabled?' on':''}" id="t${tgt.id}-rt" onclick="togTRetry(${tgt.id})"></div>
+            ${i('t_retry')}</label>
+          ${tgt.retry_enabled?`
+          <div class="r2" style="margin-top:6px">
+            <div><label>${i('t_retry_a')}</label>
+              <input type="number" value="${tgt.retry_attempts}" min="1"
+                oninput="tgts.find(x=>x.id==${tgt.id}).retry_attempts=this.value;upd()"></div>
+            <div><label>${i('t_retry_c')}</label>
+              <div class="tags" id="t${tgt.id}-retry_on_status_codes-tags">${tgt.retry_on_status_codes.map(v=>`<span class="tag">${esc(v)}<button onclick="rmTTag(${tgt.id},'retry_on_status_codes','${v}')">×</button></span>`).join('')}</div>
+              <div class="trow"><input id="t${tgt.id}-retry_on_status_codes-in" type="number" placeholder="500" onkeydown="ttEnter(event,${tgt.id},'retry_on_status_codes')">
+              <button class="btn bg2 sm" onclick="addTTag(${tgt.id},'retry_on_status_codes')">+</button></div></div>
+          </div>`:''}
+        </div>`:''}
+
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ════════════════════════════════════
@@ -1280,50 +1027,6 @@ function renderTargets(){
 function pv(v){
   if(v==='true')return true; if(v==='false')return false;
   if(v!==''&&!isNaN(v))return Number(v); return v;
-}
-
-function serializeConditions(list){
-  return (list||[]).filter(c=>c.then).map(c=>{
-    let query;
-    if (c.logic==='$and'||c.logic==='$or'){
-      const subs=(c.subconds||[]).filter(s=>s.field).map(s=>({[s.field]:{[s.op]:parseCondVal(s.op,s.value)}}));
-      query=subs.length?{[c.logic]:subs}:{};
-    } else {
-      query=c.field?{[c.field]:{[c.op]:parseCondVal(c.op,c.value)}}:{};
-    }
-    return {query,then:c.then};
-  });
-}
-function buildStrategySpec(mode, condList, defTarget, fallbackCodes){
-  const s = { mode };
-  if (mode === 'fallback' && fallbackCodes && fallbackCodes.length) s.on_status_codes = fallbackCodes.map(Number);
-  if (mode === 'conditional') {
-    const condArr = serializeConditions(condList);
-    if (condArr.length) s.conditions = condArr;
-    if (defTarget) s.default = defTarget;
-  }
-  return s;
-}
-function buildTargetCfg(tgt,parentMode){
-  const o = {};
-  const skipAdvanced = tgt.node_type === 'strategy';
-  if (tgt.name) o.name = tgt.name;
-  if (parentMode==='loadbalance'&&tgt.weight!==''&&tgt.weight!==null) o.weight=Number(tgt.weight);
-  if (!skipAdvanced && tgt.request_timeout) o.request_timeout=Number(tgt.request_timeout);
-  if (parentMode==='fallback'&&tgt.on_status_codes.length) o.on_status_codes=tgt.on_status_codes.map(Number);
-  if (!skipAdvanced) {
-    const ov=serPS(tgt.ovr_params); if(Object.keys(ov).length) o.override_params=ov;
-    const df=serPS(tgt.def_params); if(Object.keys(df).length) o.default_params=df;
-    if (tgt.drop_params.length) o.drop_params=tgt.drop_params;
-  }
-  if (tgt.node_type === 'strategy') {
-    o.strategy = buildStrategySpec(tgt.child_mode, tgt.child_conds||[], tgt.child_default||'', tgt.child_on_status_codes||[]);
-    o.targets = (tgt.child_targets||[]).map(child=>buildTargetCfg(child,tgt.child_mode));
-  } else {
-    if (tgt.provider) o.provider = tgt.provider;
-    if (tgt.retry_enabled){ o.retry={attempts:Number(tgt.retry_attempts)}; if(tgt.retry_on_status_codes.length)o.retry.on_status_codes=tgt.retry_on_status_codes.map(Number); }
-  }
-  return o;
 }
 
 function buildCfg(){
@@ -1374,8 +1077,26 @@ function buildCfg(){
 
   // strategy
   if (mode !== 'single' && mode !== 'none') {
-    const condDef = document.getElementById('cond-default').value.trim();
-    out.strategy = buildStrategySpec(mode, conds, condDef, getTag('fb'));
+    out.strategy = { mode };
+    if (mode === 'fallback') {
+      const sc = getTag('fb').map(Number);
+      if (sc.length) out.strategy.on_status_codes = sc;
+    }
+    if (mode === 'conditional') {
+      const condDef = document.getElementById('cond-default').value.trim();
+      const condArr = conds.filter(c=>c.then).map(c=>{
+        let query;
+        if (c.logic==='$and'||c.logic==='$or'){
+          const subs=(c.subconds||[]).filter(s=>s.field).map(s=>({[s.field]:{[s.op]:parseCondVal(s.op,s.value)}}));
+          query=subs.length?{[c.logic]:subs}:{};
+        } else {
+          query=c.field?{[c.field]:{[c.op]:parseCondVal(c.op,c.value)}}:{};
+        }
+        return {query,then:c.then};
+      });
+      if (condArr.length) out.strategy.conditions = condArr;
+      if (condDef) out.strategy.default = condDef;
+    }
   }
 
   // targets / single root fields
@@ -1384,16 +1105,27 @@ function buildCfg(){
   } else if (mode === 'single') {
     const tgt = tgts[0];
     if (tgt) {
-      if (tgt.name) out.name = tgt.name;
       if (tgt.provider) out.provider = tgt.provider;
       const ov = serPS(tgt.ovr_params); if (Object.keys(ov).length) out.override_params = ov;
       const df = serPS(tgt.def_params); if (Object.keys(df).length) out.default_params = df;
       if (tgt.drop_params.length) out.drop_params = tgt.drop_params;
     }
   } else {
-    const hasContent = tgts.some(t=>t.provider||t.name||t.node_type==='strategy'||Object.keys(t.ovr_params).length||Object.keys(t.def_params).length);
+    const hasContent = tgts.some(t=>t.provider||t.name||Object.keys(t.ovr_params).length||Object.keys(t.def_params).length);
     if (hasContent || tgts.length>1){
-      out.targets = tgts.map(tgt=>buildTargetCfg(tgt,mode));
+      out.targets = tgts.map(tgt=>{
+        const o = {};
+        if (tgt.name) o.name = tgt.name;
+        if (tgt.provider) o.provider = tgt.provider;
+        if (mode==='loadbalance'&&tgt.weight!==''&&tgt.weight!==null) o.weight=Number(tgt.weight);
+        if (tgt.request_timeout) o.request_timeout=Number(tgt.request_timeout);
+        if (mode==='fallback'&&tgt.on_status_codes.length) o.on_status_codes=tgt.on_status_codes.map(Number);
+        const ov=serPS(tgt.ovr_params); if(Object.keys(ov).length) o.override_params=ov;
+        const df=serPS(tgt.def_params); if(Object.keys(df).length) o.default_params=df;
+        if (tgt.drop_params.length) o.drop_params=tgt.drop_params;
+        if (tgt.retry_enabled){ o.retry={attempts:Number(tgt.retry_attempts)}; if(tgt.retry_on_status_codes.length)o.retry.on_status_codes=tgt.retry_on_status_codes.map(Number); }
+        return o;
+      });
     }
   }
   return stripEmpty(out);
@@ -1446,201 +1178,56 @@ function serPS(params){
    JSON HIGHLIGHT
 ════════════════════════════════════ */
 function hl(obj){
-  return highlightJSON(JSON.stringify(obj,null,2));
-}
-function highlightJSON(text){
-  const tokens = /"(?:\\.|[^"\\])*"(?:[ \t]*:)?|\b(?:true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-  let html = '', offset = 0;
-  for (const match of text.matchAll(tokens)) {
-    const token = match[0];
-    const type = token.startsWith('"') ? (token.endsWith(':')?'jk':'js') : token==='null'?'jnull':/^(true|false)$/.test(token)?'jb':'jn';
-    html += esc(text.slice(offset,match.index)) + `<span class="${type}">${esc(token)}</span>`;
-    offset = match.index + token.length;
-  }
-  return html + esc(text.slice(offset));
-}
-function updateJSONLines(text){
-  const count = text.split('\n').length;
-  document.getElementById('json-lines').textContent = Array.from({length:count},(_,idx)=>idx+1).join('\n');
-  document.getElementById('json-count').textContent = `${count} ${lang==='zh'?'行':'lines'}`;
-}
-function syncJSONScroll(source){
-  document.getElementById('json-lines').scrollTop = source.scrollTop;
-  if (source.id === 'json-editor') {
-    const highlight = document.getElementById('json-highlight');
-    highlight.scrollTop = source.scrollTop;
-    highlight.scrollLeft = source.scrollLeft;
-  }
-}
-function renderJSONEditor(){
-  const editor = document.getElementById('json-editor');
-  document.getElementById('json-highlight').innerHTML = highlightJSON(editor.value) + '\n ';
-  updateJSONLines(editor.value);
-  syncJSONScroll(editor);
+  const j = JSON.stringify(obj,null,2);
+  return j.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m=>{
+    if(/^"/.test(m)) return/:$/.test(m)?`<span class="jk">${m}</span>`:`<span class="js">${m}</span>`;
+    if(/true|false/.test(m)) return `<span class="jb">${m}</span>`;
+    if(/null/.test(m)) return `<span class="jnull">${m}</span>`;
+    return `<span class="jn">${m}</span>`;
+  });
 }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-let jsonEditing = false;
-let jsonApplying = false;
-let jsonEditWasDirty = false;
-
-function toggleJSONEdit(enabled){
-  const editor = document.getElementById('json-editor');
-  const toggle = document.getElementById('json-edit-toggle');
-  if (!enabled && jsonEditing && editor.value !== JSON.stringify(buildCfg(),null,2) &&
-      !confirm(lang==='zh'?'放弃未应用的 JSON 修改？':'Discard unapplied JSON changes?')) {
-    toggle.checked = true;
-    return;
-  }
-  if (enabled) {
-    jsonEditWasDirty = dirty;
-    editor.value = JSON.stringify(buildCfg(),null,2);
-  } else if (jsonEditing) dirty = jsonEditWasDirty;
-  setJSONEditMode(enabled);
-  document.getElementById('json-status').textContent = enabled
-    ? (lang==='zh'?'JSON 编辑中，左侧已锁定。':'Editing JSON; form locked.') : '';
-  if (enabled) editor.focus();
-}
-
-function setJSONEditMode(enabled){
-  jsonEditing = enabled;
-  document.querySelector('.fp').inert = enabled;
-  document.getElementById('json-edit-toggle').checked = enabled;
-  document.getElementById('jo').hidden = enabled;
-  for (const id of ['json-editor','json-highlight','json-apply','json-cancel']) document.getElementById(id).hidden = !enabled;
-  if (enabled) renderJSONEditor();
-  else {
-    updateJSONLines(JSON.stringify(buildCfg(),null,2));
-    syncJSONScroll(document.getElementById('jo'));
-  }
-  document.querySelectorAll('header button, #preset-sel, #imp-file, .jtb button[data-i="copy_s"]').forEach(el=>el.disabled=enabled);
-}
-
-function jsonDifference(a,b,path='$'){
-  if (a === b) return '';
-  if (!a || !b || typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a)!==Array.isArray(b)) return path;
-  for (const key of new Set([...Object.keys(a),...Object.keys(b)])) {
-    if (!Object.hasOwn(a,key) || !Object.hasOwn(b,key)) return `${path}.${key}`;
-    const diff = jsonDifference(a[key],b[key],`${path}.${key}`);
-    if (diff) return diff;
-  }
-  return '';
-}
-
-function applyJSONEdit(){
-  if (!jsonEditing) return;
-  const status = document.getElementById('json-status');
-  let cfg;
-  try {
-    cfg = JSON.parse(document.getElementById('json-editor').value);
-    if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) throw new Error('Config must be a JSON object.');
-  } catch (error) { status.textContent = error.message; return; }
-  // Preserve live form values and state so rejected imports are atomic.
-  const form = document.querySelector('.fp');
-  const savedForm = form.cloneNode(true);
-  const controls = form.querySelectorAll('input,select,textarea');
-  savedForm.querySelectorAll('input,select,textarea').forEach((el,idx)=>{
-    el.value = controls[idx].value;
-    if ('checked' in el) el.checked = controls[idx].checked;
-  });
-  const saved = structuredClone({tgts,conds,tagSt,feat,grs,nid,dirty});
-  jsonApplying = true;
-  try {
-    document.getElementById('retry-after').value = 'false';
-    importCfg(cfg);
-    const diff = jsonDifference(cfg,buildCfg());
-    if (diff) throw new Error((lang==='zh'?'UI 无法原样保留该配置，请检查：':'UI cannot preserve this configuration: ')+diff);
-    const warnings = validateCfg();
-    setJSONEditMode(false);
-    jsonApplying = false;
-    upd();
-    status.textContent = warnings.length ? warnings.join('\n') : (lang==='zh'?'已应用，UI 和 Flow 已更新。':'Applied; UI and Flow updated.');
-  } catch (error) {
-    form.replaceWith(savedForm);
-    tgts = saved.tgts;
-    conds.splice(0,conds.length,...saved.conds);
-    for (const [dest,src] of [[tagSt,saved.tagSt],[feat,saved.feat],[grs,saved.grs]]) {
-      Object.keys(dest).forEach(key=>delete dest[key]);
-      Object.assign(dest,src);
-    }
-    nid = saved.nid;
-    dirty = saved.dirty;
-    jsonApplying = false;
-    status.textContent = error.message;
-  }
-}
-
 function upd(){
-  if (jsonEditing || jsonApplying) return;
   dirty = true;
   const cfg = buildCfg();
   document.getElementById('jo').innerHTML = hl(cfg);
-  updateJSONLines(JSON.stringify(cfg,null,2));
-  syncJSONScroll(document.getElementById('jo'));
   renderDiag(cfg);
-  renderConfigTree(cfg);
 }
 
 function validateCfg(){
   const mode = document.getElementById('strat-mode').value;
   const warns = [];
-  const nameMap = new Map();
-  const noteName = (name,path) => {
-    const k = String(name||'').trim();
-    if (!k) return;
-    if (!nameMap.has(k)) nameMap.set(k, []);
-    nameMap.get(k).push(path);
-  };
-  const warnDuplicateNames = () => {
-    for (const [name, paths] of nameMap.entries()){
-      if (paths.length > 1) warns.push(`Target name "${name}" is duplicated at ${paths.join(', ')}`);
-    }
-  };
-  const validateConditionSet = (label, mode2, list, condList, defTarget) => {
-    if (mode2 !== 'conditional') return;
-    const names = list.map(t=>t.name).filter(Boolean);
-    const nameSet = new Set(names);
-    if (!condList.length) warns.push(`${label}: At least one condition is required`);
-    if (!defTarget) warns.push(`${label}: Default target is required`);
-    else if (!nameSet.has(defTarget)) warns.push(`${label}: Default target must match an existing target name`);
-    condList.forEach((c,idx)=>{
-      const n = `${label} condition ${idx+1}`;
-      if (c.logic==='$and'||c.logic==='$or'){
-        if (!(c.subconds||[]).some(s=>s.field)) warns.push(`${n}: At least one sub-condition with a field is required`);
-      } else {
-        if (!c.field) warns.push(`${n}: Field path is required`);
-        if (!c.value) warns.push(`${n}: Value is required`);
-      }
-      if (!c.then) warns.push(`${n}: Target (then) is required`);
-      else if (!nameSet.has(c.then)) warns.push(`${n}: Target (then) must match an existing target name`);
-    });
-  };
-  const validateTargets = (list, parentMode, label, path=[]) => {
-    list.forEach((t,idx)=>{
-      const n = `${label} target ${idx+1}`;
-      const p = [...path, idx+1].join('.');
-      noteName(t.name, p);
-      if (!t.name) warns.push(`${n}: Name is required`);
-      if (t.node_type === 'strategy') {
-        if (!Array.isArray(t.child_targets) || !t.child_targets.length) warns.push(`${n}: Child strategy needs at least one target`);
-        validateConditionSet(n, t.child_mode, t.child_targets||[], t.child_conds||[], t.child_default||'');
-        validateTargets(t.child_targets||[], t.child_mode, n, [...path, idx+1]);
-      } else if (!t.provider) {
-        warns.push(`${n}: Single target provider is required`);
-      }
-    });
-  };
   if (mode === 'none'){
     // no required fields
   } else if (mode === 'single'){
-    noteName(tgts[0]?.name, '1');
-    if (!tgts[0]?.name) warns.push('Target 1: Name is required');
-    if (!tgts[0]?.provider) warns.push('Single target provider is required');
+    if (!tgts[0]?.provider) warns.push('Provider is required');
   } else {
-    validateConditionSet('Conditional strategy', mode, tgts, conds, (document.getElementById('cond-default')?.value || '').trim());
-    validateTargets(tgts, mode, 'Root');
+    tgts.forEach((t,idx)=>{
+      const n = idx+1;
+      if (!t.provider) warns.push(`Target ${n}: Provider is required`);
+      if (mode === 'conditional' && !t.name) warns.push(`Target ${n}: Name is required (used in conditions)`);
+    });
+    if (mode === 'conditional'){
+      const targetNames = tgts.map(t=>t.name).filter(Boolean);
+      const targetNameSet = new Set(targetNames);
+      const condDefault = (document.getElementById('cond-default')?.value || '').trim();
+      if (!conds.length) warns.push('Conditional strategy: At least one condition is required');
+      if (!condDefault) warns.push('Conditional strategy: Default target is required');
+      else if (!targetNameSet.has(condDefault)) warns.push('Conditional strategy: Default target must match an existing target name');
+      conds.forEach((c,idx)=>{
+        const n = idx+1;
+        if (c.logic==='$and'||c.logic==='$or'){
+          if (!(c.subconds||[]).some(s=>s.field)) warns.push(`Condition ${n}: At least one sub-condition with a field is required`);
+        } else {
+          if (!c.field) warns.push(`Condition ${n}: Field path is required`);
+          if (!c.value) warns.push(`Condition ${n}: Value is required`);
+        }
+        if (!c.then) warns.push(`Condition ${n}: Target (then) is required`);
+        else if (!targetNameSet.has(c.then)) warns.push(`Condition ${n}: Target (then) must match an existing target name`);
+      });
+    }
   }
-  warnDuplicateNames();
   return warns;
 }
 
@@ -1656,51 +1243,6 @@ function copyJSON(){
 /* ════════════════════════════════════
    IMPORT / EXPORT
 ════════════════════════════════════ */
-function readPresets(){
-  const ids = new Set();
-  return Array.from(document.querySelectorAll('script[data-preset-id]'), block => {
-    const id = block.dataset.presetId.trim();
-    const name = (block.dataset.presetName || '').trim();
-    if (!id || !name || ids.has(id)) throw new Error('Missing preset name or duplicate preset ID: ' + id);
-    ids.add(id);
-    return {id, name, encoded:block.textContent.trim()};
-  });
-}
-
-function decodePreset(encoded){
-  const bytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
-  const config = JSON.parse(new TextDecoder('utf-8', {fatal:true}).decode(bytes));
-  if (!config || typeof config !== 'object' || Array.isArray(config)) {
-    throw new Error('Invalid preset data');
-  }
-  return config;
-}
-
-function initPresets(){
-  const select = document.getElementById('preset-sel');
-  try {
-    readPresets().forEach(p => select.add(new Option(p.name, p.id)));
-  } catch (err) {
-    select.disabled = true;
-    select.title = 'Unable to load presets: ' + err.message;
-  }
-}
-
-function loadPreset(id){
-  if (!id) return;
-  try {
-    const preset = readPresets().find(p => p.id === id);
-    if (!preset) throw new Error('Preset not found');
-    const config = decodePreset(preset.encoded);
-    if (dirty && !confirm(lang === 'zh' ? '加载 Preset 将替换当前未保存的配置，继续？' : 'Replace the current unsaved configuration with this preset?')) return;
-    importCfg(config);
-  } catch (err) {
-    alert('Unable to load preset: ' + err.message);
-  } finally {
-    document.getElementById('preset-sel').value = '';
-  }
-}
-
 function trigImport(){ document.getElementById('imp-file').click(); }
 
 async function exportFile(){
@@ -1776,74 +1318,11 @@ function deserPS(params){
   return st;
 }
 
-function splitProviderModel(model){
-  if (typeof model !== 'string') return null;
-  const m = model.match(/^@([^/]+)\/(.+)$/);
-  if (!m || !m[1] || !m[2]) return null;
-  return { provider: `@${m[1]}`, model: m[2] };
-}
-
 function setFeat(f, on){
   feat[f] = on;
   document.getElementById('tog-'+f).classList.toggle('on', on);
   const sub = document.getElementById('s-'+f);
   if (on) sub.classList.remove('cl'); else sub.classList.add('cl');
-}
-
-function parseConditionList(src){
-  const out = [];
-  for (const c of (src||[])){
-    const q = c.query||{};
-    const firstKey = Object.keys(q)[0]||'';
-    if (firstKey==='$and'||firstKey==='$or'){
-      const subconds=(q[firstKey]||[]).map(sub=>{
-        const f=Object.keys(sub)[0]||'';
-        const opObj=f?(sub[f]||{}):{};
-        const op=Object.keys(opObj)[0]||'$eq';
-        const raw=f?opObj[op]:'';
-        return {field:f, op, value:Array.isArray(raw)?raw.join(','):String(raw??'')};
-      });
-      out.push({logic:firstKey, field:'', op:'$eq', value:'', then:c.then||'', subconds});
-    } else {
-      const opObj=firstKey?(q[firstKey]||{}):{};
-      const op=Object.keys(opObj)[0]||'$eq';
-      const raw=firstKey?opObj[op]:'';
-      const value=Array.isArray(raw)?raw.join(','):String(raw??'');
-      out.push({logic:'', field:firstKey, op, value, then:c.then||'', subconds:[]});
-    }
-  }
-  return out;
-}
-
-function cfgTargetToState(src){
-  const t = mkTgt();
-  t.name = src.name||'';
-  t.provider = src.provider||src.virtual_key||'';
-  t.weight = src.weight !== undefined ? src.weight : 1;
-  t.request_timeout = src.request_timeout !== undefined ? src.request_timeout : '';
-  t.on_status_codes = Array.isArray(src.on_status_codes) ? [...src.on_status_codes] : [];
-  t.ovr_params = deserPS(src.override_params||{});
-  const providerModel = splitProviderModel(t.ovr_params.model);
-  if (providerModel) {
-    t.provider = providerModel.provider;
-    t.ovr_params.model = providerModel.model;
-  }
-  t.def_params = deserPS(src.default_params||{});
-  t.drop_params = Array.isArray(src.drop_params) ? [...src.drop_params] : [];
-  t.retry_enabled = !!(src.retry&&src.retry.attempts);
-  t.retry_attempts = (src.retry&&src.retry.attempts)||1;
-  t.retry_on_status_codes = (src.retry&&src.retry.on_status_codes)||[];
-  if (src.strategy && Array.isArray(src.targets)){
-    t.node_type = 'strategy';
-    t.provider = '';
-    t.child_mode = src.strategy.mode||'fallback';
-    t.child_on_status_codes = Array.isArray(src.strategy.on_status_codes) ? src.strategy.on_status_codes.map(String) : [];
-    t.child_conds = parseConditionList(src.strategy.conditions||[]);
-    t.child_default = src.strategy.default||'';
-    t.child_targets = src.targets.map(cfgTargetToState);
-    if (!t.child_targets.length) t.child_targets.push(mkTgt());
-  }
-  return t;
 }
 
 function importCfg(cfg){
@@ -1911,7 +1390,26 @@ function importCfg(cfg){
   /* conditions */
   conds.length = 0;
   if (smode === 'conditional' && Array.isArray(strat.conditions)){
-    conds.push(...parseConditionList(strat.conditions));
+    for (const c of strat.conditions){
+      const q = c.query||{};
+      const firstKey = Object.keys(q)[0]||'';
+      if (firstKey==='$and'||firstKey==='$or'){
+        const subconds=(q[firstKey]||[]).map(sub=>{
+          const f=Object.keys(sub)[0]||'';
+          const opObj=f?(sub[f]||{}):{};
+          const op=Object.keys(opObj)[0]||'$eq';
+          const raw=f?opObj[op]:'';
+          return {field:f, op, value:Array.isArray(raw)?raw.join(','):String(raw??'')};
+        });
+        conds.push({logic:firstKey, field:'', op:'$eq', value:'', then:c.then||'', subconds});
+      } else {
+        const opObj=firstKey?(q[firstKey]||{}):{};
+        const op=Object.keys(opObj)[0]||'$eq';
+        const raw=firstKey?opObj[op]:'';
+        const value=Array.isArray(raw)?raw.join(','):String(raw??'');
+        conds.push({logic:'', field:firstKey, op, value, then:c.then||'', subconds:[]});
+      }
+    }
   }
   const condDef = document.getElementById('cond-default');
   if (condDef) condDef.value = strat.default||'';
@@ -1921,11 +1419,36 @@ function importCfg(cfg){
   tgts.length = 0;
   if (smode === 'single'){
     /* root-level fields → single target */
-    tgts.push(cfgTargetToState(cfg));
+    tgts.push({
+      id: nid++, name: '',
+      provider: cfg.provider||cfg.virtual_key||'',
+      weight: 1,
+      request_timeout: cfg.request_timeout !== undefined ? cfg.request_timeout : '',
+      on_status_codes: [],
+      ovr_params: deserPS(cfg.override_params||{}), ovr_open: false,
+      def_params: deserPS(cfg.default_params||{}), def_open: false,
+      drop_params: Array.isArray(cfg.drop_params) ? [...cfg.drop_params] : [],
+      retry_enabled: !!(cfg.retry&&cfg.retry.attempts),
+      retry_attempts: (cfg.retry&&cfg.retry.attempts)||1,
+      retry_on_status_codes: (cfg.retry&&cfg.retry.on_status_codes)||[],
+    });
   } else {
     const srcts = Array.isArray(cfg.targets) ? cfg.targets : [];
     for (const t of srcts){
-      tgts.push(cfgTargetToState(t));
+      tgts.push({
+        id: nid++,
+        name: t.name||'',
+        provider: t.provider||t.virtual_key||'',
+        weight: t.weight !== undefined ? t.weight : 1,
+        request_timeout: t.request_timeout !== undefined ? t.request_timeout : '',
+        on_status_codes: Array.isArray(t.on_status_codes) ? [...t.on_status_codes] : [],
+        ovr_params: deserPS(t.override_params||{}), ovr_open: false,
+        def_params: deserPS(t.default_params||{}), def_open: false,
+        drop_params: Array.isArray(t.drop_params) ? [...t.drop_params] : [],
+        retry_enabled: !!(t.retry&&t.retry.attempts),
+        retry_attempts: (t.retry&&t.retry.attempts)||1,
+        retry_on_status_codes: (t.retry&&t.retry.on_status_codes)||[],
+      });
     }
   }
   if (tgts.length === 0) tgts.push(mkTgt());
@@ -1943,135 +1466,9 @@ function resetAll(){
    TABS
 ════════════════════════════════════ */
 function switchTab(n){
-  const index = ['j','d','t'].indexOf(n);
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',i===index));
-  document.querySelectorAll('.tc').forEach((el,i)=>el.classList.toggle('on',i===index));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',i===(n==='j'?0:1)));
+  document.querySelectorAll('.tc').forEach((el,i)=>el.classList.toggle('on',i===(n==='j'?0:1)));
   if (n==='d') renderDiag(buildCfg());
-  if (n==='t') renderConfigTree(buildCfg());
-}
-
-function expandConfigTree(open){
-  document.querySelectorAll('#config-tree details').forEach(node=>node.open=open);
-}
-
-function renderConfigTree(cfg){
-  const container = document.getElementById('config-tree');
-  const closed = new Set([...container.querySelectorAll('details:not([open])')].map(node=>node.dataset.path));
-  const meta = (label,value)=>value===undefined||value===''?'':`<span class="tree-meta">${esc(label)}:${esc(String(value))}</span>`;
-  function branch(node,path,parentMode,root=false){
-    const children = root && !node.strategy && node.provider ? [node] : (node.targets||[]);
-    const group = root || !!node.strategy;
-    const mode = node.strategy?.mode || (root ? (node.provider?'single':'none') : '');
-    const name = root?'config':(node.name||'Unnamed target');
-    const number = root?'':`<span class="tree-number">${esc(path)}</span>`;
-    const fields = group
-      ? `<span class="tree-strategy">[${esc(mode)}]</span>${meta('default',node.strategy?.default)}${meta('codes',node.strategy?.on_status_codes?.join(', '))}`
-      : `<span aria-hidden="true">&#8594;</span><span class="tree-model">${esc(String(node.override_params?.model??node.default_params?.model??'—'))}</span><span class="tree-provider">(provider ${esc(node.provider||node.virtual_key||'—')})</span>`;
-    const routing = parentMode==='loadbalance'?meta('w',node.weight):parentMode==='fallback'?meta('codes',node.on_status_codes?.join(', ')):'';
-    const row = `${number}<span class="tree-name">${esc(name)}</span>${fields}${routing}`;
-    if (!group) return `<div class="tree-node"><div class="tree-row">${row}</div></div>`;
-    return `<details class="tree-node" data-path="${esc(path)}" ${closed.has(path)?'':'open'}><summary class="tree-row">${row}</summary><div class="tree-children">${children.map((child,idx)=>branch(child,root?String(idx+1):`${path}.${idx+1}`,mode)).join('')}</div></details>`;
-  }
-  container.innerHTML = branch(cfg,'root','',true);
-}
-
-let flowZoom = 1;
-function toggleFlowExportMenu(open){
-  const menu = document.getElementById('flow-export-menu');
-  const show = open === undefined ? menu.hidden : open;
-  menu.hidden = !show;
-  document.getElementById('flow-export').setAttribute('aria-expanded',String(show));
-  if (show) menu.querySelector('button').focus();
-}
-document.addEventListener('click',event=>{
-  if (!event.target.closest('.flow-export-wrap')) toggleFlowExportMenu(false);
-});
-document.addEventListener('keydown',event=>{
-  const menu = document.getElementById('flow-export-menu');
-  if (menu.hidden) return;
-  if (event.key==='Escape') {
-    event.preventDefault();
-    toggleFlowExportMenu(false);
-    document.getElementById('flow-export').focus();
-  } else if (event.key==='ArrowDown' || event.key==='ArrowUp') {
-    event.preventDefault();
-    const items = [...menu.querySelectorAll('button')];
-    const index = items.indexOf(document.activeElement);
-    items[(index+(event.key==='ArrowDown'?1:-1)+items.length)%items.length].focus();
-  }
-});
-document.addEventListener('focusin',event=>{
-  if (!event.target.closest('.flow-export-wrap')) toggleFlowExportMenu(false);
-});
-
-async function exportFlowImage(background='dark'){
-  const button = document.getElementById('flow-export');
-  if (button.disabled) return;
-  toggleFlowExportMenu(false);
-  button.focus();
-  const status = document.getElementById('flow-export-status');
-  button.disabled = true;
-  status.textContent = lang==='zh'?'正在生成图片…':'Generating image…';
-  let sourceURL;
-  try {
-    renderDiag(buildCfg());
-    await document.fonts.ready;
-    const svg = document.getElementById('dsvg');
-    const {x,y,width,height} = svg.viewBox.baseVal;
-    if (!(width>0 && height>0)) throw new Error('Flow has no drawable area.');
-    // Export the full viewBox; the preview zoom must not affect the saved image.
-    const clone = svg.cloneNode(true);
-    clone.removeAttribute('id');
-    clone.removeAttribute('style');
-    clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
-    clone.setAttribute('viewBox',`${x} ${y} ${width} ${height}`);
-    clone.setAttribute('width',width);
-    clone.setAttribute('height',height);
-    sourceURL = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml;charset=utf-8'}));
-    const image = new Image();
-    await new Promise((resolve,reject)=>{
-      image.onload = resolve;
-      image.onerror = ()=>reject(new Error('Unable to render Flow image.'));
-      image.src = sourceURL;
-    });
-    const scale = Math.min(2,8192/width,8192/height,Math.sqrt(16000000/(width*height)));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1,Math.floor(width*scale));
-    canvas.height = Math.max(1,Math.floor(height*scale));
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas is unavailable.');
-    if (background==='dark') {
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0d1117';
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-    }
-    ctx.drawImage(image,0,0,canvas.width,canvas.height);
-    const png = await new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('PNG export failed.')),'image/png'));
-    const downloadURL = URL.createObjectURL(png);
-    const link = document.createElement('a');
-    link.href = downloadURL;
-    link.download = `portkey-flow-${background}.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(()=>URL.revokeObjectURL(downloadURL),60000);
-    status.textContent = `${canvas.width} × ${canvas.height} PNG`;
-  } catch (error) {
-    status.textContent = (lang==='zh'?'导出失败：':'Export failed: ')+error.message;
-  } finally {
-    if (sourceURL) URL.revokeObjectURL(sourceURL);
-    button.disabled = false;
-  }
-}
-
-function setFlowZoom(v){
-  flowZoom = Math.min(2, Math.max(0.4, Math.round(v*10)/10));
-  applyFlowZoom();
-}
-function applyFlowZoom(){
-  const svg = document.getElementById('dsvg');
-  const lbl = document.getElementById('flow-zoom');
-  if (svg) svg.style.transform = `scale(${flowZoom})`;
-  if (lbl) lbl.textContent = `${Math.round(flowZoom*100)}%`;
 }
 
 /* ════════════════════════════════════
@@ -2088,41 +1485,7 @@ const COL = {
   cond:   { f:'#1a2a1a', s:'#10b981', t:'#6ee7b7' },
 };
 
-function tipText(lines){
-  return (Array.isArray(lines)?lines:[lines]).filter(v=>v!==undefined&&v!==null&&String(v).trim()!=='').join('\n');
-}
-function targetModel(t){
-  return t && t.override_params && t.override_params.model !== undefined ? t.override_params.model :
-    t && t.ovr_params && t.ovr_params.model !== undefined ? t.ovr_params.model : '';
-}
-function targetTip(t, extras=[]){
-  if (!t) return tipText(extras);
-  return tipText([
-    t.name ? `Name: ${t.name}` : '',
-    t.provider || t.virtual_key ? `Provider: ${t.provider||t.virtual_key}` : '',
-    targetModel(t) ? `Model: ${targetModel(t)}` : '',
-    t.weight !== undefined ? `Weight: ${t.weight}` : '',
-    t.request_timeout !== undefined && t.request_timeout !== '' ? `Timeout: ${t.request_timeout}ms` : '',
-    Array.isArray(t.on_status_codes) && t.on_status_codes.length ? `Status codes: ${t.on_status_codes.join(', ')}` : '',
-    ...extras
-  ]);
-}
-function groupTip(group){
-  const subs = group.group_targets||[];
-  return tipText([
-    group.name ? `Name: ${group.name}` : '',
-    `Strategy: ${group.group_strategy||'fallback'}`,
-    `Targets: ${subs.length}`,
-    group.weight_label ? `Weight: ${group.weight_label}` : '',
-    ...subs.slice(0,8).map((s,idx)=>{
-      const name = s.name || s.provider || s.label || `Target ${idx+1}`;
-      const model = targetModel(s);
-      return `${idx+1}. ${name}${s.is_group?` (${stratShort(s.group_strategy)} group)`:''}${model?` / ${model}`:''}`;
-    }),
-    subs.length>8 ? `+ ${subs.length-8} more` : ''
-  ]);
-}
-function mkN(x,y,w,h,lines,color,tip){
+function mkN(x,y,w,h,lines,color){
   const c=COL[color]||COL.primary, rx=10, cx=x+w/2;
   const raw=Array.isArray(lines)?lines:typeof lines==='string'?lines.split('\n'):[lines];
   // wrap subtitle lines that exceed box width (~6px per char at size 10)
@@ -2146,8 +1509,7 @@ function mkN(x,y,w,h,lines,color,tip){
     const fs=i===0?13:multiSub?9:10;
     return `<text x="${cx}" y="${ty}" fill="${c.t}" font-size="${fs}" font-weight="${i===0?'600':'400'}" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif" opacity="${i===0?1:0.85}">${esc(seg.t)}</text>`;
   }).join('');
-  const title = esc(tip||tipText(raw));
-  return `<g class="node-tip"><title>${title}</title><clipPath id="${clipId}"><rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${c.f}" stroke="${c.s}" stroke-width="1.5"/><g clip-path="url(#${clipId})">${txt}</g></g>`;
+  return `<clipPath id="${clipId}"><rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${c.f}" stroke="${c.s}" stroke-width="1.5"/><g clip-path="url(#${clipId})">${txt}</g>`;
 }
 
 function mkA(x1,y1,x2,y2,label,color='#4b6cb7'){
@@ -2169,86 +1531,6 @@ function mkChips(x,y,codes,fill='#1e2536',stroke='#3b4a6b',tc='#7dd3fc'){
   return out;
 }
 
-const GROUP_COL = [
-  { f:'rgba(99,102,241,0.06)', s:'#6366f1', t:'#818cf8' },
-  { f:'rgba(16,185,129,0.07)', s:'#10b981', t:'#6ee7b7' },
-  { f:'rgba(245,158,11,0.08)', s:'#f59e0b', t:'#fcd34d' },
-  { f:'rgba(236,72,153,0.07)', s:'#ec4899', t:'#f9a8d4' },
-];
-function groupCol(depth=0){ return GROUP_COL[Math.max(0, depth)%GROUP_COL.length]; }
-function stratShort(mode){ return mode==='loadbalance'?'LB':mode==='fallback'?'FB':'COND'; }
-
-function mkGroupBox(x, y, w, group, depth=0){
-  const gs = group.group_strategy||'fallback';
-  const subs = group.group_targets||[];
-  const isLB = gs==='loadbalance';
-  const gc = groupCol(depth);
-  const SNW = 100, SNH = isLB ? 40 : 28, SGAP = 10;
-  const cols = Math.max(1, Math.min(subs.length||1, Math.floor((w-20)/(SNW+SGAP))));
-  const rows = Math.ceil((subs.length||1)/cols);
-  const headerH = group.weight_label ? 38 : 22;
-  const h = rows*(SNH+SGAP)-SGAP + headerH + 20;
-  const totSubW = subs.reduce((s,t)=>s+Number(t.weight||1),0);
-  const stratLabel = stratShort(gs);
-  let out = `<rect class="node-tip" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"
-    fill="${gc.f}" stroke="${gc.s}" stroke-width="1.2" stroke-dasharray="5,3"><title>${esc(groupTip(group))}</title></rect>`;
-  out+=`<text x="${x+w/2}" y="${y+14}" fill="${gc.t}" font-size="9.5" font-weight="600"
-    text-anchor="middle" font-family="system-ui,sans-serif">${stratLabel} group</text>`;
-  if (group.weight_label) {
-    out+=`<text x="${x+w/2}" y="${y+29}" fill="${gc.t}" font-size="8" font-weight="600"
-      text-anchor="middle" font-family="system-ui,sans-serif">${esc(group.weight_label)}</text>`;
-  }
-  out+=`<line x1="${x+8}" y1="${y+headerH}" x2="${x+w-8}" y2="${y+headerH}" stroke="${gc.s}" stroke-width="0.5" opacity="0.35"/>`;
-  const startY = y+headerH+8;
-  const totalSNW = cols*(SNW+SGAP)-SGAP;
-  const snStartX = x + (w-totalSNW)/2;
-  subs.forEach((sub,si)=>{
-    const col=si%cols, row=Math.floor(si/cols);
-    const sx=snStartX+col*(SNW+SGAP), sy=startY+row*(SNH+SGAP);
-    const isSubGroup = !!sub.is_group;
-    const sc = isSubGroup ? groupCol(depth+1) : COL.primary;
-    const snLbl=(sub.name||sub.provider||sub.label||`T${si+1}`).substring(0,10);
-    const snMod=isSubGroup ? `${stratShort(sub.group_strategy)} group` :
-      sub.ovr_params&&sub.ovr_params.model?String(sub.ovr_params.model).split('/').pop().substring(0,8):'';
-    const subTip = isSubGroup ? groupTip(sub) : targetTip(sub);
-    out+=`<g class="node-tip"><title>${esc(subTip)}</title><rect x="${sx}" y="${sy}" width="${SNW}" height="${SNH}" rx="5"
-      fill="${sc.f}" stroke="${sc.s}" stroke-width="${isSubGroup?'1.2':'1'}" ${isSubGroup?'stroke-dasharray="3,2"':''}/>`;
-    out+=`<text x="${sx+SNW/2}" y="${sy+9}" fill="${sc.t}" font-size="8.5" font-weight="600"
-      text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif">${esc(snLbl)}</text>`;
-    if(snMod) out+=`<text x="${sx+SNW/2}" y="${sy+20}" fill="${sc.t}" font-size="7.5" opacity="0.75"
-      text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif">${esc(snMod)}</text>`;
-    if(isLB){
-      const wp=totSubW>0?Math.round((Number(sub.weight||1)/totSubW)*100):Math.round(100/Math.max(subs.length,1));
-      out+=`<text x="${sx+SNW/2}" y="${sy+32}" fill="${isSubGroup?sc.t:gc.t}" font-size="7" text-anchor="middle"
-        dominant-baseline="middle" font-family="system-ui,sans-serif">${wp}%</text>`;
-    }
-    out+=`</g>`;
-  });
-  return { svg: out, h };
-}
-
-function isGrpTgt(t){ return !!(t && t.strategy && Array.isArray(t.targets)); }
-function cfgToGrpTgt(t){
-  return {
-    name:t.name||'',
-    group_strategy:t.strategy.mode||'fallback',
-    group_targets:(t.targets||[]).map((s,idx)=>{
-      const isGroup = isGrpTgt(s);
-      return {
-        is_group:isGroup,
-        group_strategy:isGroup?(s.strategy.mode||'fallback'):undefined,
-        group_targets:isGroup?cfgToGrpTgt(s).group_targets:undefined,
-        provider:s.provider||s.virtual_key||'',
-        name:s.name||(isGroup?`${stratShort(s.strategy.mode)} group`:''),
-        label:isGroup?`${stratShort(s.strategy.mode)} group`:`T${idx+1}`,
-        weight:s.weight!==undefined?s.weight:1,
-        on_status_codes:s.on_status_codes||[],
-        ovr_params:s.override_params&&s.override_params.model?{model:s.override_params.model}:{}
-      };
-    })
-  };
-}
-
 function renderDiag(cfg){
   const svg = document.getElementById('dsvg');
   const mode=document.getElementById('strat-mode').value;
@@ -2256,10 +1538,6 @@ function renderDiag(cfg){
   const hasOG=(cfg.output_guardrails||[]).length>0;
   const hasCB=!!cfg.cb_config;
   const ts=cfg.targets||[];
-  const hasGroups=ts.some(isGrpTgt);
-  const NW=hasGroups ? 240 : 200, MW=150;
-  const slotWidth=hasGroups ? 240 : MW;
-  const DW=Math.max(600, ['loadbalance','conditional'].includes(mode) ? ts.length*(slotWidth+10)+40 : 600);
 
   let els='', cy=PAD;
   const mid=DW/2, ncx=mid-NW/2;
@@ -2303,7 +1581,7 @@ function renderDiag(cfg){
   if (hasIG){
     const ids=cfg.input_guardrails.map(g=>g.id||'guardrail').join(', ');
     els+=mkA(px,py,px,cy,'','#6b7db3');
-    els+=mkN(ncx,cy,NW,NH,[i('d_igr'),ids.substring(0,22)+(ids.length>22?'…':'')],'guard',`Input Guardrails\n${ids}`);
+    els+=mkN(ncx,cy,NW,NH,[i('d_igr'),ids.substring(0,22)+(ids.length>22?'…':'')],'guard');
     py=cy+NH; cy+=NH+GAP;
   }
 
@@ -2312,70 +1590,51 @@ function renderDiag(cfg){
 
   } else if (mode==='loadbalance'){
     const cnt=ts.length||1;
-    const iw=Math.min(slotWidth,(DW-40)/cnt-10);
+    const iw=Math.min(MW,(DW-40)/cnt-10);
     const tw=cnt*(iw+10)-10;
     const sx=mid-tw/2;
     const totW=ts.reduce((s,t)=>s+(Number(t.weight)||1),0);
     const fy=cy;
-    const slotH = ts.map(tgt=>{
-      if(!isGrpTgt(tgt)) return NH;
-      const grp=cfgToGrpTgt(tgt);
-      grp.weight_label='weight';
-      const gb=mkGroupBox(0,0,iw,grp);
-      return gb.h;
-    });
-    const maxSlotH = Math.max(...slotH, NH);
     ts.forEach((tgt,ii)=>{
       const tx=sx+ii*(iw+10), tcx=tx+iw/2;
       const wp=totW>0?Math.round(((Number(tgt.weight)||1)/totW)*100):Math.round(100/cnt);
+      const lbl=(tgt.name||tgt.provider||`T${ii+1}`).replace(/^@/,'').substring(0,14);
+      const mod=tgt.override_params&&tgt.override_params.model?String(tgt.override_params.model).split('/').pop():tgt.ovr_params&&tgt.ovr_params.model?String(tgt.ovr_params.model).split('/').pop().substring(0,14):'';
+      els+=mkN(tx,fy,iw,NH,[lbl,`w:${tgt.weight||1}(${wp}%)${mod?'  '+mod:''}`],'primary');
       els+=`<path d="M${mid},${py} C${mid},${fy-10} ${tcx},${fy-10} ${tcx},${fy}" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.5"/>`;
-      if(isGrpTgt(tgt)){
-        const grp=cfgToGrpTgt(tgt);
-        grp.weight_label=`w:${tgt.weight||1}(${wp}%)`;
-        const gb=mkGroupBox(tx,fy,iw,grp); els+=gb.svg;
-      } else {
-        const lbl=(tgt.name||tgt.provider||`T${ii+1}`).substring(0,14);
-        const mod=tgt.override_params&&tgt.override_params.model?String(tgt.override_params.model).split('/').pop():tgt.ovr_params&&tgt.ovr_params.model?String(tgt.ovr_params.model).split('/').pop().substring(0,14):'';
-        els+=mkN(tx,fy,iw,NH,[lbl,`w:${tgt.weight||1}(${wp}%)${mod?'  '+mod:''}`],'primary',targetTip(tgt,[`Share: ${wp}%`]));
-      }
     });
-    const by=fy+maxSlotH; cy=by+GAP;
-    ts.forEach((tgt,ii)=>{
+    const by=fy+NH; cy=by+GAP;
+    ts.forEach((_,ii)=>{
       const tcx=sx+ii*(iw+10)+iw/2;
-      const botY=fy+slotH[ii];
-      els+=`<path d="M${tcx},${botY} C${tcx},${cy-10} ${mid},${cy-10} ${mid},${cy}" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>`;
+      els+=`<path d="M${tcx},${by} C${tcx},${cy-10} ${mid},${cy-10} ${mid},${cy}" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>`;
     });
     px=mid; py=cy;
 
   } else if (mode==='fallback'){
     const mx=mid-NW/2;
-    const getFBNodeH = tgt => isGrpTgt(tgt) ? mkGroupBox(0,0,NW,cfgToGrpTgt(tgt)).h : NH;
-    for (let ii=0;ii<ts.length;ii++){
+    const p0=ts[0]||({}); const p0lbl=(p0.name||p0.provider||'Primary').replace(/^@/,'').substring(0,20);
+    const p0mod=p0.override_params&&p0.override_params.model?String(p0.override_params.model).split('/').pop().substring(0,18):'';
+    els+=mkA(px,py,mx+NW/2,cy,'','#6b7db3');
+    els+=mkN(mx,cy,NW,NH,[p0lbl,p0mod],'primary');
+    px=mx+NW/2; py=cy+NH; cy+=NH+GAP;
+
+    for (let ii=1;ii<ts.length;ii++){
       const tgt=ts[ii];
-      const h=getFBNodeH(tgt);
-      if(ii===0){
-        els+=mkA(px,py,mx+NW/2,cy,'','#6b7db3');
+      const codes=(tgt.on_status_codes&&tgt.on_status_codes.length)?tgt.on_status_codes:(cfg.strategy&&cfg.strategy.on_status_codes)||[];
+      if (codes.length){
+        const cw=codes.reduce((s,c)=>s+String(c).length*7+16,0);
+        els+=mkChips(px-cw/2,py+6,codes);
+        els+=mkA(px,py+26,px,cy,'','#ef4444');
       } else {
-        const codes=(tgt.on_status_codes&&tgt.on_status_codes.length)?tgt.on_status_codes:(cfg.strategy&&cfg.strategy.on_status_codes)||[];
-        if (codes.length){
-          const cw=codes.reduce((s,c)=>s+String(c).length*7+16,0);
-          els+=mkChips(px-cw/2,py+6,codes);
-          els+=mkA(px,py+26,px,cy,'','#ef4444');
-        } else {
-          els+=mkA(px,py,px,cy,'non-2xx','#ef4444');
-        }
+        els+=mkA(px,py,px,cy,'non-2xx','#ef4444');
       }
-      if(isGrpTgt(tgt)){
-        const gb=mkGroupBox(mx,cy,NW,cfgToGrpTgt(tgt)); els+=gb.svg;
-      } else {
-        const lbl=(tgt.name||tgt.provider||(ii===0?'Primary':`Fallback ${ii}`)).substring(0,20);
-        const mod=tgt.override_params&&tgt.override_params.model?String(tgt.override_params.model).split('/').pop():tgt.ovr_params&&tgt.ovr_params.model?String(tgt.ovr_params.model).split('/').pop().substring(0,18):'';
-        els+=mkN(mx,cy,NW,NH,[lbl,mod],ii<ts.length-1?'primary':'warn',targetTip(tgt,[ii===0?'Role: primary fallback target':`Role: fallback target ${ii+1}`]));
-      }
-      px=mx+NW/2; py=cy+h; cy+=h+GAP;
+      const lbl=(tgt.name||tgt.provider||`Fallback ${ii}`).replace(/^@/,'').substring(0,20);
+      const mod=tgt.override_params&&tgt.override_params.model?String(tgt.override_params.model).split('/').pop():tgt.ovr_params&&tgt.ovr_params.model?String(tgt.ovr_params.model).split('/').pop().substring(0,18):'';
+      els+=mkN(mx,cy,NW,NH,[lbl,mod],ii<ts.length-1?'primary':'warn');
+      px=mx+NW/2; py=cy+NH; cy+=NH+GAP;
     }
     if (ts.length>1){
-      const ex=DW-112,ey=cy-GAP-Math.max(NH,getFBNodeH(ts[ts.length-1]));
+      const ex=DW-112,ey=cy-GAP-NH;
       els+=mkN(ex,ey,102,NH,i('d_err'),'danger');
       els+=`<path d="M${px},${py} C${px},${ey+NH/2} ${ex},${ey+NH/2} ${ex},${ey+NH/2}" fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>`;
     }
@@ -2395,13 +1654,10 @@ function renderDiag(cfg){
     // Target boxes spread across
     const cnt=Math.max(ts.length,1);
     const svgNeeded=Math.max(DW,cnt*130+40);
-    const iw2=Math.min(slotWidth,(svgNeeded-40)/cnt-10);
+    const iw2=Math.min(MW,(svgNeeded-40)/cnt-10);
     const tw2=cnt*(iw2+10)-10;
     const sx2=svgNeeded/2-tw2/2;
 
-    const condSlotH = ts.map(tgt=>isGrpTgt(tgt) ? mkGroupBox(0,0,iw2,cfgToGrpTgt(tgt)).h : NH);
-    const maxCondSlotH = Math.max(...condSlotH, NH);
-    const condTargetTopY = cy;
     ts.forEach((tgt,ii)=>{
       const tx=sx2+ii*(iw2+10), tcx2=tx+iw2/2;
       const cond=condArr.find(c=>c.then===tgt.name);
@@ -2422,20 +1678,15 @@ function renderDiag(cfg){
         els+=`<rect x="${tcx2-cw/2}" y="${arcMy-9}" width="${cw}" height="18" rx="4" fill="#1e2536" stroke="#2a3a5b"/>
         <text x="${tcx2}" y="${arcMy+1}" fill="#7dd3fc" font-size="9.5" text-anchor="middle" dominant-baseline="middle" font-family="monospace">${esc(condLbl)}</text>`;
       }
-      if(isGrpTgt(tgt)){
-        const gb=mkGroupBox(tx,cy,iw2,cfgToGrpTgt(tgt)); els+=gb.svg;
-      } else {
-        const lbl2=(tgt.name||tgt.provider||`T${ii+1}`).substring(0,14);
-        const mod2=tgt.override_params&&tgt.override_params.model?String(tgt.override_params.model).split('/').pop():tgt.ovr_params&&tgt.ovr_params.model?String(tgt.ovr_params.model).split('/').pop().substring(0,14):'';
-        els+=mkN(tx,cy,iw2,NH,[lbl2,mod2],isDef?'warn':'primary',targetTip(tgt,[condLbl?`Condition: ${condLbl}`:'',isDef?'Default target':'']));
-      }
+      const lbl2=(tgt.name||tgt.provider||`T${ii+1}`).replace(/^@/,'').substring(0,14);
+      const mod2=tgt.override_params&&tgt.override_params.model?String(tgt.override_params.model).split('/').pop():tgt.ovr_params&&tgt.ovr_params.model?String(tgt.ovr_params.model).split('/').pop().substring(0,14):'';
+      els+=mkN(tx,cy,iw2,NH,[lbl2,mod2],isDef?'warn':'primary');
     });
 
-    cy=condTargetTopY+maxCondSlotH+GAP;
-    ts.forEach((tgt,ii)=>{
+    const boty=cy+NH; cy=boty+GAP;
+    ts.forEach((_,ii)=>{
       const tcx2=sx2+ii*(iw2+10)+iw2/2;
-      const slotBotY=condTargetTopY+condSlotH[ii];
-      els+=`<path d="M${tcx2},${slotBotY} C${tcx2},${cy-10} ${mid},${cy-10} ${mid},${cy}" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>`;
+      els+=`<path d="M${tcx2},${boty} C${tcx2},${cy-10} ${mid},${cy-10} ${mid},${cy}" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>`;
     });
     px=mid; py=cy;
 
@@ -2446,9 +1697,9 @@ function renderDiag(cfg){
   } else {
     // single
     els+=mkA(px,py,px,cy,'','#6b7db3');
-    const lbl=(ts[0]&&(ts[0].name||ts[0].provider)||'Target').substring(0,22);
+    const lbl=(ts[0]&&(ts[0].name||ts[0].provider)||'Target').replace(/^@/,'').substring(0,22);
     const mod=ts[0]&&ts[0].override_params&&ts[0].override_params.model?String(ts[0].override_params.model).split('/').pop().substring(0,18):'';
-    els+=mkN(ncx,cy,NW,NH,[lbl,mod],'primary',targetTip(ts[0]));
+    els+=mkN(ncx,cy,NW,NH,[lbl,mod],'primary');
     px=mid; py=cy+NH; cy+=NH+GAP;
   }
 
@@ -2456,7 +1707,7 @@ function renderDiag(cfg){
   if (hasOG){
     const ids=cfg.output_guardrails.map(g=>g.id||'guardrail').join(', ');
     if(py<cy) els+=mkA(px,py,px,cy,'','#6b7db3');
-    els+=mkN(px-NW/2,cy,NW,NH,[i('d_ogr'),ids.substring(0,22)+(ids.length>22?'…':'')],'guard',`Output Guardrails\n${ids}`);
+    els+=mkN(px-NW/2,cy,NW,NH,[i('d_ogr'),ids.substring(0,22)+(ids.length>22?'…':'')],'guard');
     py=cy+NH; cy+=NH+GAP;
   }
 
@@ -2470,14 +1721,12 @@ function renderDiag(cfg){
   svg.setAttribute('viewBox',`0 0 ${svgW} ${cy}`);
   svg.setAttribute('height',cy);
   svg.innerHTML=els;
-  applyFlowZoom();
 }
 
 /* ════════════════════════════════════
    INIT
 ════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded',()=>{
-  initPresets();
   ['rc','cbc','fb','fh'].forEach(g=>initTag(g));
   onModeChange();
   renderTargets();
@@ -2494,17 +1743,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 </script>
-<!-- Each preset contains one UTF-8 JSON encoded as Base64. Copy a block and use a unique data-preset-id to add a preset. -->
-<script type="application/octet-stream" data-preset-id="fallback" data-preset-name="Example 1 - Fallback">
-eyJyZXRyeSI6eyJhdHRlbXB0cyI6M30sImlucHV0X2d1YXJkcmFpbHMiOlt7ImlkIjoicGctYWlndy1kLTM2YzllMiIsImRlbnkiOnRydWV9XSwib3V0cHV0X2d1YXJkcmFpbHMiOlt7ImlkIjoicGctYWlndy1kLTM2YzllMiIsImRlbnkiOnRydWV9XSwiY2FjaGUiOnsibW9kZSI6InNlbWFudGljIn0sInN0cmF0ZWd5Ijp7Im1vZGUiOiJmYWxsYmFjayJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoicHJpbWFyeS1mbGF0LXJvdXRlciIsInN0cmF0ZWd5Ijp7Im1vZGUiOiJjb25kaXRpb25hbCIsImNvbmRpdGlvbnMiOlt7InF1ZXJ5Ijp7Im1ldGFkYXRhLnJvbGUiOnsiJGVxIjoiY3VzdG9tZXIifX0sInRoZW4iOiJjdXN0b21lci1tb2RlbCJ9LHsicXVlcnkiOnsibWV0YWRhdGEucm9sZSI6eyIkZXEiOiJkZXZlbG9wZXIifSwibWV0YWRhdGEudGFzayI6eyIkZXEiOiJjb2RpbmcifX0sInRoZW4iOiJjb2RpbmctbW9kZWwifSx7InF1ZXJ5Ijp7Im1ldGFkYXRhLnJvbGUiOnsiJGVxIjoiZGV2ZWxvcGVyIn0sIm1ldGFkYXRhLnRhc2siOnsiJGVxIjoid3JpdGluZyJ9fSwidGhlbiI6IndyaXRpbmctbW9kZWwifSx7InF1ZXJ5Ijp7Im1ldGFkYXRhLnJvbGUiOnsiJGVxIjoiZGV2ZWxvcGVyIn0sIm1ldGFkYXRhLnRhc2siOnsiJGVxIjoidmlzaW9uIn19LCJ0aGVuIjoidmlzaW9uLW1vZGVsIn1dLCJkZWZhdWx0IjoiZ2VuZXJhbC1tb2RlbCJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoiY3VzdG9tZXItbW9kZWwiLCJwcm92aWRlciI6IkBnY3AtdmVydGV4Iiwib3ZlcnJpZGVfcGFyYW1zIjp7Im1vZGVsIjoiZ2VtaW5pLTIuNS1mbGFzaCJ9fSx7Im5hbWUiOiJjb2RpbmctbW9kZWwiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJAYXdzLWJlZHJvY2svbWV0YS5sbGFtYTMtOGItaW5zdHJ1Y3QtdjE6MCJ9fSx7Im5hbWUiOiJ3cml0aW5nLW1vZGVsIiwicHJvdmlkZXIiOiJAYXdzLWJlZHJvY2siLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJtb29uc2hvdC5raW1pLWsyLXRoaW5raW5nIn19LHsibmFtZSI6ImdlbmVyYWwtbW9kZWwiLCJwcm92aWRlciI6IkBnY3AtdmVydGV4Iiwib3ZlcnJpZGVfcGFyYW1zIjp7Im1vZGVsIjoiZ2VtaW5pLTIuNS1mbGFzaCJ9fSx7Im5hbWUiOiJ2aXNpb24tbW9kZWwiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJAYXdzLWJlZHJvY2svdXMuYW1hem9uLm5vdmEtMi1saXRlLXYxOjAifX1dfSx7Im5hbWUiOiJnbG9iYWwtZmFsbGJhY2stYmFja3VwLTEiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJAYXdzLWJlZHJvY2svb3BlbmFpLmdwdC1vc3MtMjBiLTE6MCJ9fSx7Im5hbWUiOiJnbG9iYWwtZmFsbGJhY2stYmFja3VwLTIiLCJwcm92aWRlciI6IkBhd3MtYmVkcm9jayIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6InVzLmFtYXpvbi5ub3ZhLXByby12MTowIn19LHsibmFtZSI6Imdsb2JhbC1mYWxsYmFjay1iYWNrdXAtMyIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6IkBhd3MtYmVkcm9jay91cy5hbnRocm9waWMuY2xhdWRlLTMtNS1oYWlrdS0yMDI0MTAyMi12MTowIn19LHsibmFtZSI6Imdsb2JhbC1mYWxsYmFjay1iYWNrdXAtNCIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6IkBhd3MtYmVkcm9jay91cy5tZXRhLmxsYW1hMy0zLTcwYi1pbnN0cnVjdC12MTowIn19XX0=
-</script>
-
-<script type="application/octet-stream" data-preset-id="conditional" data-preset-name="Example 2 - Conditional">
-eyJyZXRyeSI6eyJhdHRlbXB0cyI6M30sImNhY2hlIjp7Im1vZGUiOiJzaW1wbGUifSwiaW5wdXRfZ3VhcmRyYWlscyI6W3siaWQiOiJwcmlzbWEtYWlycyIsImRlbnkiOnRydWV9XSwib3V0cHV0X2d1YXJkcmFpbHMiOlt7ImlkIjoicHJpc21hLWFpcnMiLCJkZW55Ijp0cnVlfV0sInN0cmF0ZWd5Ijp7Im1vZGUiOiJjb25kaXRpb25hbCIsImNvbmRpdGlvbnMiOlt7InF1ZXJ5Ijp7Im1ldGFkYXRhLnRhc2siOnsiJGVxIjoiY29kaW5nIn19LCJ0aGVuIjoiY29kaW5nLW1vZGVsIn0seyJxdWVyeSI6eyJtZXRhZGF0YS50YXNrIjp7IiRlcSI6IndyaXRpbmcifX0sInRoZW4iOiJ3cml0aW5nLW1vZGVsIn0seyJxdWVyeSI6eyJtZXRhZGF0YS50YXNrIjp7IiRlcSI6ImdlbmVyYWwifX0sInRoZW4iOiJnZW5lcmFsLW1vZGVsIn1dLCJkZWZhdWx0IjoiZGVmYXVsdC1tb2RlbCJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoiY29kaW5nLW1vZGVsIiwib3ZlcnJpZGVfcGFyYW1zIjp7Im1vZGVsIjoic29ubmV0LTUifSwicHJvdmlkZXIiOiJAYXdzIn0seyJuYW1lIjoid3JpdGluZy1tb2RlbCIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6ImdwdC01In0sInByb3ZpZGVyIjoiQGF3cyJ9LHsibmFtZSI6ImdlbmVyYWwtbW9kZWwiLCJzdHJhdGVneSI6eyJtb2RlIjoibG9hZGJhbGFuY2UifSwidGFyZ2V0cyI6W3sibmFtZSI6ImxiLTEiLCJ3ZWlnaHQiOjEsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6InNvbm5ldC01In0sInByb3ZpZGVyIjoiQGF3cyJ9LHsibmFtZSI6ImxiLTIiLCJ3ZWlnaHQiOjEsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6ImdwdC00MCJ9LCJwcm92aWRlciI6IkBhd3MifSx7Im5hbWUiOiJsYi0zIiwid2VpZ2h0IjoxLCJwcm92aWRlciI6IkBhd3MifSx7Im5hbWUiOiJ0YXJnZXQtZmFpbG92ZXIiLCJ3ZWlnaHQiOjEsInN0cmF0ZWd5Ijp7Im1vZGUiOiJmYWxsYmFjayJ9LCJ0YXJnZXRzIjpbeyJuYW1lIjoiZmItMSIsIm92ZXJyaWRlX3BhcmFtcyI6eyJtb2RlbCI6InNvbm5ldC00In0sInByb3ZpZGVyIjoiQGF3cyJ9LHsibmFtZSI6ImZiLTIiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJvcHVzLTQifSwicHJvdmlkZXIiOiJAYXdzIn1dfV19LHsibmFtZSI6ImRlZmF1bHQtbW9kZWwiLCJvdmVycmlkZV9wYXJhbXMiOnsibW9kZWwiOiJncHQtMy41In0sInByb3ZpZGVyIjoiQGF3cyJ9XX0=
-</script>
-
 <footer style="text-align:center;padding:10px 0 14px;font-size:11px;color:var(--t2);opacity:0.6">
-  v2.0 &nbsp;·&nbsp; Author: Matt Zhang & His Minions
+  v1.0 &nbsp;·&nbsp; Author: Matt Zhang
 </footer>
 </body>
 </html>
