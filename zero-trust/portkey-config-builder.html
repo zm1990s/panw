@@ -1308,19 +1308,25 @@ function buildTargetCfg(tgt,parentMode){
   const o = {};
   const skipAdvanced = tgt.node_type === 'strategy';
   if (tgt.name) o.name = tgt.name;
+  if (!skipAdvanced && tgt.provider) o.provider = tgt.provider;
   if (parentMode==='loadbalance'&&tgt.weight!==''&&tgt.weight!==null) o.weight=Number(tgt.weight);
   if (!skipAdvanced && tgt.request_timeout) o.request_timeout=Number(tgt.request_timeout);
   if (parentMode==='fallback'&&tgt.on_status_codes.length) o.on_status_codes=tgt.on_status_codes.map(Number);
   if (!skipAdvanced) {
-    const ov=serPS(tgt.ovr_params); if(Object.keys(ov).length) o.override_params=ov;
-    const df=serPS(tgt.def_params); if(Object.keys(df).length) o.default_params=df;
+    const ov=serPS(tgt.ovr_params);
+    if(ov.input_guardrails){ o.input_guardrails=ov.input_guardrails; delete ov.input_guardrails; }
+    if(ov.output_guardrails){ o.output_guardrails=ov.output_guardrails; delete ov.output_guardrails; }
+    if(Object.keys(ov).length) o.override_params=ov;
+    const df=serPS(tgt.def_params);
+    if(!o.input_guardrails&&df.input_guardrails){ o.input_guardrails=df.input_guardrails; delete df.input_guardrails; }
+    if(!o.output_guardrails&&df.output_guardrails){ o.output_guardrails=df.output_guardrails; delete df.output_guardrails; }
+    if(Object.keys(df).length) o.default_params=df;
     if (tgt.drop_params.length) o.drop_params=tgt.drop_params;
   }
   if (tgt.node_type === 'strategy') {
     o.strategy = buildStrategySpec(tgt.child_mode, tgt.child_conds||[], tgt.child_default||'', tgt.child_on_status_codes||[]);
     o.targets = (tgt.child_targets||[]).map(child=>buildTargetCfg(child,tgt.child_mode));
   } else {
-    if (tgt.provider) o.provider = tgt.provider;
     if (tgt.retry_enabled){ o.retry={attempts:Number(tgt.retry_attempts)}; if(tgt.retry_on_status_codes.length)o.retry.on_status_codes=tgt.retry_on_status_codes.map(Number); }
   }
   return o;
@@ -1828,6 +1834,10 @@ function cfgTargetToState(src){
     t.provider = providerModel.provider;
     t.ovr_params.model = providerModel.model;
   }
+  if (Array.isArray(src.input_guardrails)&&src.input_guardrails.length&&!t.ovr_params.input_guardrails)
+    t.ovr_params.input_guardrails=src.input_guardrails.map(g=>({id:g.id||'',deny:g.deny!==false,async:!!g.async}));
+  if (Array.isArray(src.output_guardrails)&&src.output_guardrails.length&&!t.ovr_params.output_guardrails)
+    t.ovr_params.output_guardrails=src.output_guardrails.map(g=>({id:g.id||'',deny:g.deny!==false,async:!!g.async}));
   t.def_params = deserPS(src.default_params||{});
   t.drop_params = Array.isArray(src.drop_params) ? [...src.drop_params] : [];
   t.retry_enabled = !!(src.retry&&src.retry.attempts);
