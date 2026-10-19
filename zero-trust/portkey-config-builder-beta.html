@@ -282,6 +282,19 @@ select option{background:var(--s2)}
 @media(max-width:420px){
   #chat-panel{height:calc(100dvh - 96px);max-height:900px}
 }
+
+#guide-spotlight{position:fixed;z-index:1001;pointer-events:none;border:2px solid #60a5fa;border-radius:8px;box-shadow:0 0 0 5px rgba(59,130,246,.18)}
+#guide-connector{position:fixed;inset:0;width:100vw;height:100vh;z-index:1001;pointer-events:none}
+#guide-spotlight[hidden],#guide-connector[hidden]{display:none}
+/* First-visit guide: stays out of the way while users try each action. */
+#welcome-guide{position:fixed;left:20px;bottom:20px;z-index:1002;width:360px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 40px);overflow:auto;padding:20px;background:var(--s1);border:1px solid var(--ac);border-radius:14px;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+#welcome-guide[hidden]{display:none}
+#guide-progress{color:var(--ac);font-size:11px;font-weight:600;margin-bottom:10px}
+#guide-title{font-size:17px;margin-bottom:10px}
+#guide-description{color:var(--tx);line-height:1.8;margin-bottom:14px}
+.guide-footer{display:flex;gap:8px;align-items:center;margin-top:16px}
+#guide-skip{margin-left:auto}
+@media(max-width:600px){#welcome-guide{left:16px;bottom:16px;width:calc(100vw - 32px)}}
 </style>
 </head>
 <body>
@@ -757,7 +770,20 @@ ko:{
   d_cond:'조건 라우터', d_default:'기본',
 }};
 
-let lang = 'en';
+const UI_LANG_KEY = 'aigateway_ui_language';
+function detectLanguage() {
+  try {
+    const saved = localStorage.getItem(UI_LANG_KEY);
+    if (['zh','en','ja','ko'].includes(saved)) return saved;
+  } catch (_) { /* Storage may be unavailable. */ }
+  const preferences = navigator.languages?.length ? navigator.languages : [navigator.language || 'en'];
+  for (const preference of preferences) {
+    const base = String(preference).toLowerCase().split(/[-_]/)[0];
+    if (['zh','ja','ko','en'].includes(base)) return base;
+  }
+  return 'en';
+}
+let lang = detectLanguage();
 let dirty = false;
 function i(k){ return (L[lang]||L.zh)[k] || (L.en[k]||k); }
 
@@ -778,7 +804,8 @@ function applyLang() {
 }
 
 function setLang(l) {
-  lang = l;
+  lang = ['zh','en','ja','ko'].includes(l) ? l : 'en';
+  try { localStorage.setItem(UI_LANG_KEY, lang); } catch (_) { /* Storage may be unavailable. */ }
   const sel = document.getElementById('lang-sel');
   if (sel) sel.value = l;
   applyLang(); upd();
@@ -2891,6 +2918,174 @@ function applyChatJSON(jsonObj, btn){
 document.addEventListener('DOMContentLoaded', loadChatSettings);
 </script>
 
+
+
+<div id="guide-spotlight" aria-hidden="true" hidden></div>
+<svg id="guide-connector" aria-hidden="true" hidden><defs><marker id="guide-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#60a5fa"/></marker></defs><path fill="none" stroke="#60a5fa" stroke-width="2" marker-end="url(#guide-arrow)"/></svg>
+<aside id="welcome-guide" role="dialog" aria-modal="false" aria-labelledby="guide-title" aria-describedby="guide-description" hidden>
+  <div id="guide-progress"></div>
+  <div aria-live="polite" aria-atomic="true">
+    <h2 id="guide-title"></h2>
+    <p id="guide-description"></p>
+  </div>
+  <button id="guide-action" class="btn bp" type="button"></button>
+  <div class="guide-footer">
+    <button id="guide-back" class="btn bg2 sm" type="button"></button>
+    <button id="guide-next" class="btn bp sm" type="button"></button>
+    <button id="guide-skip" class="btn bg2 sm" type="button"></button>
+  </div>
+</aside>
+<script>
+(() => {
+  const storageKey = 'aigateway_welcome_seen_v1';
+  const guide = document.getElementById('welcome-guide');
+  let step = 0;
+  let target = null;
+  let positionFrame = 0;
+  const spotlight = document.getElementById('guide-spotlight');
+  const connector = document.getElementById('guide-connector');
+  function clearAnchor() {
+    target = null;
+    cancelAnimationFrame(positionFrame);
+    spotlight.hidden = true;
+    connector.setAttribute('hidden', '');
+  }
+  function positionGuide() {
+    if(!target || guide.hidden) return;
+    const r = target.getBoundingClientRect();
+    if(!target.getClientRects().length || r.bottom <= 0 || r.top >= innerHeight) {
+      clearAnchor();
+      return;
+    }
+    const bounds = guide.getBoundingClientRect();
+    const {x, y, width:w, height:h} = bounds;
+    spotlight.style.left = (r.left - 4) + 'px';
+    spotlight.style.top = (r.top - 4) + 'px';
+    spotlight.style.width = (r.width + 8) + 'px';
+    spotlight.style.height = (r.height + 8) + 'px';
+    spotlight.hidden = false;
+    connector.removeAttribute('hidden');
+    const gx = x + w / 2, gy = y + h / 2;
+    const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
+    const dx = tx - gx, dy = ty - gy;
+    let sx, sy, ex, ey;
+    if(Math.abs(dx) > Math.abs(dy)) {
+      sx = dx > 0 ? x + w : x;
+      sy = Math.max(y + 12, Math.min(gy + dy * (w / 2 / Math.abs(dx)), y + h - 12));
+      ex = dx > 0 ? r.left - 8 : r.right + 8;
+      ey = ty;
+    } else {
+      sx = Math.max(x + 12, Math.min(gx + dx * (h / 2 / Math.abs(dy || 1)), x + w - 12));
+      sy = dy > 0 ? y + h : y;
+      ex = tx;
+      ey = dy > 0 ? r.top - 8 : r.bottom + 8;
+    }
+    connector.querySelector('path[stroke]').setAttribute('d', `M ${sx} ${sy} L ${ex} ${ey}`);
+    positionFrame = requestAnimationFrame(positionGuide);
+  }
+  function showAnchor(element) {
+    clearAnchor();
+    target = element;
+    element.scrollIntoView({block:'nearest', inline:'nearest'});
+    positionGuide();
+  }
+  const steps = {
+    zh: [
+      ['用 UI 表单编辑配置','在左侧表单中设置基础参数、路由策略和 Target，右侧 JSON 会随修改自动更新。点击下方按钮，查看配置表单。','查看 UI 编辑区'],
+      ['在网页中编辑 JSON','切换到右侧 JSON 视图，打开 Edit JSON 开关即可直接修改配置。点击 Apply 校验并应用，或点击 Cancel 放弃修改。','查看 JSON 编辑入口'],
+      ['导入和导出配置','使用顶部 Export 下载当前 JSON，也可以 Import 导入已有文件。若习惯 CLI，可先导出，在本地编辑后再导入。','查看导入／导出'],
+      ['查看并导出 Flow','切换到 Flow 查看路由流程，使用 + / − 缩放。点击导出按钮，可保存深色背景或透明背景的 PNG 图片。','打开 Flow'],
+      ['从 Preset 快速开始','点击顶部 Preset 选择示例，再用表单、JSON 或 Chat 继续修改。加载会替换当前配置，建议先导出保存已有内容。','查看 Preset'],
+      ['配置 Chat 模型','点击右下角 Chat，展开 Model Settings，填写 API Key、API Base URL 和 Model。完成模型对接后，就可以用 Chat 生成或修改配置，并将结果应用到编辑器。','打开 Chat 设置']
+    ],
+    en: [
+      ['Edit with the UI form','Set base options, routing strategies and Targets in the left form. The JSON updates automatically. Use the button below to see the form.','Show the UI editor'],
+      ['Edit JSON in the browser','Open the JSON view and turn on Edit JSON to make changes directly. Click Apply to validate and apply them, or Cancel to discard.','Show JSON editing'],
+      ['Import and export configs','Use Export at the top to download the current JSON, or Import to load a file. If you use a CLI, export first, edit locally, then import the result.','Show Import / Export'],
+      ['View and export Flow','Open Flow to inspect routing and use + / − to zoom. The export button saves a PNG with a dark or transparent background.','Open Flow'],
+      ['Start from a Preset','Choose an example from Preset, then customize it with the form, JSON or Chat. Loading replaces the current config, so export your existing work first.','Show Preset'],
+      ['Connect a model for Chat','Click Chat at the bottom right and expand Model Settings. Enter your API Key, API Base URL and Model to use Chat to generate or modify configs, then apply the result to the editor.','Open Chat settings']
+    ],
+    ja: [
+      ['フォームで設定を編集','左側のフォームで基本設定、ルーティング戦略、Target を設定できます。変更は右側の JSON に自動反映されます。','フォームを表示'],
+      ['ブラウザーで JSON を編集','右側の JSON ビューを開き、Edit JSON をオンにすると直接編集できます。Apply で検証・反映し、Cancel で取り消します。','JSON 編集欄を表示'],
+      ['設定をインポート／エクスポート','上部の Export で JSON を保存し、Import でファイルを読み込みます。CLI を使う場合は、書き出したファイルをローカルで編集してから読み込めます。','Import／Export を表示'],
+      ['Flow の表示とエクスポート','Flow に切り替えてルーティングを確認し、＋／−で拡大縮小できます。ボタンから PNG を背景付きまたは透明で保存できます。','Flow を開く'],
+      ['Preset から始める','上部の Preset からサンプルを選び、フォーム、JSON、Chat で編集できます。現在の設定は置き換わるため、先に保存してください。','Preset を表示'],
+      ['Chat のモデルを設定','右下の Chat を開き、Model Settings に API Key、API Base URL、Model を入力します。設定後、Chat で構成を生成・変更できます。','Chat 設定を開く']
+    ],
+    ko: [
+      ['UI 양식으로 설정 편집','왼쪽 양식에서 기본 옵션, 라우팅 전략, Target을 설정하세요. 변경 사항은 오른쪽 JSON에 자동 반영됩니다.','UI 편집기 보기'],
+      ['브라우저에서 JSON 편집','오른쪽 JSON 화면에서 Edit JSON을 켜면 직접 편집할 수 있습니다. Apply로 검증 및 적용하고 Cancel로 취소하세요.','JSON 편집 보기'],
+      ['설정 가져오기 및 내보내기','상단 Export로 JSON을 저장하고 Import로 파일을 불러오세요. CLI를 사용한다면 파일을 내보내 로컬에서 편집한 후 다시 가져올 수 있습니다.','가져오기／내보내기 보기'],
+      ['Flow 확인 및 내보내기','Flow로 전환해 라우팅을 확인하고 + / −로 확대·축소하세요. 버튼을 눌러 배경이 있거나 투명한 PNG로 저장할 수 있습니다.','Flow 열기'],
+      ['Preset으로 시작하기','상단 Preset에서 예제를 선택한 뒤 양식, JSON 또는 Chat으로 수정하세요. 현재 설정이 대체되므로 먼저 저장하세요.','Preset 보기'],
+      ['Chat 모델 연결','오른쪽 아래 Chat을 열고 Model Settings에 API Key, API Base URL, Model을 입력하세요. 연결 후 Chat으로 설정을 생성하거나 수정할 수 있습니다.','Chat 설정 열기']
+    ]
+  };
+  function render() {
+    clearAnchor();
+    const zh = lang === 'zh';
+    const text = steps[lang]?.[step] || steps.en[step];
+    const progress = {
+      zh: `快速上手 · ${step + 1} / 6`, en: `Quick start · ${step + 1} / 6`,
+      ja: `クイックスタート · ${step + 1} / 6`, ko: `빠른 시작 · ${step + 1} / 6`
+    };
+    document.getElementById('guide-progress').textContent = progress[lang] || progress.en;
+    document.getElementById('guide-title').textContent = text[0];
+    document.getElementById('guide-description').textContent = text[1];
+    document.getElementById('guide-action').textContent = text[2];
+    document.getElementById('guide-back').textContent = ({zh:'上一步',en:'Back',ja:'戻る',ko:'이전'})[lang] || 'Back';
+    document.getElementById('guide-back').disabled = step === 0;
+    document.getElementById('guide-next').textContent = step === 5 ? ({zh:'开始使用',en:'Done',ja:'開始する',ko:'시작하기'})[lang] : ({zh:'下一步',en:'Next',ja:'次へ',ko:'다음'})[lang];
+    document.getElementById('guide-skip').textContent = ({zh:'跳过',en:'Skip',ja:'スキップ',ko:'건너뛰기'})[lang] || 'Skip';
+  }
+  function dismiss() {
+    clearAnchor();
+    guide.hidden = true;
+    try { localStorage.setItem(storageKey, '1'); } catch (_) { /* Storage may be unavailable. */ }
+    document.getElementById('chat-fab').focus();
+  }
+  document.getElementById('guide-back').onclick = () => { if(step > 0) { step--; render(); } };
+  document.getElementById('guide-next').onclick = () => { if(step === 5) dismiss(); else { step++; render(); } };
+  document.getElementById('guide-skip').onclick = dismiss;
+  document.getElementById('guide-action').onclick = () => {
+    if(step === 0) {
+      document.querySelector('.fp').scrollTop = 0;
+      showAnchor(document.getElementById('c-base'));
+    } else if(step === 1) {
+      switchTab('j');
+      document.getElementById('json-edit-toggle').focus();
+      showAnchor(document.getElementById('json-edit-toggle').closest('label'));
+    } else if(step === 2) {
+      const importButton = document.querySelector('header button[data-i="imp"]');
+      importButton.focus();
+      showAnchor(importButton);
+    } else if(step === 3) {
+      switchTab('d');
+      document.getElementById('flow-export').focus();
+      showAnchor(document.getElementById('flow-export'));
+    } else if(step === 4) {
+      document.getElementById('preset-sel').focus();
+      showAnchor(document.getElementById('preset-sel'));
+    } else {
+      if(!chatOpen) toggleChat();
+      if(!document.getElementById('chat-adv').classList.contains('open')) toggleChatAdv();
+      document.getElementById('ai-key').focus();
+      showAnchor(document.getElementById('chat-adv'));
+    }
+  };
+  document.getElementById('lang-sel').addEventListener('change', render);
+  document.addEventListener('keydown', event => {
+    if(event.key === 'Escape' && !guide.hidden) { event.preventDefault(); dismiss(); }
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    try { if(localStorage.getItem(storageKey) === '1') return; } catch (_) {}
+    render();
+    guide.hidden = false;
+  });
+})();
+</script>
 
 </body>
 </html>
