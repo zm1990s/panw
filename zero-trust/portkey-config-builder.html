@@ -197,6 +197,104 @@ select option{background:var(--s2)}
 
 /* DIAGRAM */
 #dsvg{max-width:100%}
+/* ══ CHAT WIDGET ══ */
+#chat-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:var(--ac);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(59,130,246,.5);z-index:1000;transition:transform .2s,background .2s}
+#chat-fab:hover{background:#2563eb;transform:scale(1.1)}
+#chat-panel{position:fixed;bottom:88px;right:24px;width:380px;max-width:calc(100vw - 32px);background:var(--s1);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;display:flex;flex-direction:column;max-height:calc(100vh - 120px);transition:opacity .2s,transform .2s;transform-origin:bottom right}
+#chat-panel.hidden{opacity:0;pointer-events:none;transform:scale(0.95)}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.chat-header-left{display:flex;flex-direction:column}
+.chat-header-title{font-weight:700;font-size:13px;color:var(--tx)}
+.chat-header-sub{font-size:10px;color:var(--mu);margin-top:1px}
+.chat-close-btn{background:none;border:none;cursor:pointer;color:var(--mu);font-size:18px;line-height:1;padding:2px 4px;transition:color .15s}.chat-close-btn:hover{color:var(--tx)}
+.chat-settings{padding:10px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;display:flex;flex-direction:column;gap:7px}
+.chat-settings .fi{margin-bottom:0}
+.chat-adv-toggle{background:none;border:none;cursor:pointer;color:var(--mu);font-size:11px;padding:0;text-decoration:underline dotted;transition:color .15s;align-self:flex-start}.chat-adv-toggle:hover{color:var(--tx)}
+.chat-adv-section{display:none;flex-direction:column;gap:7px}.chat-adv-section.open{display:flex}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.chat-msg{max-width:92%;padding:8px 11px;border-radius:8px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.chat-msg.user{background:var(--ac);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.chat-msg.assistant{background:var(--s2);color:var(--tx);border:1px solid var(--bd);align-self:flex-start;border-bottom-left-radius:3px}
+.chat-msg.system-msg{background:transparent;color:var(--mu);font-size:11px;align-self:center;text-align:center;border:none;padding:2px 0}
+.chat-msg-wrap{display:flex;flex-direction:column;gap:5px;align-self:flex-start;max-width:92%}
+.chat-msg-wrap .chat-msg{align-self:stretch}
+.apply-btn{background:var(--ac);color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11.5px;cursor:pointer;margin-top:4px;align-self:flex-start;transition:background .15s}.apply-btn:hover{background:#2563eb}
+.apply-btn:disabled{opacity:.5;cursor:not-allowed}
+.chat-chips{display:flex;flex-wrap:wrap;gap:5px;padding:8px 14px 0;flex-shrink:0}
+.chat-chip{background:var(--s3);border:1px solid var(--bd);color:var(--mu);padding:3px 9px;border-radius:12px;font-size:11px;cursor:pointer;transition:all .15s}.chat-chip:hover{background:var(--acd);border-color:var(--ac);color:var(--tx)}
+.chat-input-row{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--bd);flex-shrink:0}
+#chat-input{flex:1;background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:6px 9px;border-radius:7px;font-size:12.5px;outline:none;resize:none;font-family:inherit;min-height:36px;max-height:100px;line-height:1.5;transition:border-color .15s}
+#chat-input:focus{border-color:var(--ac)}
+#chat-send{background:var(--ac);color:#fff;border:none;padding:6px 13px;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;transition:background .15s;flex-shrink:0;align-self:flex-end}
+#chat-send:hover{background:#2563eb}
+#chat-send:disabled{opacity:.5;cursor:not-allowed}
+
+/* Distinct chat surfaces, scoped to the assistant widget. */
+#chat-panel{
+  --bg:#1c2028;--s1:#292e38;--s2:#343b48;--s3:#3b4351;
+  --bd:#4a5363;--tx:#edf0f5;--mu:#b0b9c9;
+  background:var(--s1);border-color:#596375;
+  box-shadow:0 16px 48px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.06) inset;
+}
+#chat-panel .chat-header{background:#333a47;border-radius:11px 11px 0 0}
+#chat-panel .chat-header-title{color:#f1f4fa}
+#chat-panel .chat-input-row{background:#252a33;border-radius:0 0 11px 11px}
+#chat-panel input::placeholder,#chat-input::placeholder{color:#9aa6ba;opacity:1}
+#chat-panel .chat-adv-toggle{
+  background:#3a465a;border:1px solid #63738b;border-radius:6px;
+  color:#e0e8f5;padding:5px 9px;text-decoration:none;
+  transition:background .15s,border-color .15s;
+}
+#chat-panel .chat-adv-toggle:hover{background:#46556d;border-color:#8a9bb5}
+#chat-panel .chat-adv-toggle:focus-visible{outline:2px solid #a8c3ef;outline-offset:2px}
+#chat-panel .chat-adv-section{
+  --bg:#151A26;--bd:#3A4354;--mu:#bcc8dc;
+  background:#151A26;border:1px solid #3A4354;border-radius:8px;padding:10px;
+}
+#chat-panel .chat-adv-section input::placeholder{color:#a5b2c8}
+
+/* Keep expanded model settings inside the viewport and reserve the composer. */
+#chat-panel{max-height:calc(100dvh - 112px);overflow:hidden}
+#chat-panel .chat-settings{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#chat-panel .chat-adv-toggle{flex-shrink:0}
+#chat-panel .chat-adv-section{flex-shrink:0}
+#chat-panel .chat-messages{flex:1 1 120px;min-height:0;overscroll-behavior:contain}
+#chat-panel .chat-input-row{flex-shrink:0;min-width:0}
+#chat-input{min-width:0}
+@media(max-width:420px){
+  #chat-panel{right:16px;bottom:80px;max-height:calc(100dvh - 96px)}
+  #chat-fab{right:16px;bottom:16px}
+}
+
+/* Give generated configs and validation logs enough reading space. */
+#chat-panel{width:380px;max-width:calc(100vw - 48px)}
+#chat-panel .chat-msg-wrap{width:100%;max-width:100%;min-width:0}
+#chat-panel .chat-msg.assistant{max-width:100%;min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+#chat-panel .chat-msg-wrap .chat-msg{width:100%}
+@media(max-width:420px){
+  #chat-panel{max-width:calc(100vw - 32px)}
+}
+
+/* Reserve vertical space for answers, independent of their content height. */
+#chat-panel{height:calc(100dvh - 112px);max-height:900px}
+#chat-panel .chat-settings{max-height:55%;flex:0 1 auto}
+#chat-panel .chat-messages{flex:1 1 0;min-height:0}
+@media(max-width:420px){
+  #chat-panel{height:calc(100dvh - 96px);max-height:900px}
+}
+
+#guide-spotlight{position:fixed;z-index:1001;pointer-events:none;border:2px solid #60a5fa;border-radius:8px;box-shadow:0 0 0 5px rgba(59,130,246,.18)}
+#guide-connector{position:fixed;inset:0;width:100vw;height:100vh;z-index:1001;pointer-events:none}
+#guide-spotlight[hidden],#guide-connector[hidden]{display:none}
+/* First-visit guide: stays out of the way while users try each action. */
+#welcome-guide{position:fixed;left:20px;bottom:20px;z-index:1002;width:360px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 40px);overflow:auto;padding:20px;background:var(--s1);border:1px solid var(--ac);border-radius:14px;box-shadow:0 12px 48px rgba(0,0,0,.5)}
+#welcome-guide[hidden]{display:none}
+#guide-progress{color:var(--ac);font-size:11px;font-weight:600;margin-bottom:10px}
+#guide-title{font-size:17px;margin-bottom:10px}
+#guide-description{color:var(--tx);line-height:1.8;margin-bottom:14px}
+.guide-footer{display:flex;gap:8px;align-items:center;margin-top:16px}
+#guide-skip{margin-left:auto}
+@media(max-width:600px){#welcome-guide{left:16px;bottom:16px;width:calc(100vw - 32px)}}
 </style>
 </head>
 <body>
@@ -450,6 +548,16 @@ select option{background:var(--s2)}
 ════════════════════════════════════ */
 const L = {
 zh:{
+  chat_chip_lb:"负载均衡",
+  chat_chip_fb:"故障转移",
+  chat_chip_cond:"条件路由",
+  chat_chip_retry:"重试 + 缓存",
+  chat_prompt_lb:"负载均衡：3 个供应商，权重分别为 60/30/10",
+  chat_prompt_fb:"故障转移策略：主用 GPT-4o，备用 Claude Sonnet",
+  chat_prompt_cond:"条件路由：编程任务用 Claude，写作任务用 GPT",
+  chat_prompt_retry:"启用 3 次重试、语义缓存和熔断器",
+  chat_example:"例如：在 3 个供应商之间按 60/30/10 的权重进行负载均衡……",
+  chat_intro:"描述你需要的路由策略，AI 会为你生成配置 JSON。",
   flow_dark:'默认深色背景', flow_transparent:'透明背景', flow_export:'↓ 导出 PNG',
   title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ 重置', imp:'⬆ 导入', exp:'⬇ 导出', copy:'⎘ 复制 JSON', copy_s:'⎘ 复制', copied:'✓ 已复制！',
@@ -497,6 +605,16 @@ zh:{
   d_cond:'条件路由', d_default:'默认',
 },
 en:{
+  chat_chip_lb:"Load balancing",
+  chat_chip_fb:"Fallback",
+  chat_chip_cond:"Conditional routing",
+  chat_chip_retry:"Retry + cache",
+  chat_prompt_lb:"Load balance across 3 providers with weights of 60/30/10",
+  chat_prompt_fb:"Fallback strategy: use GPT-4o as primary and Claude Sonnet as backup",
+  chat_prompt_cond:"Conditional routing: use Claude for coding tasks and GPT for writing tasks",
+  chat_prompt_retry:"Enable 3 retries, semantic caching, and a circuit breaker",
+  chat_example:"e.g. Load balance across 3 providers with weights of 60/30/10...",
+  chat_intro:"Describe the routing strategy you want, and the AI will generate the config JSON for you.",
   flow_dark:'Default dark background', flow_transparent:'Transparent background', flow_export:'↓ Export PNG',
   title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ Reset', imp:'⬆ Import', exp:'⬇ Export', copy:'⎘ Copy JSON', copy_s:'⎘ Copy', copied:'✓ Copied!',
@@ -542,6 +660,16 @@ en:{
   d_cond:'Conditional Router', d_default:'default',
 },
 ja:{
+  chat_chip_lb:"負荷分散",
+  chat_chip_fb:"フォールバック",
+  chat_chip_cond:"条件ルーティング",
+  chat_chip_retry:"再試行 + キャッシュ",
+  chat_prompt_lb:"3 つのプロバイダーに 60/30/10 の重みで負荷分散する",
+  chat_prompt_fb:"フォールバック戦略：GPT-4o をプライマリ、Claude Sonnet をバックアップにする",
+  chat_prompt_cond:"条件ルーティング：コーディングには Claude、文章作成には GPT を使う",
+  chat_prompt_retry:"3 回の再試行、セマンティックキャッシュ、サーキットブレーカーを有効にする",
+  chat_example:"例：3 つのプロバイダーに 60/30/10 の重みで負荷分散する…",
+  chat_intro:"必要なルーティング戦略を説明すると、AI が設定 JSON を生成します。",
   flow_dark:'標準の暗い背景', flow_transparent:'透明な背景', flow_export:'↓ PNG を保存',
   title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ リセット', imp:'⬆ インポート', exp:'⬇ エクスポート', copy:'⎘ JSON コピー', copy_s:'⎘ コピー', copied:'✓ コピー完了！',
@@ -587,6 +715,16 @@ ja:{
   d_cond:'条件ルーター', d_default:'デフォルト',
 },
 ko:{
+  chat_chip_lb:"부하 분산",
+  chat_chip_fb:"폴백",
+  chat_chip_cond:"조건부 라우팅",
+  chat_chip_retry:"재시도 + 캐시",
+  chat_prompt_lb:"3개 프로바이더에 60/30/10 가중치로 부하 분산",
+  chat_prompt_fb:"폴백 전략: GPT-4o를 기본으로, Claude Sonnet을 백업으로 사용",
+  chat_prompt_cond:"조건부 라우팅: 코딩 작업에는 Claude, 글쓰기 작업에는 GPT 사용",
+  chat_prompt_retry:"재시도 3회, 시맨틱 캐시 및 서킷 브레이커 활성화",
+  chat_example:"예: 3개 프로바이더에 60/30/10 가중치로 부하 분산…",
+  chat_intro:"원하는 라우팅 전략을 설명하면 AI가 설정 JSON을 생성합니다.",
   flow_dark:'기본 어두운 배경', flow_transparent:'투명 배경', flow_export:'↓ PNG 내보내기',
   title:'Prisma AIRS AI Gateway Config Builder', badge_airs:'Prisma AIRS',
   reset:'↺ 초기화', imp:'⬆ 가져오기', exp:'⬇ 내보내기', copy:'⎘ JSON 복사', copy_s:'⎘ 복사', copied:'✓ 복사됨!',
@@ -632,7 +770,20 @@ ko:{
   d_cond:'조건 라우터', d_default:'기본',
 }};
 
-let lang = 'en';
+const UI_LANG_KEY = 'aigateway_ui_language';
+function detectLanguage() {
+  try {
+    const saved = localStorage.getItem(UI_LANG_KEY);
+    if (['zh','en','ja','ko'].includes(saved)) return saved;
+  } catch (_) { /* Storage may be unavailable. */ }
+  const preferences = navigator.languages?.length ? navigator.languages : [navigator.language || 'en'];
+  for (const preference of preferences) {
+    const base = String(preference).toLowerCase().split(/[-_]/)[0];
+    if (['zh','ja','ko','en'].includes(base)) return base;
+  }
+  return 'en';
+}
+let lang = detectLanguage();
 let dirty = false;
 function i(k){ return (L[lang]||L.zh)[k] || (L.en[k]||k); }
 
@@ -644,13 +795,17 @@ function applyLang() {
     const v = i(el.getAttribute('data-i-opt'));
     if (v !== el.getAttribute('data-i-opt')) el.textContent = v;
   });
+  document.querySelectorAll('[data-i-placeholder]').forEach(el => {
+    el.placeholder = i(el.getAttribute('data-i-placeholder'));
+  });
   const sel = document.getElementById('lang-sel');
   if (sel) sel.value = lang;
   renderTargets(); renderGRs('input'); renderGRs('output'); renderConds();
 }
 
 function setLang(l) {
-  lang = l;
+  lang = ['zh','en','ja','ko'].includes(l) ? l : 'en';
+  try { localStorage.setItem(UI_LANG_KEY, lang); } catch (_) { /* Storage may be unavailable. */ }
   const sel = document.getElementById('lang-sel');
   if (sel) sel.value = l;
   applyLang(); upd();
@@ -2516,5 +2671,421 @@ eyJyZXRyeSI6eyJhdHRlbXB0cyI6M30sImNhY2hlIjp7Im1vZGUiOiJzaW1wbGUifSwiaW5wdXRfZ3Vh
 <footer style="text-align:center;padding:10px 0 14px;font-size:11px;color:var(--t2);opacity:0.6">
   v2.0 &nbsp;·&nbsp; Author: Matt Zhang & His Minions
 </footer>
+<button id="chat-fab" onclick="toggleChat()" title="AI Config Assistant">💬</button>
+
+<div id="chat-panel" class="hidden">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-header-title">AI Config Assistant</div>
+      <div class="chat-header-sub">Describe your routing needs; AI generates config JSON</div>
+    </div>
+    <button class="chat-close-btn" onclick="toggleChat()">×</button>
+  </div>
+
+  <div class="chat-settings">
+    <button class="chat-adv-toggle" onclick="toggleChatAdv()" aria-expanded="false" aria-controls="chat-adv">⚙ Model Settings</button>
+    <div class="chat-adv-section" id="chat-adv">
+    <!-- OpenAI Settings -->
+    <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">OpenAI Compatible API</div>
+    <div class="fi">
+      <label>API Key <span class="req">*</span></label>
+      <input type="password" id="ai-key" placeholder="sk-..." oninput="saveChatSettings()">
+    </div>
+      <div class="fi">
+        <label>API Base URL</label>
+        <input type="text" id="ai-base" placeholder="https://api.openai.com/v1" oninput="saveChatSettings()">
+      </div>
+      <div class="fi">
+        <label>Model</label>
+        <input type="text" id="ai-model" placeholder="gpt-4o-mini" oninput="saveChatSettings()">
+      </div>
+
+    </div>
+  </div>
+
+  <div class="chat-chips">
+    <span class="chat-chip" data-i="chat_chip_lb" onclick="fillChip(i('chat_prompt_lb'))">Load balancing</span>
+    <span class="chat-chip" data-i="chat_chip_fb" onclick="fillChip(i('chat_prompt_fb'))">Fallback</span>
+    <span class="chat-chip" data-i="chat_chip_cond" onclick="fillChip(i('chat_prompt_cond'))">Conditional routing</span>
+    <span class="chat-chip" data-i="chat_chip_retry" onclick="fillChip(i('chat_prompt_retry'))">Retry + cache</span>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg system-msg" data-i="chat_intro">Describe the routing strategy you want, and the AI will generate the config JSON for you.</div>
+  </div>
+
+  <div class="chat-input-row">
+    <textarea data-i-placeholder="chat_example" id="chat-input" placeholder="e.g. Loadbalance across 3 providers with 60/30/10 weights..." rows="1"
+      onkeydown="chatKeydown(event)" oninput="autoResizeChatInput(this)"></textarea>
+    <button id="chat-send" onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   CHAT WIDGET
+════════════════════════════════════ */
+let chatOpen = false;
+let chatHistory = [];
+let chatPendingJSON = null;
+
+const CHAT_STORAGE_KEY = 'aigateway_chat_settings';
+
+function saveChatSettings(){
+  const s = {
+    aiKey: document.getElementById('ai-key').value,
+    aiBase: document.getElementById('ai-base').value,
+    aiModel: document.getElementById('ai-model').value,
+  };
+  try { localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(s)); } catch(e){}
+}
+
+function loadChatSettings(){
+  try {
+    const s = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY)||'{}');
+    if(s.aiKey) document.getElementById('ai-key').value = s.aiKey;
+    if(s.aiBase) document.getElementById('ai-base').value = s.aiBase;
+    if(s.aiModel) document.getElementById('ai-model').value = s.aiModel;
+
+  } catch(e){}
+}
+
+function toggleChat(){
+  chatOpen = !chatOpen;
+  document.getElementById('chat-panel').classList.toggle('hidden', !chatOpen);
+  document.getElementById('chat-fab').textContent = chatOpen ? '✕' : '💬';
+  if(chatOpen) document.getElementById('chat-input').focus();
+}
+
+function toggleChatAdv(){
+  const adv = document.getElementById('chat-adv');
+  const btn = document.querySelector('.chat-adv-toggle');
+  const open = adv.classList.toggle('open');
+  btn.setAttribute('aria-expanded', String(open));
+}
+
+function fillChip(text){
+  const inp = document.getElementById('chat-input');
+  inp.value = text;
+  autoResizeChatInput(inp);
+  inp.focus();
+}
+
+function autoResizeChatInput(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function chatKeydown(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); }
+}
+
+function addChatMsg(role, text){
+  const el = document.createElement('div');
+  el.className = 'chat-msg ' + (role==='user'?'user':role==='system-msg'?'system-msg':'assistant');
+  el.textContent = text;
+  document.getElementById('chat-messages').appendChild(el);
+  document.getElementById('chat-messages').scrollTop = 99999;
+  return el;
+}
+
+function addChatWrap(){
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-msg-wrap';
+  document.getElementById('chat-messages').appendChild(wrap);
+  document.getElementById('chat-messages').scrollTop = 99999;
+  return wrap;
+}
+
+async function sendChat(){
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if(!text) return;
+
+  const key = document.getElementById('ai-key').value.trim();
+  if(!key){ addChatMsg('system-msg', 'Please enter your API key in the settings above.'); return; }
+
+  document.getElementById('chat-adv').classList.remove('open');
+  document.querySelector('.chat-adv-toggle').setAttribute('aria-expanded', 'false');
+  inp.value = '';
+  autoResizeChatInput(inp);
+  addChatMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  const sendBtn = document.getElementById('chat-send');
+  sendBtn.disabled = true;
+  const loadingEl = addChatMsg('assistant', '...');
+
+  try {
+    const base = (document.getElementById('ai-base').value.trim() || 'https://api.openai.com/v1').replace(/\/$/, '');
+    const model = document.getElementById('ai-model').value.trim() || 'gpt-4o-mini';
+
+    const systemPrompt = `You are an expert for Prisma AIRS AI Gateway(AKA Portkey.ai) configuration. When a user describes routing needs, generate a valid config JSON.
+
+Config schema:
+- retry: { attempts: number, on_status_codes?: number[], use_retry_after_headers?: boolean }
+- cache: { mode: "simple"|"semantic", max_age?: number }
+- cb_config: { failure_threshold: number, cooldown_interval: number (ms,>=30000), failure_status_codes?: number[] }
+- request_timeout: number (ms)
+- forward_headers: string[]
+- input_guardrails / output_guardrails: [{ id: string, deny: boolean, async?: boolean }]
+- strategy: { mode: "loadbalance"|"fallback"|"conditional"|"single"|"none", on_status_codes?: number[], conditions?: [{query, then}], default?: string }
+- targets: [{ name: string, provider: string, weight?: number, request_timeout?: number, override_params?: {model?:string,...}, on_status_codes?: number[], retry?: {...} }]
+
+For single mode: use provider + optional override_params at root level, no targets array.
+For loadbalance: each target needs a weight.
+For fallback: first target is primary, rest are fallbacks.
+For conditional: strategy.conditions = [{query: {"field": {"$op": value}}, then: "target-name"}], strategy.default required.
+
+Reply with ONLY a JSON code block, no explanation.`;
+
+    const resp = await fetch(`${base}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...chatHistory
+        ],
+        temperature: 0.2,
+      })
+    });
+
+    if(!resp.ok){
+      const err = await resp.text();
+      throw new Error(`API error ${resp.status}: ${err.substring(0,200)}`);
+    }
+
+    const data = await resp.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    chatHistory.push({ role: 'assistant', content });
+
+    // Extract JSON from code block
+    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/) || content.match(/(\{[\s\S]*\})/);
+    loadingEl.remove();
+
+    if(!jsonMatch){
+      addChatMsg('assistant', content);
+      return;
+    }
+
+    let jsonObj;
+    try { jsonObj = JSON.parse(jsonMatch[1]); }
+    catch(e){
+      addChatMsg('assistant', 'Generated invalid JSON:\n' + content);
+      return;
+    }
+
+    chatPendingJSON = jsonObj;
+    const wrap = addChatWrap();
+
+    const msgEl = document.createElement('div');
+    msgEl.className = 'chat-msg assistant';
+    msgEl.textContent = JSON.stringify(jsonObj, null, 2);
+    wrap.appendChild(msgEl);
+
+    // Apply the generated configuration to the editor.
+    const applyBtn = document.createElement('button');
+    applyBtn.className = 'apply-btn';
+    applyBtn.textContent = '⚡ Apply to Editor';
+    applyBtn.onclick = () => applyChatJSON(jsonObj, applyBtn);
+    wrap.appendChild(applyBtn);
+
+    document.getElementById('chat-messages').scrollTop = 99999;
+
+  } catch(e) {
+    loadingEl.className = 'chat-msg assistant';
+    loadingEl.textContent = 'Error: ' + e.message;
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+function applyChatJSON(jsonObj, btn){
+  try {
+    importCfg(jsonObj);
+    btn.textContent = '✓ Applied!';
+    btn.disabled = true;
+    setTimeout(()=>{ btn.textContent = '⚡ Apply to Editor'; btn.disabled = false; }, 2000);
+  } catch(e){
+    btn.textContent = 'Error: ' + e.message;
+    setTimeout(()=>{ btn.textContent = '⚡ Apply to Editor'; }, 3000);
+  }
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', loadChatSettings);
+</script>
+
+
+
+<div id="guide-spotlight" aria-hidden="true" hidden></div>
+<svg id="guide-connector" aria-hidden="true" hidden><defs><marker id="guide-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#60a5fa"/></marker></defs><path fill="none" stroke="#60a5fa" stroke-width="2" marker-end="url(#guide-arrow)"/></svg>
+<aside id="welcome-guide" role="dialog" aria-modal="false" aria-labelledby="guide-title" aria-describedby="guide-description" hidden>
+  <div id="guide-progress"></div>
+  <div aria-live="polite" aria-atomic="true">
+    <h2 id="guide-title"></h2>
+    <p id="guide-description"></p>
+  </div>
+  <button id="guide-action" class="btn bp" type="button"></button>
+  <div class="guide-footer">
+    <button id="guide-back" class="btn bg2 sm" type="button"></button>
+    <button id="guide-next" class="btn bp sm" type="button"></button>
+    <button id="guide-skip" class="btn bg2 sm" type="button"></button>
+  </div>
+</aside>
+<script>
+(() => {
+  const storageKey = 'aigateway_welcome_seen_v1';
+  const guide = document.getElementById('welcome-guide');
+  let step = 0;
+  let target = null;
+  let positionFrame = 0;
+  const spotlight = document.getElementById('guide-spotlight');
+  const connector = document.getElementById('guide-connector');
+  function clearAnchor() {
+    target = null;
+    cancelAnimationFrame(positionFrame);
+    spotlight.hidden = true;
+    connector.setAttribute('hidden', '');
+  }
+  function positionGuide() {
+    if(!target || guide.hidden) return;
+    const r = target.getBoundingClientRect();
+    if(!target.getClientRects().length || r.bottom <= 0 || r.top >= innerHeight) {
+      clearAnchor();
+      return;
+    }
+    const bounds = guide.getBoundingClientRect();
+    const {x, y, width:w, height:h} = bounds;
+    spotlight.style.left = (r.left - 4) + 'px';
+    spotlight.style.top = (r.top - 4) + 'px';
+    spotlight.style.width = (r.width + 8) + 'px';
+    spotlight.style.height = (r.height + 8) + 'px';
+    spotlight.hidden = false;
+    connector.removeAttribute('hidden');
+    const gx = x + w / 2, gy = y + h / 2;
+    const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
+    const dx = tx - gx, dy = ty - gy;
+    let sx, sy, ex, ey;
+    if(Math.abs(dx) > Math.abs(dy)) {
+      sx = dx > 0 ? x + w : x;
+      sy = Math.max(y + 12, Math.min(gy + dy * (w / 2 / Math.abs(dx)), y + h - 12));
+      ex = dx > 0 ? r.left - 8 : r.right + 8;
+      ey = ty;
+    } else {
+      sx = Math.max(x + 12, Math.min(gx + dx * (h / 2 / Math.abs(dy || 1)), x + w - 12));
+      sy = dy > 0 ? y + h : y;
+      ex = tx;
+      ey = dy > 0 ? r.top - 8 : r.bottom + 8;
+    }
+    connector.querySelector('path[stroke]').setAttribute('d', `M ${sx} ${sy} L ${ex} ${ey}`);
+    positionFrame = requestAnimationFrame(positionGuide);
+  }
+  function showAnchor(element) {
+    clearAnchor();
+    target = element;
+    element.scrollIntoView({block:'nearest', inline:'nearest'});
+    positionGuide();
+  }
+  const steps = {
+    zh: [
+      ['用 UI 表单编辑配置','在左侧表单中设置基础参数、路由策略和 Target，右侧 JSON 会随修改自动更新。点击下方按钮，查看配置表单。','查看 UI 编辑区'],
+      ['在网页中编辑 JSON','切换到右侧 JSON 视图，打开 Edit JSON 开关即可直接修改配置。点击 Apply 校验并应用，或点击 Cancel 放弃修改。','查看 JSON 编辑入口'],
+      ['导入和导出配置','使用顶部 Export 下载当前 JSON，也可以 Import 导入已有文件。若习惯 CLI，可先导出，在本地编辑后再导入。','查看导入／导出'],
+      ['查看并导出 Flow','切换到 Flow 查看路由流程，使用 + / − 缩放。点击导出按钮，可保存深色背景或透明背景的 PNG 图片。','打开 Flow'],
+      ['从 Preset 快速开始','点击顶部 Preset 选择示例，再用表单、JSON 或 Chat 继续修改。加载会替换当前配置，建议先导出保存已有内容。','查看 Preset'],
+      ['配置 Chat 模型','点击右下角 Chat，展开 Model Settings，填写 API Key、API Base URL 和 Model。完成模型对接后，就可以用 Chat 生成或修改配置，并将结果应用到编辑器。','打开 Chat 设置']
+    ],
+    en: [
+      ['Edit with the UI form','Set base options, routing strategies and Targets in the left form. The JSON updates automatically. Use the button below to see the form.','Show the UI editor'],
+      ['Edit JSON in the browser','Open the JSON view and turn on Edit JSON to make changes directly. Click Apply to validate and apply them, or Cancel to discard.','Show JSON editing'],
+      ['Import and export configs','Use Export at the top to download the current JSON, or Import to load a file. If you use a CLI, export first, edit locally, then import the result.','Show Import / Export'],
+      ['View and export Flow','Open Flow to inspect routing and use + / − to zoom. The export button saves a PNG with a dark or transparent background.','Open Flow'],
+      ['Start from a Preset','Choose an example from Preset, then customize it with the form, JSON or Chat. Loading replaces the current config, so export your existing work first.','Show Preset'],
+      ['Connect a model for Chat','Click Chat at the bottom right and expand Model Settings. Enter your API Key, API Base URL and Model to use Chat to generate or modify configs, then apply the result to the editor.','Open Chat settings']
+    ],
+    ja: [
+      ['フォームで設定を編集','左側のフォームで基本設定、ルーティング戦略、Target を設定できます。変更は右側の JSON に自動反映されます。','フォームを表示'],
+      ['ブラウザーで JSON を編集','右側の JSON ビューを開き、Edit JSON をオンにすると直接編集できます。Apply で検証・反映し、Cancel で取り消します。','JSON 編集欄を表示'],
+      ['設定をインポート／エクスポート','上部の Export で JSON を保存し、Import でファイルを読み込みます。CLI を使う場合は、書き出したファイルをローカルで編集してから読み込めます。','Import／Export を表示'],
+      ['Flow の表示とエクスポート','Flow に切り替えてルーティングを確認し、＋／−で拡大縮小できます。ボタンから PNG を背景付きまたは透明で保存できます。','Flow を開く'],
+      ['Preset から始める','上部の Preset からサンプルを選び、フォーム、JSON、Chat で編集できます。現在の設定は置き換わるため、先に保存してください。','Preset を表示'],
+      ['Chat のモデルを設定','右下の Chat を開き、Model Settings に API Key、API Base URL、Model を入力します。設定後、Chat で構成を生成・変更できます。','Chat 設定を開く']
+    ],
+    ko: [
+      ['UI 양식으로 설정 편집','왼쪽 양식에서 기본 옵션, 라우팅 전략, Target을 설정하세요. 변경 사항은 오른쪽 JSON에 자동 반영됩니다.','UI 편집기 보기'],
+      ['브라우저에서 JSON 편집','오른쪽 JSON 화면에서 Edit JSON을 켜면 직접 편집할 수 있습니다. Apply로 검증 및 적용하고 Cancel로 취소하세요.','JSON 편집 보기'],
+      ['설정 가져오기 및 내보내기','상단 Export로 JSON을 저장하고 Import로 파일을 불러오세요. CLI를 사용한다면 파일을 내보내 로컬에서 편집한 후 다시 가져올 수 있습니다.','가져오기／내보내기 보기'],
+      ['Flow 확인 및 내보내기','Flow로 전환해 라우팅을 확인하고 + / −로 확대·축소하세요. 버튼을 눌러 배경이 있거나 투명한 PNG로 저장할 수 있습니다.','Flow 열기'],
+      ['Preset으로 시작하기','상단 Preset에서 예제를 선택한 뒤 양식, JSON 또는 Chat으로 수정하세요. 현재 설정이 대체되므로 먼저 저장하세요.','Preset 보기'],
+      ['Chat 모델 연결','오른쪽 아래 Chat을 열고 Model Settings에 API Key, API Base URL, Model을 입력하세요. 연결 후 Chat으로 설정을 생성하거나 수정할 수 있습니다.','Chat 설정 열기']
+    ]
+  };
+  function render() {
+    clearAnchor();
+    const zh = lang === 'zh';
+    const text = steps[lang]?.[step] || steps.en[step];
+    const progress = {
+      zh: `快速上手 · ${step + 1} / 6`, en: `Quick start · ${step + 1} / 6`,
+      ja: `クイックスタート · ${step + 1} / 6`, ko: `빠른 시작 · ${step + 1} / 6`
+    };
+    document.getElementById('guide-progress').textContent = progress[lang] || progress.en;
+    document.getElementById('guide-title').textContent = text[0];
+    document.getElementById('guide-description').textContent = text[1];
+    document.getElementById('guide-action').textContent = text[2];
+    document.getElementById('guide-back').textContent = ({zh:'上一步',en:'Back',ja:'戻る',ko:'이전'})[lang] || 'Back';
+    document.getElementById('guide-back').disabled = step === 0;
+    document.getElementById('guide-next').textContent = step === 5 ? ({zh:'开始使用',en:'Done',ja:'開始する',ko:'시작하기'})[lang] : ({zh:'下一步',en:'Next',ja:'次へ',ko:'다음'})[lang];
+    document.getElementById('guide-skip').textContent = ({zh:'跳过',en:'Skip',ja:'スキップ',ko:'건너뛰기'})[lang] || 'Skip';
+  }
+  function dismiss() {
+    clearAnchor();
+    guide.hidden = true;
+    try { localStorage.setItem(storageKey, '1'); } catch (_) { /* Storage may be unavailable. */ }
+    document.getElementById('chat-fab').focus();
+  }
+  document.getElementById('guide-back').onclick = () => { if(step > 0) { step--; render(); } };
+  document.getElementById('guide-next').onclick = () => { if(step === 5) dismiss(); else { step++; render(); } };
+  document.getElementById('guide-skip').onclick = dismiss;
+  document.getElementById('guide-action').onclick = () => {
+    if(step === 0) {
+      document.querySelector('.fp').scrollTop = 0;
+      showAnchor(document.getElementById('c-base'));
+    } else if(step === 1) {
+      switchTab('j');
+      document.getElementById('json-edit-toggle').focus();
+      showAnchor(document.getElementById('json-edit-toggle').closest('label'));
+    } else if(step === 2) {
+      const importButton = document.querySelector('header button[data-i="imp"]');
+      importButton.focus();
+      showAnchor(importButton);
+    } else if(step === 3) {
+      switchTab('d');
+      document.getElementById('flow-export').focus();
+      showAnchor(document.getElementById('flow-export'));
+    } else if(step === 4) {
+      document.getElementById('preset-sel').focus();
+      showAnchor(document.getElementById('preset-sel'));
+    } else {
+      if(!chatOpen) toggleChat();
+      if(!document.getElementById('chat-adv').classList.contains('open')) toggleChatAdv();
+      document.getElementById('ai-key').focus();
+      showAnchor(document.getElementById('chat-adv'));
+    }
+  };
+  document.getElementById('lang-sel').addEventListener('change', render);
+  document.addEventListener('keydown', event => {
+    if(event.key === 'Escape' && !guide.hidden) { event.preventDefault(); dismiss(); }
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    try { if(localStorage.getItem(storageKey) === '1') return; } catch (_) {}
+    render();
+    guide.hidden = false;
+  });
+})();
+</script>
+
 </body>
 </html>
